@@ -1,0 +1,43 @@
+{
+  "releases": [
+    {
+      "version": "0.1.0",
+      "date": "2026-09-01",
+      "status": "planned",
+      "changes": [
+        "Initial MVP",
+        "3 free protocols (Standard Recovery, Morning Energy, Cold Only)",
+        "Session timer with audio cues",
+        "Basic recovery score (no health data)",
+        "Local-only data storage",
+        "Monochrome Material 3 Expressive UI"
+      ]
+    },
+    {
+      "version": "0.5.0",
+      "date": "2026-10-01",
+      "status": "planned",
+      "changes": [
+        "All 10 protocols",
+        "Health Connect integration (Pro)",
+        "Full recovery score with HRV/sleep",
+        "Cloud sync via Supabase",
+        "Streak calendar with 12-week history",
+        "Voice control ('Hey Coach')"
+      ]
+    },
+    {
+      "version": "1.0.0",
+      "date": "2026-11-15",
+      "status": "planned",
+      "changes": [
+        "Public launch on Play Store",
+        "Monthly Insights report",
+        "Custom protocol builder (Pro)",
+        "Subscription tiers (Free / Pro monthly / Pro yearly / Lifetime)",
+        "Restore purchases",
+        "Data export and deletion"
+      ]
+    }
+  ]
+}

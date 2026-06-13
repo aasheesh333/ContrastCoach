@@ -1,0 +1,96 @@
+# Build outputs
+build/
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+pubspec.lock
+*.iml
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Android
+android/.gradle/
+android/captures/
+android/local.properties
+android/key.properties
+android/**/GeneratedPluginRegistrant.java
+android/app/release/
+android/app/debug/
+*.jks
+*.keystore
+key.properties
+
+# iOS
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Runner.xcworkspace/xcuserdata/
+ios/Runner.xcworkspace/xcshareddata/
+ios/Runner/GeneratedPluginRegistrant.*
+
+# macOS
+macos/Pods/
+macos/Flutter/ephemeral/
+
+# Linux
+linux/flutter/
+linux/build/
+
+# Windows
+windows/flutter/
+windows/build/
+
+# Coverage
+coverage/
+
+# Test
+.dart_tool/
+test/.test_coverage.dart
+
+# Secrets
+.env
+.env.local
+*.env
+
+# Sentry
+sentry.properties
+
+# Supabase
+supabase/.branches
+supabase/.temp
+
+# IDE
+*.iml
+.idea/
+.vscode/
+.fleet/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Build artifacts
+*.apk
+*.aab
+*.ipa
+*.dmg
+*.exe
+*.app
+*.dSYM.zip
+*.dSYM
+
+# Logs
+*.log
+
+# Generated
+**/*.g.dart
+**/*.freezed.dart
+**/*.drift.dart
+**/*.gen.dart
