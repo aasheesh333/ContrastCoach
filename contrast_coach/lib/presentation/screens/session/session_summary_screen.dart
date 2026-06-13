@@ -21,7 +21,7 @@ class SessionSummaryScreen extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const RecoveryScoreCard(score: stubScore.toDomain()),
+              RecoveryScoreCard(score: stubScore.toDomain()),
               const SizedBox(height: 32),
               AppButton(
                 label: 'Save',
