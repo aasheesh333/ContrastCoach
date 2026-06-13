@@ -94,3 +94,7 @@ desktop.ini
 **/*.freezed.dart
 **/*.drift.dart
 **/*.gen.dart
+
+# Worktrees
+.worktrees/
+worktrees/
