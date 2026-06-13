@@ -1,8 +1,6 @@
 import 'package:contrast_coach/core/errors/app_exception.dart';
 import 'package:contrast_coach/core/errors/result.dart';
 import 'package:contrast_coach/data/local/database/app_database.dart';
-import 'package:contrast_coach/data/local/database/tables/phases_table.dart';
-import 'package:contrast_coach/data/local/database/tables/sessions_table.dart';
 import 'package:contrast_coach/domain/entities/goal.dart';
 import 'package:contrast_coach/domain/entities/phase.dart';
 import 'package:contrast_coach/domain/entities/phase_type.dart';
