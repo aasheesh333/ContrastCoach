@@ -1,0 +1,123 @@
+{
+  "version": 1,
+  "updatedAt": "2026-06-13",
+  "protocols": [
+    {
+      "id": "recovery_standard",
+      "name": "Standard Recovery",
+      "description": "Balanced contrast for post-workout recovery",
+      "category": "recovery",
+      "difficulty": "intermediate",
+      "rounds": 3,
+      "phases": [
+        { "type": "sauna", "duration": 900, "targetTempC": 80 },
+        { "type": "cold", "duration": 120, "targetTempC": 12 },
+        { "type": "rest", "duration": 60, "targetTempC": null }
+      ],
+      "cooldown": [
+        { "type": "rest", "duration": 300 }
+      ]
+    },
+    {
+      "id": "energy_morning",
+      "name": "Morning Energy",
+      "description": "Quick contrast to start the day alert",
+      "category": "energy",
+      "difficulty": "beginner",
+      "rounds": 2,
+      "phases": [
+        { "type": "sauna", "duration": 600, "targetTempC": 75 },
+        { "type": "cold", "duration": 60, "targetTempC": 15 }
+      ]
+    },
+    {
+      "id": "sleep_evening",
+      "name": "Sleep Recovery",
+      "description": "Gentle evening protocol for better sleep",
+      "category": "sleep",
+      "difficulty": "beginner",
+      "rounds": 2,
+      "phases": [
+        { "type": "sauna", "duration": 720, "targetTempC": 70 },
+        { "type": "cold", "duration": 90, "targetTempC": 18 }
+      ]
+    },
+    {
+      "id": "immunity_weekly",
+      "name": "Immune Boost",
+      "description": "Harder weekly session for immune resilience",
+      "category": "immunity",
+      "difficulty": "advanced",
+      "rounds": 4,
+      "phases": [
+        { "type": "sauna", "duration": 720, "targetTempC": 85 },
+        { "type": "cold", "duration": 60, "targetTempC": 10 }
+      ]
+    },
+    {
+      "id": "wim_hof_classic",
+      "name": "Wim Hof Style",
+      "description": "Breathwork and cold exposure inspired by Wim Hof",
+      "category": "energy",
+      "difficulty": "advanced",
+      "rounds": 4,
+      "phases": [
+        { "type": "cold", "duration": 120, "targetTempC": 8 }
+      ]
+    },
+    {
+      "id": "deep_cold_training",
+      "name": "Cold Hardening",
+      "description": "Single deep cold exposure for adaptation",
+      "category": "recovery",
+      "difficulty": "advanced",
+      "rounds": 1,
+      "phases": [
+        { "type": "cold", "duration": 300, "targetTempC": 5 }
+      ]
+    },
+    {
+      "id": "gentle_beginner",
+      "name": "Gentle Start",
+      "description": "Entry-level for new contrast therapy users",
+      "category": "recovery",
+      "difficulty": "beginner",
+      "rounds": 2,
+      "phases": [
+        { "type": "sauna", "duration": 480, "targetTempC": 65 },
+        { "type": "cold", "duration": 30, "targetTempC": 20 }
+      ]
+    },
+    {
+      "id": "sauna_focus",
+      "name": "Sauna Only",
+      "description": "Pure heat exposure for relaxation and cardiovascular health",
+      "category": "recovery",
+      "difficulty": "beginner",
+      "rounds": 1,
+      "phases": [
+        { "type": "sauna", "duration": 1200, "targetTempC": 80 }
+      ]
+    },
+    {
+      "id": "cold_only_deep",
+      "name": "Ice Bath Only",
+      "description": "Single ice bath for experienced cold practitioners",
+      "category": "energy",
+      "difficulty": "advanced",
+      "rounds": 1,
+      "phases": [
+        { "type": "cold", "duration": 600, "targetTempC": 5 }
+      ]
+    },
+    {
+      "id": "custom",
+      "name": "Custom",
+      "description": "User-defined protocol",
+      "category": "custom",
+      "difficulty": "intermediate",
+      "rounds": 1,
+      "phases": []
+    }
+  ]
+}
