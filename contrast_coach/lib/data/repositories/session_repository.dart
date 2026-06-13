@@ -1,6 +1,7 @@
 import 'package:contrast_coach/core/errors/app_exception.dart';
 import 'package:contrast_coach/core/errors/result.dart';
 import 'package:contrast_coach/data/local/database/app_database.dart';
+import 'package:contrast_coach/data/remote/firebase/firestore_api.dart';
 import 'package:contrast_coach/domain/entities/goal.dart';
 import 'package:contrast_coach/domain/entities/phase.dart';
 import 'package:contrast_coach/domain/entities/phase_type.dart';
@@ -9,8 +10,10 @@ import 'package:contrast_coach/domain/repositories/session_repository.dart';
 import 'package:drift/drift.dart';
 
 class SessionRepositoryImpl implements SessionRepository {
-  SessionRepositoryImpl(this._db);
+  SessionRepositoryImpl(this._db, {FirestoreApi? firestoreApi})
+      : _firestoreApi = firestoreApi;
   final AppDatabase _db;
+  final FirestoreApi? _firestoreApi;
 
   @override
   Future<Result<Session, AppException>> save(Session session) async {
@@ -171,5 +174,47 @@ class SessionRepositoryImpl implements SessionRepository {
       updatedAt: row.updatedAt,
       phases: phases,
     );
+  }
+
+  @override
+  Future<Result<void, AppException>> syncToRemote(String userId) async {
+    final api = _firestoreApi;
+    if (api == null) return const Ok(null);
+    try {
+      final allResult = await getAll();
+      if (allResult is Err<List<Session>, AppException>) {
+        return Err(allResult.error);
+      }
+      final sessions = (allResult as Ok<List<Session>, AppException>).value;
+      for (final session in sessions) {
+        if (session.userId == null || session.userId != userId) continue;
+        if (session.isSynced) continue;
+        await api.uploadSession(userId, session);
+        await _markSynced(session.id);
+      }
+      return const Ok(null);
+    } catch (e) {
+      return Err(NetworkException('Sync to remote failed', cause: e));
+    }
+  }
+
+  @override
+  Future<Result<void, AppException>> syncFromRemote(String userId) async {
+    final api = _firestoreApi;
+    if (api == null) return const Ok(null);
+    try {
+      final remoteSessions = await api.downloadSessions(userId);
+      for (final session in remoteSessions) {
+        await save(session.copyWith(isSynced: true, userId: userId));
+      }
+      return const Ok(null);
+    } catch (e) {
+      return Err(NetworkException('Sync from remote failed', cause: e));
+    }
+  }
+
+  Future<void> _markSynced(String sessionId) async {
+    await (_db.update(_db.sessions)..where((t) => t.id.equals(sessionId)))
+        .write(const SessionsCompanion(isSynced: Value(true)));
   }
 }

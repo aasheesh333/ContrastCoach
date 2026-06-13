@@ -41,4 +41,26 @@ class Session {
   final List<Phase> phases;
 
   bool get isComplete => endedAt != null;
+
+  Session copyWith({String? userId, bool? isSynced}) {
+    return Session(
+      id: id,
+      userId: userId ?? this.userId,
+      protocolId: protocolId,
+      goal: goal,
+      startedAt: startedAt,
+      endedAt: endedAt,
+      totalPlannedDuration: totalPlannedDuration,
+      totalActualDuration: totalActualDuration,
+      roundsCompleted: roundsCompleted,
+      protocolRounds: protocolRounds,
+      recoveryScore: recoveryScore,
+      notes: notes,
+      healthDataSnapshot: healthDataSnapshot,
+      isSynced: isSynced ?? this.isSynced,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+      phases: phases,
+    );
+  }
 }

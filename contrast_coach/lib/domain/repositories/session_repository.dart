@@ -9,4 +9,6 @@ abstract class SessionRepository {
   Future<Result<void, AppException>> delete(String id);
   Stream<List<Session>> watchAll();
   Future<int> getStreakDays();
+  Future<Result<void, AppException>> syncToRemote(String userId);
+  Future<Result<void, AppException>> syncFromRemote(String userId);
 }
