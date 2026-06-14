@@ -24,16 +24,29 @@ android {
         applicationId = "com.contrastcoach.contrast_coach"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
+        minSdk = 26 // Health Connect requires Android 8.0+
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
 
+    flavorDimensions "env"
+    productFlavors {
+        dev {
+            dimension "env"
+            applicationIdSuffix = ".dev"
+            resValue "string", "app_name", "ContrastCoach Dev"
+        }
+        prod {
+            dimension "env"
+            resValue "string", "app_name", "ContrastCoach"
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
+            // Sign with debug keys for now; replace with real keystore in key.properties before launch.
+            // See: https://docs.flutter.dev/deployment/android#signing-the-app
             signingConfig = signingConfigs.debug
         }
     }

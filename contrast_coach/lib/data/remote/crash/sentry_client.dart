@@ -4,7 +4,10 @@ import 'package:flutter/widgets.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 class SentryBootstrap {
+  const SentryBootstrap._();
+
   static Future<void> runWithSentry() async {
+    WidgetsFlutterBinding.ensureInitialized();
     final dsn = EnvConfig.sentryDsn;
     if (dsn == null || dsn.isEmpty) {
       runApp(const ContrastCoachApp());
@@ -14,13 +17,12 @@ class SentryBootstrap {
       (options) {
         options.dsn = dsn;
         options.tracesSampleRate = 0.1;
-        options.beforeSend = (event, hint) {
-          event.user = null;
-          event.tags?.remove('health_data');
-          event.tags?.remove('user_id');
-          return event;
+        options.beforeSend = (SentryEvent event, Hint hint) {
+          return event.copyWith(
+            user: const SentryUser(id: null, username: null, email: null, ipAddress: null),
+          );
         };
-        options.beforeBreadcrumb = (breadcrumb, hint) {
+        options.beforeBreadcrumb = (SentryBreadcrumb? breadcrumb, Hint? hint) {
           if (breadcrumb == null) return null;
           if (breadcrumb.message?.toLowerCase().contains('voice') == true) {
             return null;
