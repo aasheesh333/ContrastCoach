@@ -17,18 +17,6 @@ class SentryBootstrap {
       (options) {
         options.dsn = dsn;
         options.tracesSampleRate = 0.1;
-        options.beforeSend = (SentryEvent event, Hint hint) {
-          return event.copyWith(
-            user: const SentryUser(id: null, username: null, email: null, ipAddress: null),
-          );
-        };
-        options.beforeBreadcrumb = (SentryBreadcrumb? breadcrumb, Hint? hint) {
-          if (breadcrumb == null) return null;
-          if (breadcrumb.message?.toLowerCase().contains('voice') == true) {
-            return null;
-          }
-          return breadcrumb;
-        };
       },
       appRunner: () => runApp(const ContrastCoachApp()),
     );
