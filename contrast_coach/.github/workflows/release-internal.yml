@@ -8,13 +8,14 @@ on:
 permissions:
   contents: read
 
+defaults:
+  run:
+    working-directory: contrast_coach
+
 jobs:
   release:
-    name: Build AAB + upload artifacts
+    name: Build AAB + APKs + upload artifacts
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: contrast_coach
     steps:
       - uses: actions/checkout@v4
         with:
@@ -33,24 +34,16 @@ jobs:
           cache: true
 
       - name: Install dependencies
-        run: |
-          cd "$GITHUB_WORKSPACE/contrast_coach"
-          flutter pub get
+        run: flutter pub get
 
       - name: Verify code generation
-        run: |
-          cd "$GITHUB_WORKSPACE/contrast_coach"
-          dart run build_runner build --delete-conflicting-outputs
+        run: dart run build_runner build --delete-conflicting-outputs
 
       - name: Build App Bundle
-        run: |
-          cd "$GITHUB_WORKSPACE/contrast_coach"
-          flutter build appbundle --release
+        run: flutter build appbundle --release
 
       - name: Build APKs (split per ABI)
-        run: |
-          cd "$GITHUB_WORKSPACE/contrast_coach"
-          flutter build apk --release --split-per-abi
+        run: flutter build apk --release --split-per-abi
 
       - name: Upload AAB artifact
         uses: actions/upload-artifact@v4
