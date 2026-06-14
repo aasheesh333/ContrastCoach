@@ -3,6 +3,7 @@ name: Release Internal
 on:
   push:
     tags: ['v*']
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -11,6 +12,9 @@ jobs:
   release:
     name: Build AAB + upload artifacts
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: contrast_coach
     steps:
       - uses: actions/checkout@v4
         with:
@@ -37,19 +41,30 @@ jobs:
       - name: Build App Bundle
         run: flutter build appbundle --release
 
+      - name: Build APKs (split per ABI)
+        run: flutter build apk --release --split-per-abi
+
       - name: Upload AAB artifact
         uses: actions/upload-artifact@v4
         with:
           name: release-aab
-          path: build/app/outputs/bundle/release/app-release.aab
+          path: contrast_coach/build/app/outputs/bundle/release/app-release.aab
           retention-days: 30
           if-no-files-found: error
+
+      - name: Upload APKs
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-apk
+          path: contrast_coach/build/app/outputs/flutter-apk/
+          retention-days: 30
+          if-no-files-found: warn
 
       - name: Upload mapping artifact
         uses: actions/upload-artifact@v4
         with:
           name: release-mapping
-          path: build/app/outputs/mapping/release/mapping.txt
+          path: contrast_coach/build/app/outputs/mapping/release/mapping.txt
           retention-days: 30
           if-no-files-found: warn
 
@@ -61,7 +76,7 @@ jobs:
         with:
           serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT }}
           packageName: com.contrastcoach.contrast_coach
-          releaseFiles: build/app/outputs/bundle/release/app-release.aab
+          releaseFiles: contrast_coach/build/app/outputs/bundle/release/app-release.aab
           track: internal
-          mappingFile: build/app/outputs/mapping/release/mapping.txt
+          mappingFile: contrast_coach/build/app/outputs/mapping/release/mapping.txt
         continue-on-error: true
