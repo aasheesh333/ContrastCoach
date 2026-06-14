@@ -31,18 +31,23 @@ jobs:
           cache: true
 
       - name: Install dependencies
+        working-directory: contrast_coach
         run: flutter pub get
 
       - name: Verify code generation
+        working-directory: contrast_coach
         run: dart run build_runner build --delete-conflicting-outputs
 
       - name: Analyze
+        working-directory: contrast_coach
         run: flutter analyze --no-fatal-infos --no-fatal-warnings
 
       - name: Check formatting
+        working-directory: contrast_coach
         run: dart format --set-exit-if-changed lib/ test/
 
       - name: Run tests
+        working-directory: contrast_coach
         run: flutter test --coverage
 
   build:
@@ -68,9 +73,11 @@ jobs:
           cache: true
 
       - name: Install dependencies
+        working-directory: contrast_coach
         run: flutter pub get
 
       - name: Build APKs (split per ABI)
+        working-directory: contrast_coach
         run: flutter build apk --release --split-per-abi
 
       - name: Upload APK artifacts
