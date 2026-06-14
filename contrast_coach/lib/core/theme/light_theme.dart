@@ -31,7 +31,7 @@ ThemeData buildLightTheme() {
     visualDensity: VisualDensity.standard,
     pageTransitionsTheme: const PageTransitionsTheme(
       builders: {
-        TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+        TargetPlatform.android: ZoomPageTransitionsBuilder(),
         TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
       },
     ),
