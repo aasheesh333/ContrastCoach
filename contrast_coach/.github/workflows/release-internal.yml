@@ -33,20 +33,24 @@ jobs:
           cache: true
 
       - name: Install dependencies
-        working-directory: contrast_coach
-        run: flutter pub get
+        run: |
+          cd "$GITHUB_WORKSPACE/contrast_coach"
+          flutter pub get
 
       - name: Verify code generation
-        working-directory: contrast_coach
-        run: dart run build_runner build --delete-conflicting-outputs
+        run: |
+          cd "$GITHUB_WORKSPACE/contrast_coach"
+          dart run build_runner build --delete-conflicting-outputs
 
       - name: Build App Bundle
-        working-directory: contrast_coach
-        run: flutter build appbundle --release
+        run: |
+          cd "$GITHUB_WORKSPACE/contrast_coach"
+          flutter build appbundle --release
 
       - name: Build APKs (split per ABI)
-        working-directory: contrast_coach
-        run: flutter build apk --release --split-per-abi
+        run: |
+          cd "$GITHUB_WORKSPACE/contrast_coach"
+          flutter build apk --release --split-per-abi
 
       - name: Upload AAB artifact
         uses: actions/upload-artifact@v4

@@ -31,24 +31,31 @@ jobs:
           cache: true
 
       - name: Install dependencies
-        working-directory: contrast_coach
-        run: flutter pub get
+        run: |
+          cd "$GITHUB_WORKSPACE/contrast_coach"
+          pwd
+          ls -la
+          flutter pub get
 
       - name: Verify code generation
-        working-directory: contrast_coach
-        run: dart run build_runner build --delete-conflicting-outputs
+        run: |
+          cd "$GITHUB_WORKSPACE/contrast_coach"
+          dart run build_runner build --delete-conflicting-outputs
 
       - name: Analyze
-        working-directory: contrast_coach
-        run: flutter analyze --no-fatal-infos --no-fatal-warnings
+        run: |
+          cd "$GITHUB_WORKSPACE/contrast_coach"
+          flutter analyze --no-fatal-infos --no-fatal-warnings
 
       - name: Check formatting
-        working-directory: contrast_coach
-        run: dart format --set-exit-if-changed lib/ test/
+        run: |
+          cd "$GITHUB_WORKSPACE/contrast_coach"
+          dart format --set-exit-if-changed lib/ test/
 
       - name: Run tests
-        working-directory: contrast_coach
-        run: flutter test --coverage
+        run: |
+          cd "$GITHUB_WORKSPACE/contrast_coach"
+          flutter test --coverage
 
   build:
     name: Build release APKs
@@ -73,12 +80,14 @@ jobs:
           cache: true
 
       - name: Install dependencies
-        working-directory: contrast_coach
-        run: flutter pub get
+        run: |
+          cd "$GITHUB_WORKSPACE/contrast_coach"
+          flutter pub get
 
       - name: Build APKs (split per ABI)
-        working-directory: contrast_coach
-        run: flutter build apk --release --split-per-abi
+        run: |
+          cd "$GITHUB_WORKSPACE/contrast_coach"
+          flutter build apk --release --split-per-abi
 
       - name: Upload APK artifacts
         uses: actions/upload-artifact@v4
