@@ -9,7 +9,7 @@ class EnvConfig {
   static Future<void> init() async {
     if (_initialized) return;
     try {
-      await dotenv.load(fileName: '.env');
+      await dotenv.load(fileName: '.env.example');
     } catch (_) {
       // .env file may not exist in tests / CI; ignore
     }
