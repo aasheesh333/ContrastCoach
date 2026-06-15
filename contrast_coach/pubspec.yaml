@@ -49,7 +49,7 @@ dependencies:
   firebase_analytics: ^11.4.0
   google_sign_in: ^6.2.2
   health: ^11.0.0
-  speech_to_text: ^7.0.0
+  speech_to_text: ^7.4.0
   just_audio: ^0.9.46
   purchases_flutter: ^6.0.0
   flutter_local_notifications: ^17.2.4
