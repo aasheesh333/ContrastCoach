@@ -8,7 +8,8 @@ plugins {
 android {
     namespace = "com.contrastcoach.contrast_coach"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    ndkVersion = "27.0.12077973"
+    // ndkVersion above satisfies: permission_handler_android, purchases_flutter, speech_to_text
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
