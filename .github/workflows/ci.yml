@@ -108,7 +108,19 @@ jobs:
 
       - name: Build APKs (split per ABI)
         working-directory: contrast_coach
-        run: flutter build apk --release --split-per-abi --android-skip-build-dependency-validation
+        run: flutter build apk --release --split-per-abi --android-skip-build-dependency-validation --verbose 2>&1 | tee /tmp/build.log
+        continue-on-error: true
+
+      - name: Show last 200 lines of build log on failure
+        if: always()
+        run: tail -n 200 /tmp/build.log || true
+
+      - name: Fail if APK not produced
+        run: |
+          if ! ls contrast_coach/build/app/outputs/flutter-apk/*.apk 2>/dev/null; then
+            echo "No APK produced; failing the job"
+            exit 1
+          fi
 
       - name: Upload APK artifacts
         uses: actions/upload-artifact@v4
