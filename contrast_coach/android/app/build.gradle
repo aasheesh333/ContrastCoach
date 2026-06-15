@@ -1,0 +1,66 @@
+plugins {
+    id "com.android.application"
+    id "kotlin-android"
+    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
+    id "dev.flutter.flutter-gradle-plugin"
+}
+
+android {
+    namespace = "com.contrastcoach.contrast_coach"
+    compileSdk = flutter.compileSdkVersion
+    ndkVersion = "27.0.12077973"
+    // ndkVersion above satisfies: permission_handler_android, purchases_flutter, speech_to_text
+
+    compileOptions {
+        // Core library desugaring is required by flutter_local_notifications.
+        // See https://developer.android.com/studio/write/java8-support.html
+        coreLibraryDesugaringEnabled = true
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8
+    }
+
+    defaultConfig {
+        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
+        applicationId = "com.contrastcoach.contrast_coach"
+        // You can update the following values to match your application needs.
+        // For more information, see: https://flutter.dev/to/review-gradle-config.
+        minSdk = 26 // Health Connect requires Android 8.0+
+        targetSdk = flutter.targetSdkVersion
+        versionCode = flutter.versionCode
+        versionName = flutter.versionName
+    }
+
+    flavorDimensions "env"
+    productFlavors {
+        dev {
+            dimension "env"
+            applicationIdSuffix = ".dev"
+            resValue "string", "app_name", "ContrastCoach Dev"
+        }
+        prod {
+            dimension "env"
+            resValue "string", "app_name", "ContrastCoach"
+        }
+    }
+
+    buildTypes {
+        release {
+            // Sign with debug keys for now; replace with real keystore in key.properties before launch.
+            // See: https://docs.flutter.dev/deployment/android#signing-the-app
+            signingConfig = signingConfigs.debug
+        }
+    }
+}
+
+flutter {
+    source = "../.."
+}
+
+dependencies {
+    // Required by flutter_local_notifications for core library desugaring.
+    coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:2.1.5"
+}
