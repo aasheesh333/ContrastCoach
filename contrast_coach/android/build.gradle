@@ -13,36 +13,33 @@ subprojects {
     project.evaluationDependsOn(":app")
 }
 
-// Force hardcoded compileSdk and ndkVersion on every Android
-// subproject. This is a workaround for plugin projects (speech_to_text,
-// health, etc.) that try to read flutter.compileSdkVersion before the
-// Flutter Gradle Plugin has registered the `flutter` extension on them.
+// The flutter { } extension is registered by FlutterPlugin.apply() on
+// the :app project only. Plugin subprojects (speech_to_text, health,
+// etc.) try to read `flutter.compileSdkVersion` in their android { }
+// block, which fails because the extension isn't on them.
 //
-// gradle.beforeProject doesn't work because the subproject's android
-// block has already been read by the time we run.
+// Workaround: programmatically inject the flutter extension into every
+// subproject by applying the Flutter Gradle Plugin to each. The plugin's
+// apply() method runs once per project and creates the `flutter`
+// extension on that project's android extension.
 //
-// Instead, use a per-plugin-project `gradle.projectsEvaluated` hook
-// combined with a `beforeProject` to catch the read of `flutter.compileSdkVersion`.
-//
-// The actual fix: hardcode `compileSdk 34` and `ndkVersion '26.1.10909125'`
-// in each plugin's build.gradle via the project.android extension
-// BEFORE the plugin's own build.gradle reads them.
-//
-// We do this by using `subprojects { afterEvaluate { ... } }` but only
-// for projects that have an `android` extension, and we set the value
-// *after* the subproject has been evaluated, which works for subprojects
-// because their android extension is a setter that can be re-set.
+// We do this via gradle.beforeProject which runs before any plugin is
+// applied. Inside, we use subproject.plugins.withId('com.android.library')
+// to register a callback that fires AFTER the Android library plugin
+// is applied. The Flutter Gradle Plugin then registers the `flutter`
+// extension on the android extension.
 
-subprojects { subproject ->
-    subproject.plugins.withId('com.android.library') {
-        subproject.android {
-            if (compileSdkVersion == null) {
-                compileSdkVersion 34
-            }
-            if (ndkVersion == null) {
-                ndkVersion '26.1.10909125'
-            }
-        }
+gradle.beforeProject { subproject ->
+    if (subproject == rootProject) return
+    if (subproject.parent == null) return
+    if (subproject.path == ':app') return
+
+    // Apply the Flutter Gradle Plugin to this subproject.
+    // This creates the `flutter { }` extension on the android extension.
+    try {
+        subproject.apply plugin: 'dev.flutter.flutter-gradle-plugin'
+    } catch (Exception e) {
+        // Already applied, or some other harmless issue.
     }
 }
 
