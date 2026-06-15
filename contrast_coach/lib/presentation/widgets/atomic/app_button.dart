@@ -2,6 +2,7 @@ import 'package:contrast_coach/presentation/widgets/atomic/app_icon.dart';
 import 'package:flutter/material.dart';
 
 enum AppButtonVariant { primary, secondary, tertiary, text }
+enum AppButtonSize { standard, large }
 
 class AppButton extends StatelessWidget {
   const AppButton({
@@ -12,6 +13,7 @@ class AppButton extends StatelessWidget {
     this.isLoading = false,
     this.leadingIcon,
     this.trailingIcon,
+    this.size = AppButtonSize.standard,
   });
 
   final String label;
@@ -20,6 +22,7 @@ class AppButton extends StatelessWidget {
   final bool isLoading;
   final IconData? leadingIcon;
   final IconData? trailingIcon;
+  final AppButtonSize size;
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +39,7 @@ class AppButton extends StatelessWidget {
     final fgEffective = isDisabled ? cs.onSurfaceVariant : fg;
 
     return SizedBox(
-      height: 48,
+      height: size == AppButtonSize.large ? 88 : 48,
       child: Material(
         color: bg,
         shape: RoundedRectangleBorder(

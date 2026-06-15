@@ -3,14 +3,53 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 class NotificationService {
   NotificationService();
   final FlutterLocalNotificationsPlugin _plugin = FlutterLocalNotificationsPlugin();
+  bool _channelsRegistered = false;
 
   Future<void> init() async {
     const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
     const iosSettings = DarwinInitializationSettings();
     await _plugin.initialize(const InitializationSettings(android: androidSettings, iOS: iosSettings));
+    await _registerChannels();
+  }
+
+  Future<void> _registerChannels() async {
+    if (_channelsRegistered) return;
+    final android = _plugin.resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin>();
+    if (android == null) {
+      _channelsRegistered = true;
+      return;
+    }
+    await android.createNotificationChannel(
+      const AndroidNotificationChannel('streak', 'Streak',
+          description: 'Daily reminder to keep your streak alive',
+          importance: Importance.defaultImportance),
+    );
+    await android.createNotificationChannel(
+      const AndroidNotificationChannel('timing', 'Optimal Timing',
+          description: 'Suggestions on the best time for a session',
+          importance: Importance.defaultImportance),
+    );
+    await android.createNotificationChannel(
+      const AndroidNotificationChannel('insight', 'Sleep Insights',
+          description: 'Periodic insights derived from your sleep data',
+          importance: Importance.defaultImportance),
+    );
+    await android.createNotificationChannel(
+      const AndroidNotificationChannel('subscription', 'Subscription',
+          description: 'Renewal and billing notifications',
+          importance: Importance.high),
+    );
+    await android.createNotificationChannel(
+      const AndroidNotificationChannel('health', 'Health Connect',
+          description: 'Health Connect status changes',
+          importance: Importance.defaultImportance),
+    );
+    _channelsRegistered = true;
   }
 
   Future<void> showStreakReminder({required int streakDays}) async {
+    await _registerChannels();
     await _plugin.show(
       1,
       'Keep your streak',
@@ -23,6 +62,7 @@ class NotificationService {
   }
 
   Future<void> showOptimalTiming({required String timeOfDay}) async {
+    await _registerChannels();
     await _plugin.show(
       2,
       'Optimal time for a session',
@@ -35,6 +75,7 @@ class NotificationService {
   }
 
   Future<void> showSleepInsight({required String insight}) async {
+    await _registerChannels();
     await _plugin.show(
       3,
       'Sleep insight',
@@ -47,6 +88,7 @@ class NotificationService {
   }
 
   Future<void> showSubscriptionRenewal({required String plan, required int daysRemaining}) async {
+    await _registerChannels();
     await _plugin.show(
       4,
       'Subscription renewing soon',
@@ -59,6 +101,7 @@ class NotificationService {
   }
 
   Future<void> showHealthConnectRevoked() async {
+    await _registerChannels();
     await _plugin.show(
       5,
       'Health Connect disconnected',

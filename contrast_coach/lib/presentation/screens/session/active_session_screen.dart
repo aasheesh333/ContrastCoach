@@ -2,9 +2,12 @@ import 'package:contrast_coach/core/utils/score_calculator.dart';
 import 'package:contrast_coach/data/audio/audio_cue_service.dart';
 import 'package:contrast_coach/data/local/database/app_database.dart';
 import 'package:contrast_coach/data/local/encryption/sqlcipher_key_provider.dart';
+import 'package:contrast_coach/data/remote/firebase/analytics_api.dart';
 import 'package:contrast_coach/data/repositories/protocol_repository.dart';
 import 'package:contrast_coach/data/repositories/session_repository.dart';
 import 'package:contrast_coach/data/voice/speech_to_text_client.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:flutter/foundation.dart';
 import 'package:contrast_coach/domain/entities/goal.dart';
 import 'package:contrast_coach/domain/entities/phase.dart';
 import 'package:contrast_coach/domain/entities/phase_type.dart';
@@ -48,6 +51,7 @@ class _ActiveSessionScreenState extends State<ActiveSessionScreen>
   late final Ticker _ticker;
   final SpeechToTextClient _stt = SpeechToTextClient();
   final AudioCueService _audio = AudioCueService();
+  final AnalyticsApi _analytics = AnalyticsApi(FirebaseAnalytics.instance);
   bool _voiceActive = false;
 
   int get _currentRound => _totalPhasesCompleted ~/ (_protocol?.phases.length ?? 1);
@@ -71,6 +75,7 @@ class _ActiveSessionScreenState extends State<ActiveSessionScreen>
     _initSession();
     _initVoice();
     _audio.playSessionStart();
+    _analytics.trackSessionStarted(widget.protocolId);
   }
 
   Future<void> _initSession() async {
@@ -198,6 +203,9 @@ class _ActiveSessionScreenState extends State<ActiveSessionScreen>
 
     final session = _buildSession();
     await _saveSession(session);
+    if (session.recoveryScore != null) {
+      _analytics.trackSessionCompleted(widget.protocolId, session.recoveryScore!);
+    }
     if (mounted) context.push('/summary/${session.id}');
   }
 
@@ -368,12 +376,14 @@ class _ActiveSessionScreenState extends State<ActiveSessionScreen>
                           }
                         },
                         variant: AppButtonVariant.secondary,
+                        size: AppButtonSize.large,
                       ),
                       const SizedBox(width: 12),
                       AppButton(
                         label: 'End',
                         onPressed: _handleEnd,
                         variant: AppButtonVariant.text,
+                        size: AppButtonSize.large,
                       ),
                     ],
                   ),

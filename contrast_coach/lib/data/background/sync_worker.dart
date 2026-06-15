@@ -46,14 +46,24 @@ void syncCallback() {
 }
 
 class SyncWorker {
+  static bool _initialized = false;
+
   static Future<void> init() async {
-    await Workmanager().registerPeriodicTask(
-      syncTaskName,
-      syncTaskName,
-      frequency: const Duration(minutes: 15),
-      constraints: Constraints(
-        networkType: NetworkType.connected,
-      ),
-    );
+    if (_initialized) return;
+    try {
+      await Workmanager().initialize(syncCallback, isInDebugMode: false);
+      await Workmanager().registerPeriodicTask(
+        syncTaskName,
+        syncTaskName,
+        frequency: const Duration(minutes: 15),
+        constraints: Constraints(
+          networkType: NetworkType.connected,
+        ),
+        existingWorkPolicy: ExistingPeriodicWorkPolicy.keep,
+      );
+      _initialized = true;
+    } catch (_) {
+      // Workmanager init is best-effort
+    }
   }
 }
