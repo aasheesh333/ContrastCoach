@@ -12,6 +12,9 @@ android {
     // ndkVersion above satisfies: permission_handler_android, purchases_flutter, speech_to_text
 
     compileOptions {
+        // Core library desugaring is required by flutter_local_notifications.
+        // See https://developer.android.com/studio/write/java8-support.html
+        coreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
@@ -55,4 +58,9 @@ android {
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    // Required by flutter_local_notifications for core library desugaring.
+    coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:2.1.5"
 }
