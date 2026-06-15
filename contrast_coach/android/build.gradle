@@ -18,17 +18,24 @@ subprojects {
 // health, etc.) that try to read flutter.compileSdkVersion before the
 // Flutter Gradle Plugin has registered the `flutter` extension on them.
 //
-// We do this in beforeProject (not afterEvaluate) so it runs before
-// the subproject's android { compileSdk = flutter.compileSdkVersion }
-// block is evaluated.
+// gradle.beforeProject doesn't work because the subproject's android
+// block has already been read by the time we run.
 //
-// Reference: https://docs.gradle.org/current/userguide/build_lifecycle.html
-gradle.beforeProject { project ->
-    if (project == rootProject) return
-    if (!project.hasProperty('android')) return
-    // Defer the actual mutation until after android plugin is applied
-    project.plugins.withId('com.android.library') {
-        project.android {
+// Instead, use a per-plugin-project `gradle.projectsEvaluated` hook
+// combined with a `beforeProject` to catch the read of `flutter.compileSdkVersion`.
+//
+// The actual fix: hardcode `compileSdk 34` and `ndkVersion '26.1.10909125'`
+// in each plugin's build.gradle via the project.android extension
+// BEFORE the plugin's own build.gradle reads them.
+//
+// We do this by using `subprojects { afterEvaluate { ... } }` but only
+// for projects that have an `android` extension, and we set the value
+// *after* the subproject has been evaluated, which works for subprojects
+// because their android extension is a setter that can be re-set.
+
+subprojects { subproject ->
+    subproject.plugins.withId('com.android.library') {
+        subproject.android {
             if (compileSdkVersion == null) {
                 compileSdkVersion 34
             }
