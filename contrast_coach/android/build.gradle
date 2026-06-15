@@ -11,6 +11,23 @@ subprojects {
 }
 subprojects {
     project.evaluationDependsOn(":app")
+
+    // Force hardcoded compileSdk and ndkVersion on every Android
+    // subproject. This is a workaround for plugin projects (speech_to_text,
+    // health, etc.) that try to read flutter.compileSdkVersion before the
+    // Flutter Gradle Plugin has registered the `flutter` extension on them.
+    afterEvaluate { subproject ->
+        if (subproject.hasProperty('android')) {
+            subproject.android {
+                if (compileSdkVersion == null) {
+                    compileSdkVersion 34
+                }
+                if (ndkVersion == null) {
+                    ndkVersion '26.1.10909125'
+                }
+            }
+        }
+    }
 }
 
 tasks.register("clean", Delete) {
