@@ -27,8 +27,7 @@ class AppRouter {
   static GoRouter build({required bool isOnboarded, required bool isAuthed}) {
     return GoRouter(
       initialLocation: isOnboarded ? (isAuthed ? '/home' : '/sign-in') : '/onboarding',
-      debugLogDiagnostics: false,
-      routes: [
+      debugLogDiagnostics: false,      routes: [
         GoRoute(
           path: '/onboarding',
           name: RouteNames.onboarding,
