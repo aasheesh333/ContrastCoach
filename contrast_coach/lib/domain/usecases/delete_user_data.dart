@@ -2,7 +2,6 @@ import 'package:contrast_coach/core/errors/app_exception.dart';
 import 'package:contrast_coach/core/errors/result.dart';
 import 'package:contrast_coach/domain/entities/session.dart';
 import 'package:contrast_coach/domain/repositories/session_repository.dart';
-import 'package:contrast_coach/domain/usecases/delete_user_data.dart';
 
 Future<Result<void, AppException>> deleteAllUserData({
   required SessionRepository sessions,

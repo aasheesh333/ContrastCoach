@@ -22,19 +22,6 @@ class HealthConnectClient implements HealthRepository {
     HealthDataType.WORKOUT,
   ];
 
-  static const _readPermissions = <HealthDataAccess>[
-    HealthDataAccess.READ_HEART_RATE,
-    HealthDataAccess.READ_RESTING_HEART_RATE,
-    HealthDataAccess.READ_HRV,
-    HealthDataAccess.READ_SLEEP,
-    HealthDataAccess.READ_STEPS,
-    HealthDataAccess.READ_EXERCISE,
-  ];
-
-  static const _writePermissions = <HealthDataAccess>[
-    HealthDataAccess.WRITE_MINDFULNESS,
-  ];
-
   @override
   Future<Result<bool, AppException>> isAvailable() async {
     try {
@@ -48,9 +35,13 @@ class HealthConnectClient implements HealthRepository {
   @override
   Future<Result<bool, AppException>> requestPermissions() async {
     try {
+      final permissions = List<HealthDataAccess>.filled(
+        _readTypes.length,
+        HealthDataAccess.READ,
+      );
       final granted = await _health.requestAuthorization(
-        _readPermissions + _writePermissions,
-        rationale: 'ContrastCoach reads heart rate, HRV, and sleep to calculate your recovery score. All data stays on your device. We never upload it.',
+        _readTypes,
+        permissions: permissions,
       );
       return Ok(granted);
     } catch (e) {

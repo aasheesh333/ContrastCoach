@@ -40,6 +40,14 @@ class AppTypography {
     fontFeatures: [FontFeature.tabularFigures()],
   );
 
+  static const TextStyle monoSmall = TextStyle(
+    fontFamily: monoFont,
+    fontSize: 12,
+    height: 16 / 12,
+    fontWeight: FontWeight.w400,
+    fontFeatures: [FontFeature.tabularFigures()],
+  );
+
   static const TextTheme textTheme = TextTheme(
     displayLarge: displayLarge,
     displayMedium: displayMedium,

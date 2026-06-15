@@ -8,6 +8,7 @@
       "description": "Balanced contrast for post-workout recovery",
       "category": "recovery",
       "difficulty": "intermediate",
+      "isPro": false,
       "rounds": 3,
       "phases": [
         { "type": "sauna", "duration": 900, "targetTempC": 80 },
@@ -24,6 +25,7 @@
       "description": "Quick contrast to start the day alert",
       "category": "energy",
       "difficulty": "beginner",
+      "isPro": false,
       "rounds": 2,
       "phases": [
         { "type": "sauna", "duration": 600, "targetTempC": 75 },
@@ -36,6 +38,7 @@
       "description": "Gentle evening protocol for better sleep",
       "category": "sleep",
       "difficulty": "beginner",
+      "isPro": true,
       "rounds": 2,
       "phases": [
         { "type": "sauna", "duration": 720, "targetTempC": 70 },
@@ -48,6 +51,7 @@
       "description": "Harder weekly session for immune resilience",
       "category": "immunity",
       "difficulty": "advanced",
+      "isPro": true,
       "rounds": 4,
       "phases": [
         { "type": "sauna", "duration": 720, "targetTempC": 85 },
@@ -60,6 +64,7 @@
       "description": "Breathwork and cold exposure inspired by Wim Hof",
       "category": "energy",
       "difficulty": "advanced",
+      "isPro": true,
       "rounds": 4,
       "phases": [
         { "type": "cold", "duration": 120, "targetTempC": 8 }
@@ -71,6 +76,7 @@
       "description": "Single deep cold exposure for adaptation",
       "category": "recovery",
       "difficulty": "advanced",
+      "isPro": true,
       "rounds": 1,
       "phases": [
         { "type": "cold", "duration": 300, "targetTempC": 5 }
@@ -82,6 +88,7 @@
       "description": "Entry-level for new contrast therapy users",
       "category": "recovery",
       "difficulty": "beginner",
+      "isPro": false,
       "rounds": 2,
       "phases": [
         { "type": "sauna", "duration": 480, "targetTempC": 65 },
@@ -94,6 +101,7 @@
       "description": "Pure heat exposure for relaxation and cardiovascular health",
       "category": "recovery",
       "difficulty": "beginner",
+      "isPro": true,
       "rounds": 1,
       "phases": [
         { "type": "sauna", "duration": 1200, "targetTempC": 80 }
@@ -105,6 +113,7 @@
       "description": "Single ice bath for experienced cold practitioners",
       "category": "energy",
       "difficulty": "advanced",
+      "isPro": true,
       "rounds": 1,
       "phases": [
         { "type": "cold", "duration": 600, "targetTempC": 5 }

@@ -18,4 +18,5 @@ class RouteNames {
   static const String paywall = 'paywall';
   static const String signIn = 'signIn';
   static const String signUp = 'signUp';
+  static const String customProtocol = 'customProtocol';
 }

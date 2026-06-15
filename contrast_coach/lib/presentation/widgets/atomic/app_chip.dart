@@ -6,11 +6,13 @@ class AppChip extends StatelessWidget {
     required this.label,
     this.selected = false,
     this.onTap,
+    this.onSelected,
   });
 
   final String label;
   final bool selected;
   final VoidCallback? onTap;
+  final VoidCallback? onSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +27,7 @@ class AppChip extends StatelessWidget {
         ),
       ),
       child: InkWell(
-        onTap: onTap,
+        onTap: onTap ?? onSelected,
         borderRadius: BorderRadius.circular(999),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

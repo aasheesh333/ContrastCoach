@@ -19,6 +19,7 @@ import 'package:contrast_coach/presentation/screens/paywall/paywall_screen.dart'
 import 'package:contrast_coach/presentation/screens/auth/sign_in_screen.dart';
 import 'package:contrast_coach/presentation/screens/auth/sign_up_screen.dart';
 import 'package:contrast_coach/presentation/screens/shell/home_shell.dart';
+import 'package:contrast_coach/presentation/screens/custom_protocol/custom_protocol_builder_screen.dart';
 
 class AppRouter {
   const AppRouter._();
@@ -47,6 +48,11 @@ class AppRouter {
           path: '/paywall',
           name: RouteNames.paywall,
           builder: (_, __) => const PaywallScreen(),
+        ),
+        GoRoute(
+          path: '/protocol/custom',
+          name: RouteNames.customProtocol,
+          builder: (_, __) => const CustomProtocolBuilderScreen(),
         ),
         GoRoute(
           path: '/health/rationale',
@@ -79,9 +85,9 @@ class AppRouter {
           ],
         ),
         GoRoute(
-          path: '/session',
+          path: '/session/:protocolId',
           name: RouteNames.session,
-          builder: (_, __) => const ActiveSessionScreen(),
+          builder: (_, s) => ActiveSessionScreen(protocolId: s.pathParameters['protocolId']!),
         ),
         GoRoute(
           path: '/summary/:sessionId',
