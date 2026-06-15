@@ -51,7 +51,7 @@ dependencies:
   health: ^11.0.0
   speech_to_text: ^7.4.0
   just_audio: ^0.9.46
-  purchases_flutter: ^6.0.0
+  purchases_flutter: 6.0.0
   flutter_local_notifications: ^17.2.4
   dio: ^5.9.2
   freezed_annotation: ^2.4.4
