@@ -18,22 +18,17 @@ subprojects {
 // health, etc.) that try to read flutter.compileSdkVersion before the
 // Flutter Gradle Plugin has registered the `flutter` extension on them.
 //
-// Use subprojects { afterEvaluate(...) } only on subprojects that
-// haven't been evaluated yet, to avoid the "project is already
-// evaluated" error.
-subprojects { subproject ->
-    if (subproject.state.executed) {
-        applyAndroidCompileSdk(subproject)
-    } else {
-        subproject.afterEvaluate {
-            applyAndroidCompileSdk(subproject)
-        }
-    }
-}
-
-def applyAndroidCompileSdk(subproject) {
-    if (subproject.hasProperty('android')) {
-        subproject.android {
+// We do this in beforeProject (not afterEvaluate) so it runs before
+// the subproject's android { compileSdk = flutter.compileSdkVersion }
+// block is evaluated.
+//
+// Reference: https://docs.gradle.org/current/userguide/build_lifecycle.html
+gradle.beforeProject { project ->
+    if (project == rootProject) return
+    if (!project.hasProperty('android')) return
+    // Defer the actual mutation until after android plugin is applied
+    project.plugins.withId('com.android.library') {
+        project.android {
             if (compileSdkVersion == null) {
                 compileSdkVersion 34
             }
