@@ -74,7 +74,7 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^4.0.0
   build_runner: ^2.4.13
-  freezed: ^3.0.0-0.0.dev
+  freezed: 2.4.7
   mocktail: ^1.0.5
   patrol_cli: ^3.5.1
   very_good_analysis: ^7.0.0
