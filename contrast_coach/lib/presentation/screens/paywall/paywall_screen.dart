@@ -2,6 +2,7 @@ import 'package:contrast_coach/core/errors/result.dart';
 import 'package:contrast_coach/data/remote/firebase/analytics_api.dart';
 import 'package:contrast_coach/data/repositories/subscription_repository.dart';
 import 'package:contrast_coach/domain/entities/subscription_tier.dart';
+import 'package:contrast_coach/domain/repositories/subscription_repository.dart';
 import 'package:contrast_coach/presentation/widgets/atomic/app_button.dart';
 import 'package:contrast_coach/presentation/widgets/layout/app_bar.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
@@ -17,7 +18,7 @@ class PaywallScreen extends StatefulWidget {
 }
 
 class _PaywallScreenState extends State<PaywallScreen> {
-  final SubscriptionRepository _repo = SubscriptionRepositoryImpl(purchases: Purchases.instance);
+  final SubscriptionRepository _repo = SubscriptionRepositoryImpl();
   final AnalyticsApi _analytics = AnalyticsApi(FirebaseAnalytics.instance);
   List<Package> _packages = [];
   bool _loading = true;
@@ -101,13 +102,13 @@ class _PaywallScreenState extends State<PaywallScreen> {
               if (_loading)
                 const Center(child: CircularProgressIndicator())
               else
-                ...(_packages.map((p) => Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: AppButton(
-                        label: p.storeProduct.localizedPriceString,
-                        onPressed: () => _purchase(p),
-                      ),
-                    ))),
+                    ...(_packages.map((p) => Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: AppButton(
+                            label: p.storeProduct.priceString,
+                            onPressed: () => _purchase(p),
+                          ),
+                        ))),
               if (!_loading && _packages.isEmpty) ...[
                 AppButton(label: r'$5.99 / month', onPressed: () {}),
                 const SizedBox(height: 8),
