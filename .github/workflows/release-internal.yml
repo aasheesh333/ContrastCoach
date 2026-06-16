@@ -40,16 +40,19 @@ jobs:
         run: dart run build_runner build --delete-conflicting-outputs
 
       - name: Build App Bundle
-        run: flutter build appbundle --release --flavor prod --target-platform android-arm,android-arm64,android-x64 --android-skip-build-dependency-validation 2>&1 | tail -200
+        run: flutter build appbundle --release --flavor prod 2>&1 | tail -200
 
       - name: Build APKs (split per ABI)
-        run: flutter build apk --release --flavor prod --target-platform android-arm,android-arm64,android-x64 --split-per-abi --android-skip-build-dependency-validation 2>&1 | tail -50
+        run: flutter build apk --release --flavor prod --split-per-abi 2>&1 | tail -50
+
+      - name: List build outputs
+        run: ls -laR contrast_coach/build/app/outputs/ 2>&1 | tail -30
 
       - name: Upload AAB artifact
         uses: actions/upload-artifact@v4
         with:
           name: release-aab
-          path: contrast_coach/build/app/outputs/bundle/prodRelease/app-prod-release.aab
+          path: contrast_coach/build/app/outputs/bundle/**/app-*-release.aab
           retention-days: 30
           if-no-files-found: error
 
@@ -65,7 +68,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: release-mapping
-          path: contrast_coach/build/app/outputs/mapping/prodRelease/mapping.txt
+          path: contrast_coach/build/app/outputs/mapping/**/mapping.txt
           retention-days: 30
           if-no-files-found: warn
 
