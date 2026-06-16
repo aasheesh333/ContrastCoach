@@ -39,6 +39,17 @@ jobs:
       - name: Verify code generation
         run: dart run build_runner build --delete-conflicting-outputs
 
+      - name: Write google-services.json
+        env:
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: |
+          if [ -n "$GOOGLE_SERVICES_JSON" ]; then
+            echo "$GOOGLE_SERVICES_JSON" > contrast_coach/android/app/google-services.json
+            echo "google-services.json written"
+          else
+            echo "GOOGLE_SERVICES_JSON secret not set, skipping"
+          fi
+
       - name: Build App Bundle
         run: flutter build appbundle --release --flavor prod 2>&1 | tail -200
 
