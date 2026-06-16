@@ -44,3 +44,7 @@ app.*.map.json
 
 # Env file (real secrets, never commit)
 .env
+
+# Firebase
+google-services.json
+firebase-service-account.json

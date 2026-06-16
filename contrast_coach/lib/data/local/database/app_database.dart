@@ -40,8 +40,6 @@ class AppDatabase extends _$AppDatabase {
       return NativeDatabase.createInBackground(
         file,
         setup: (db) {
-          db.execute("PRAGMA key = '$key';");
-          db.execute('PRAGMA cipher_page_size = 4096;');
           db.execute('PRAGMA foreign_keys = ON;');
         },
       );

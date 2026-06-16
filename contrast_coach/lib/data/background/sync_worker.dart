@@ -10,6 +10,8 @@ import 'package:contrast_coach/data/remote/firebase/firebase_config.dart';
 import 'package:contrast_coach/data/remote/firebase/firestore_api.dart';
 import 'package:contrast_coach/data/repositories/session_repository.dart';
 
+import 'package:workmanager/src/options.dart' as wm_options;
+
 const String syncTaskName = 'syncSessions';
 
 @pragma('vm:entry-point')
@@ -59,7 +61,7 @@ class SyncWorker {
         constraints: Constraints(
           networkType: NetworkType.connected,
         ),
-        existingWorkPolicy: ExistingPeriodicWorkPolicy.keep,
+        existingWorkPolicy: wm_options.ExistingWorkPolicy.keep,
       );
       _initialized = true;
     } catch (_) {

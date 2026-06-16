@@ -1,4 +1,4 @@
-package com.contrastcoach.contrast_coach
+package com.dhanuk.contrastcoach
 
 import io.flutter.embedding.android.FlutterActivity
 

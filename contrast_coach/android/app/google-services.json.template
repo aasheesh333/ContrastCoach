@@ -8,7 +8,7 @@
     {
       "client_info": {
         "mobilesdk_app_id": "REPLACE_WITH_FIREBASE_APP_ID",
-        "android_client_info": { "package_name": "com.contrastcoach.contrast_coach" }
+        "android_client_info": { "package_name": "com.dhanuk.contrastcoach" }
       },
       "oauth_client": [],
       "api_key": [{ "current_key": "REPLACE_WITH_FIREBASE_API_KEY" }],

@@ -99,6 +99,9 @@ flutter:
   assets:
     - assets/protocols.json
     - assets/changelog.json
+    - assets/audio/session_start.wav
+    - assets/audio/phase_transition.wav
+    - assets/audio/session_complete.wav
     - .env.example
 
   # An image asset can refer to one or more resolution-specific "variants", see

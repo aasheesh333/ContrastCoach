@@ -98,3 +98,7 @@ desktop.ini
 # Worktrees
 .worktrees/
 worktrees/
+
+# Firebase service account (NEVER commit)
+firebase-service-account.json
+google-services.json
