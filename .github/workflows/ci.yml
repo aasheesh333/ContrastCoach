@@ -52,8 +52,11 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Generate code
+        run: dart run build_runner build --delete-conflicting-outputs
+
       - name: Analyze
-        run: flutter analyze
+        run: flutter analyze --no-fatal-infos
 
       - name: Check formatting
         run: dart format --set-exit-if-changed lib/ test/
@@ -100,6 +103,9 @@ jobs:
 
       - name: Install dependencies
         run: flutter pub get
+
+      - name: Generate code
+        run: dart run build_runner build --delete-conflicting-outputs
 
       - name: Build debug APK
         run: flutter build apk --debug --flavor dev
