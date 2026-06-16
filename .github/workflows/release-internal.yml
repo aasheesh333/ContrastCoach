@@ -14,7 +14,7 @@ defaults:
 
 jobs:
   release:
-    name: Build AAB + APKs + upload artifacts
+    name: Build AAB + universal APK
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -54,11 +54,11 @@ jobs:
       - name: Build App Bundle
         run: flutter build appbundle --release --flavor prod 2>&1 | tail -200
 
-      - name: Build APKs (split per ABI)
-        run: flutter build apk --release --flavor prod --split-per-abi 2>&1 | tail -50
+      - name: Build universal APK
+        run: flutter build apk --release --flavor prod 2>&1 | tail -50
 
       - name: List build outputs
-        run: ls -laR contrast_coach/build/app/outputs/ 2>&1 | tail -30
+        run: ls -laR contrast_coach/build/app/outputs/ 2>&1 | tail -20
 
       - name: Upload AAB artifact
         uses: actions/upload-artifact@v4
@@ -68,21 +68,13 @@ jobs:
           retention-days: 30
           if-no-files-found: error
 
-      - name: Upload APKs
+      - name: Upload universal APK
         uses: actions/upload-artifact@v4
         with:
           name: release-apk
-          path: contrast_coach/build/app/outputs/flutter-apk/
+          path: contrast_coach/build/app/outputs/flutter-apk/app-*-release.apk
           retention-days: 30
-          if-no-files-found: warn
-
-      - name: Upload mapping artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: release-mapping
-          path: contrast_coach/build/app/outputs/mapping/**/mapping.txt
-          retention-days: 30
-          if-no-files-found: warn
+          if-no-files-found: error
 
       - name: Upload to Play Store (internal track)
         if: ${{ env.PLAY_SERVICE_ACCOUNT != '' }}
@@ -94,5 +86,4 @@ jobs:
           packageName: com.dhanuk.contrastcoach
           releaseFiles: contrast_coach/build/app/outputs/bundle/prodRelease/app-prod-release.aab
           track: internal
-          mappingFile: contrast_coach/build/app/outputs/mapping/prodRelease/mapping.txt
         continue-on-error: true
