@@ -20,6 +20,13 @@ class StreakCalendar extends StatelessWidget {
 
   final int weeks;
 
+  int _sessionCount(DateTime date) {
+    if (intensity != null) {
+      return intensity![DateTime(date.year, date.month, date.day)] ?? 0;
+    }
+    return daysWithSessions.contains(DateTime(date.year, date.month, date.day)) ? 1 : 0;
+  }
+
   Color _intensityColor(int count) {
     if (count <= 0) return AppColors.heatmap0;
     if (count == 1) return AppColors.heatmap1;
@@ -70,14 +77,7 @@ class StreakCalendar extends StatelessWidget {
                     child: _Cell(
                       date: start.add(Duration(days: w * 7 + d)),
                       today: today,
-                      isSession: (DateTime d) {
-                        if (intensity != null) {
-                          return intensity![DateTime(d.year, d.month, d.day)] ?? 0;
-                        }
-                        return daysWithSessions.contains(DateTime(d.year, d.month, d.day))
-                            ? 1
-                            : 0;
-                      }(start.add(Duration(days: w * 7 + d))),
+                      isSession: _sessionCount(start.add(Duration(days: w * 7 + d))),
                       color: _intensityColor(
                         intensity?[DateTime(
                               start.add(Duration(days: w * 7 + d)).year,
