@@ -43,4 +43,12 @@ void main() {
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
     expect(find.text('Save'), findsNothing);
   });
+
+  testWidgets('pill shape with full width', (tester) async {
+    await tester.pumpWidget(
+      _wrap(AppButton(label: 'Full', onPressed: () {}, fullWidth: true)),
+    );
+    final size = tester.getSize(find.byType(AppButton));
+    expect(size.width, greaterThan(100));
+  });
 }

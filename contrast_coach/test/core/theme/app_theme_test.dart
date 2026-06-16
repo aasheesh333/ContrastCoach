@@ -6,26 +6,25 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('AppTheme', () {
-    test('light theme uses monochrome colors only', () {
+    test('light theme uses warm/cool brand colors', () {
       final theme = AppTheme.light();
       expect(theme.brightness, Brightness.light);
-      expect(theme.colorScheme.surface, AppColors.lightSurface0);
-      expect(theme.colorScheme.onSurface, AppColors.lightOnSurfacePrimary);
-      expect(theme.textTheme.displayLarge?.fontSize, AppTypography.displayLarge.fontSize);
-      expect(theme.textTheme.displayLarge?.fontFamily, AppTypography.displayLarge.fontFamily);
-      expect(theme.textTheme.displayLarge?.fontWeight, AppTypography.displayLarge.fontWeight);
+      expect(theme.colorScheme.surface, AppColors.lightBackground);
+      expect(theme.colorScheme.onSurface, AppColors.lightTextPrimary);
+      expect(theme.colorScheme.primary, AppColors.brandWarm);
     });
 
-    test('dark theme uses monochrome colors only', () {
+    test('dark theme uses dark background', () {
       final theme = AppTheme.dark();
       expect(theme.brightness, Brightness.dark);
-      expect(theme.colorScheme.surface, AppColors.darkSurface0);
-      expect(theme.colorScheme.onSurface, AppColors.darkOnSurfacePrimary);
+      expect(theme.colorScheme.surface, AppColors.darkBackground);
+      expect(theme.colorScheme.onSurface, AppColors.darkTextPrimary);
     });
 
-    test('no chromatic primary color (grayscale only)', () {
-      expect(AppTheme.light().colorScheme.primary, AppColors.lightOnSurfacePrimary);
-      expect(AppTheme.dark().colorScheme.primary, AppColors.darkOnSurfacePrimary);
+    test('Plus Jakarta Sans is the primary font', () {
+      final theme = AppTheme.light();
+      expect(theme.textTheme.displayLarge?.fontFamily, AppTypography.displayFont);
+      expect(theme.textTheme.bodyLarge?.fontFamily, AppTypography.bodyFont);
     });
   });
 }

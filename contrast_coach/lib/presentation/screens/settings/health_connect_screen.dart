@@ -1,10 +1,9 @@
+import 'package:contrast_coach/core/constants/app_colors.dart';
 import 'package:contrast_coach/core/errors/result.dart';
 import 'package:contrast_coach/data/local/health/health_connect_client.dart';
 import 'package:contrast_coach/domain/entities/health_snapshot.dart';
 import 'package:contrast_coach/presentation/widgets/atomic/app_button.dart';
-import 'package:contrast_coach/presentation/widgets/atomic/app_card.dart';
 import 'package:contrast_coach/presentation/widgets/atomic/app_icon.dart';
-import 'package:contrast_coach/presentation/widgets/layout/app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -46,12 +45,10 @@ class _HealthConnectScreenState extends State<HealthConnectScreen> {
       final result = await client.requestPermissions();
       if (!mounted) return;
       result.fold(
-        (err) {
-          setState(() {
-            _error = err.message;
-            _loading = false;
-          });
-        },
+        (err) => setState(() {
+          _error = err.message;
+          _loading = false;
+        }),
         (granted) async {
           if (granted) {
             final snapResult = await client.readSnapshot();
@@ -88,77 +85,187 @@ class _HealthConnectScreenState extends State<HealthConnectScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const ContrastAppBar(title: 'Health Connect', showBackButton: true),
+      backgroundColor: AppColors.offWhite,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
-                'Health data stays on your device. We never upload it.',
-                style: Theme.of(context).textTheme.bodyLarge,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Read: heart rate, HRV, sleep, steps, workouts. Write: MindfulSession.',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              const SizedBox(height: 16),
-              if (_snapshot != null) ...[
-                AppCard(
-                  padding: const EdgeInsets.all(12),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          const AppIcon(LucideIcons.heart, size: 18),
-                          const SizedBox(width: 8),
-                          Text(
-                            _snapshot!.hrvRmssd7DayAvg != null
-                                ? 'HRV 7-day avg: ${_snapshot!.hrvRmssd7DayAvg!.toStringAsFixed(1)} ms'
-                                : 'HRV: not enough data yet',
-                            style: Theme.of(context).textTheme.bodyMedium,
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: AppColors.white,
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.04),
+                      blurRadius: 16,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          width: 44,
+                          height: 44,
+                          decoration: BoxDecoration(
+                            color: AppColors.brandWarm.withOpacity(0.12),
+                            borderRadius: BorderRadius.circular(14),
                           ),
-                        ],
+                          child: const AppIcon(
+                            LucideIcons.heart,
+                            size: 20,
+                            color: AppColors.brandWarm,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        const Expanded(
+                          child: Text(
+                            'Health data stays on your device. We never upload it.',
+                            style: TextStyle(
+                              fontFamily: 'PlusJakartaSans',
+                              fontSize: 14,
+                              color: AppColors.charcoal,
+                              fontWeight: FontWeight.w500,
+                              height: 1.4,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Read: heart rate, HRV, sleep, steps, workouts. Write: MindfulSession.',
+                      style: TextStyle(
+                        fontFamily: 'PlusJakartaSans',
+                        fontSize: 13,
+                        color: AppColors.darkGray,
+                        height: 1.4,
                       ),
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          const AppIcon(LucideIcons.moon, size: 18),
-                          const SizedBox(width: 8),
-                          Text(
-                            _snapshot!.lastNightSleepMinutes != null
-                                ? 'Sleep: ${(_snapshot!.lastNightSleepMinutes! / 60).toStringAsFixed(1)} h'
-                                : 'Sleep: not recorded',
-                            style: Theme.of(context).textTheme.bodyMedium,
-                          ),
-                        ],
+                    ),
+                  ],
+                ),
+              ),
+              if (_snapshot != null) ...[
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: AppColors.warmBeige,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Column(
+                    children: [
+                      _SnapshotRow(
+                        icon: LucideIcons.activity,
+                        color: AppColors.brandWarm,
+                        label: _snapshot!.hrvRmssd7DayAvg != null
+                            ? 'HRV 7-day avg'
+                            : 'HRV',
+                        value: _snapshot!.hrvRmssd7DayAvg != null
+                            ? '${_snapshot!.hrvRmssd7DayAvg!.toStringAsFixed(1)} ms'
+                            : 'not enough data yet',
+                      ),
+                      const SizedBox(height: 12),
+                      _SnapshotRow(
+                        icon: LucideIcons.moon,
+                        color: AppColors.brandCool,
+                        label: 'Sleep',
+                        value: _snapshot!.lastNightSleepMinutes != null
+                            ? '${(_snapshot!.lastNightSleepMinutes! / 60).toStringAsFixed(1)} h'
+                            : 'not recorded',
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 16),
               ],
               if (_error != null) ...[
-                Text(
-                  _error!,
-                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppColors.error.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    _error!,
+                    style: const TextStyle(
+                      fontFamily: 'PlusJakartaSans',
+                      color: AppColors.error,
+                      fontSize: 13,
+                    ),
+                  ),
                 ),
-                const SizedBox(height: 12),
               ],
-              const Spacer(),
+              const SizedBox(height: 24),
               AppButton(
-                label: _granted ? 'Reconnect' : 'Connect',
+                label: _granted ? 'Reconnect' : 'Connect to Health Connect',
                 onPressed: _loading ? null : _connect,
-                variant: AppButtonVariant.primary,
+                variant: AppButtonVariant.warm,
+                fullWidth: true,
+                size: AppButtonSize.large,
                 isLoading: _loading,
               ),
             ],
           ),
         ),
       ),
+    );
+  }
+}
+
+class _SnapshotRow extends StatelessWidget {
+  const _SnapshotRow({
+    required this.icon,
+    required this.color,
+    required this.label,
+    required this.value,
+  });
+  final IconData icon;
+  final Color color;
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Container(
+          width: 36,
+          height: 36,
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.12),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(icon, color: color, size: 18),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            label,
+            style: const TextStyle(
+              fontFamily: 'PlusJakartaSans',
+              fontSize: 13,
+              color: AppColors.darkGray,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+        Text(
+          value,
+          style: const TextStyle(
+            fontFamily: 'PlusJakartaSans',
+            fontSize: 14,
+            color: AppColors.charcoal,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ],
     );
   }
 }

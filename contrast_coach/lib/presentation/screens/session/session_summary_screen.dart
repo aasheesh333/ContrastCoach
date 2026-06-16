@@ -1,3 +1,5 @@
+import 'package:contrast_coach/core/constants/app_colors.dart';
+import 'package:contrast_coach/core/theme/gradients.dart';
 import 'package:contrast_coach/core/errors/app_exception.dart';
 import 'package:contrast_coach/core/errors/result.dart';
 import 'package:contrast_coach/data/local/database/app_database.dart';
@@ -12,6 +14,7 @@ import 'package:contrast_coach/presentation/widgets/layout/app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class SessionSummaryScreen extends StatefulWidget {
   const SessionSummaryScreen({super.key, required this.sessionId});
@@ -71,51 +74,187 @@ class _SessionSummaryScreenState extends State<SessionSummaryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final tt = Theme.of(context).textTheme;
     return Scaffold(
-      appBar: const ContrastAppBar(title: 'Session complete', showBackButton: false),
+      backgroundColor: AppColors.warmBeige,
       body: SafeArea(
         child: _loading
-            ? const Center(child: CircularProgressIndicator())
+            ? const Center(child: CircularProgressIndicator(color: AppColors.brandWarm))
             : _session == null
                 ? const Center(child: Text('Session not found'))
-                : Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        RecoveryScoreCard(score: _buildScore(_session!)),
-                        const SizedBox(height: 24),
-                        Text('Duration: ${_formatDuration(_session!.totalActualDuration)}',
-                            style: tt.bodyLarge),
-                        const SizedBox(height: 4),
-                        Text(
-                            'Rounds: ${_session!.roundsCompleted} / ${_session!.protocolRounds}',
-                            style: tt.bodyLarge),
-                        const SizedBox(height: 16),
-                        ...(_session!.phases.map(
-                          (p) => Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 2),
-                            child: Text(
-                              '${p.type.name}  ${_formatDuration(p.actualDuration ?? p.plannedDuration)}  ${p.skipped ? "(skipped)" : ""}',
-                              style: tt.bodyMedium,
-                            ),
-                          ),
-                        )),
-                        const Spacer(),
-                        AppButton(
-                          label: 'Save',
-                          onPressed: () => context.go('/home'),
-                        ),
-                        const SizedBox(height: 8),
-                        AppButton(
-                          label: 'Discard',
-                          onPressed: () => context.go('/home'),
-                          variant: AppButtonVariant.text,
-                        ),
-                      ],
-                    ),
+                : _SummaryBody(
+                    session: _session!,
+                    score: _buildScore(_session!),
+                    formatDuration: _formatDuration,
                   ),
+      ),
+    );
+  }
+}
+
+class _SummaryBody extends StatelessWidget {
+  const _SummaryBody({
+    required this.session,
+    required this.score,
+    required this.formatDuration,
+  });
+
+  final Session session;
+  final domain.RecoveryScore score;
+  final String Function(Duration) formatDuration;
+
+  @override
+  Widget build(BuildContext context) {
+    final tt = Theme.of(context).textTheme;
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(24, 32, 24, 32),
+      child: Column(
+        children: [
+          // Celebration check
+          Container(
+            width: 96,
+            height: 96,
+            decoration: BoxDecoration(
+              color: AppColors.successSoft,
+              shape: BoxShape.circle,
+            ),
+            child: const Center(
+              child: Icon(Icons.check_rounded, color: AppColors.charcoal, size: 56),
+            ),
+          ),
+          const SizedBox(height: 28),
+          Text(
+            'Session complete!',
+            textAlign: TextAlign.center,
+            style: tt.displaySmall?.copyWith(
+              fontWeight: FontWeight.w800,
+              height: 1.1,
+              letterSpacing: -0.5,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '${formatDuration(session.totalActualDuration)} · ${session.roundsCompleted} rounds',
+            textAlign: TextAlign.center,
+            style: tt.bodyLarge?.copyWith(color: AppColors.darkGray),
+          ),
+          const SizedBox(height: 32),
+          // Recovery score
+          RecoveryScoreCard(score: score),
+          const SizedBox(height: 32),
+          // Insight cards
+          _InsightRow(
+            icon: LucideIcons.check,
+            color: AppColors.brandWarm,
+            title: 'Stuck to plan',
+            subtitle: '${session.roundsCompleted} of ${session.protocolRounds} rounds completed',
+          ),
+          const SizedBox(height: 12),
+          _InsightRow(
+            icon: LucideIcons.moon,
+            color: AppColors.brandCool,
+            title: 'Sleep boost',
+            subtitle: '+23 min tonight based on your pattern',
+          ),
+          const SizedBox(height: 12),
+          _InsightRow(
+            icon: LucideIcons.flame,
+            color: AppColors.brandCoral,
+            title: 'Streak',
+            subtitle: 'Keep going to build consistency',
+          ),
+          const SizedBox(height: 32),
+          Row(
+            children: [
+              Expanded(
+                child: AppButton(
+                  label: 'Share',
+                  onPressed: () {},
+                  variant: AppButtonVariant.secondary,
+                  fullWidth: true,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: AppButton(
+                  label: 'Done',
+                  onPressed: () => context.go('/home'),
+                  variant: AppButtonVariant.warm,
+                  fullWidth: true,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _InsightRow extends StatelessWidget {
+  const _InsightRow({
+    required this.icon,
+    required this.color,
+    required this.title,
+    required this.subtitle,
+  });
+  final IconData icon;
+  final Color color;
+  final String title;
+  final String subtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 16,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.12),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Icon(icon, color: color, size: 22),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontFamily: 'PlusJakartaSans',
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.charcoal,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: const TextStyle(
+                    fontFamily: 'PlusJakartaSans',
+                    fontSize: 13,
+                    color: AppColors.darkGray,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

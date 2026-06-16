@@ -1,3 +1,4 @@
+import 'package:contrast_coach/core/constants/app_colors.dart';
 import 'package:contrast_coach/presentation/widgets/atomic/app_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -17,8 +18,9 @@ class ContrastBottomNav extends StatelessWidget {
 
   static const List<BottomNavItem> items = [
     BottomNavItem(label: 'Home', icon: LucideIcons.house, location: '/home'),
-    BottomNavItem(label: 'Streak', icon: LucideIcons.calendar, location: '/streak'),
-    BottomNavItem(label: 'Insights', icon: LucideIcons.barChart, location: '/insights'),
+    BottomNavItem(label: 'Streak', icon: LucideIcons.flame, location: '/streak'),
+    BottomNavItem(label: 'Insights', icon: LucideIcons.barChart3, location: '/insights'),
+    BottomNavItem(label: 'Profile', icon: LucideIcons.user, location: '/settings'),
   ];
 
   int get _currentIndex {
@@ -32,12 +34,18 @@ class ContrastBottomNav extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: cs.surface,
-        border: Border(top: BorderSide(color: cs.outline)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 20,
+            offset: const Offset(0, -2),
+          ),
+        ],
       ),
       child: SafeArea(
         top: false,
         child: SizedBox(
-          height: 56,
+          height: 64,
           child: Row(
             children: [
               for (var i = 0; i < items.length; i++)
@@ -49,15 +57,23 @@ class ContrastBottomNav extends StatelessWidget {
                       children: [
                         AppIcon(
                           items[i].icon,
-                          size: 20,
-                          color: i == _currentIndex ? cs.onSurface : cs.onSurfaceVariant,
+                          size: 22,
+                          color: i == _currentIndex
+                              ? AppColors.brandWarm
+                              : cs.onSurfaceVariant,
                         ),
                         const SizedBox(height: 4),
                         Text(
                           items[i].label,
                           style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                color: i == _currentIndex ? cs.onSurface : cs.onSurfaceVariant,
-                                fontWeight: i == _currentIndex ? FontWeight.w600 : FontWeight.w400,
+                                fontSize: 11,
+                                color: i == _currentIndex
+                                    ? AppColors.brandWarm
+                                    : cs.onSurfaceVariant,
+                                fontWeight: i == _currentIndex
+                                    ? FontWeight.w700
+                                    : FontWeight.w500,
+                                letterSpacing: 0.4,
                               ),
                         ),
                       ],

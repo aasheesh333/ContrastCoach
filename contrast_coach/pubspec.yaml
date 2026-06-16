@@ -63,8 +63,8 @@ dependencies:
   flutter_dotenv: ^6.0.1
   drift: ^2.20.3
   workmanager: ^0.6.0
-  sentry_flutter: ^8.9.0
-  sentry_dio: ^8.9.0
+  firebase_crashlytics: ^4.3.7
+  google_fonts: ^6.2.1
 
 dev_dependencies:
   flutter_test:
@@ -111,6 +111,9 @@ flutter:
   # https://flutter.dev/to/asset-from-package
 
   fonts:
+    - family: PlusJakartaSans
+      fonts:
+        - asset: assets/fonts/PlusJakartaSans-Variable.ttf
     - family: InterTight
       fonts:
         - asset: assets/fonts/InterTight-Variable.ttf

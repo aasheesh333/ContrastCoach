@@ -1,3 +1,4 @@
+import 'package:contrast_coach/core/constants/app_colors.dart';
 import 'package:flutter/material.dart';
 
 class AppSlider extends StatelessWidget {
@@ -8,6 +9,7 @@ class AppSlider extends StatelessWidget {
     required this.max,
     required this.onChanged,
     this.divisions,
+    this.activeColor,
   });
 
   final double value;
@@ -15,20 +17,22 @@ class AppSlider extends StatelessWidget {
   final double max;
   final ValueChanged<double> onChanged;
   final int? divisions;
+  final Color? activeColor;
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final active = activeColor ?? AppColors.brandWarm;
     return SliderTheme(
       data: SliderThemeData(
-        trackHeight: 2,
-        activeTrackColor: cs.onSurface,
-        inactiveTrackColor: cs.outline,
-        thumbColor: cs.onSurface,
-        overlayColor: cs.onSurface.withOpacity(0.1),
-        valueIndicatorColor: cs.onSurface,
-        valueIndicatorTextStyle: TextStyle(color: cs.surface),
+        trackHeight: 6,
+        activeTrackColor: active,
+        inactiveTrackColor: active.withOpacity(0.18),
+        thumbColor: active,
+        overlayColor: active.withOpacity(0.12),
+        valueIndicatorColor: AppColors.charcoal,
+        valueIndicatorTextStyle: const TextStyle(color: AppColors.white),
         showValueIndicator: ShowValueIndicator.never,
+        thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 12),
       ),
       child: Slider(
         value: value,

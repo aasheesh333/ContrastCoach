@@ -1,6 +1,6 @@
 # ContrastCoach
 
-A privacy-first contrast therapy (sauna + cold plunge) tracker. Built with Flutter 3.24+, Riverpod 2.6, Drift 2.20, Firebase Auth + Firestore, Health Connect, RevenueCat, and Sentry.
+A privacy-first contrast therapy (sauna + cold plunge) tracker. Built with Flutter 3.24+, Riverpod 2.6, Drift 2.20, Firebase Auth + Firestore + Crashlytics, Health Connect, and RevenueCat.
 
 Monochrome Material 3 Expressive design. Offline-first. On-device health data processing.
 
@@ -38,13 +38,12 @@ flutter build apk --debug
 
 Copy `.env.example` to `.env` and fill in:
 - `REVENUECAT_API_KEY` — for Pro subscriptions
-- `SENTRY_DSN` — for crash reporting
-- Firebase config — for auth and sync
+- Firebase config — for auth, sync, and crash reporting
 
 If keys are missing, the app gracefully degrades:
 - No RevenueCat key → paywall shows static prices, no real purchase
-- No Sentry DSN → no crash reporting
-- No Firebase → sessions are local-only
+- No Firebase → sessions are local-only, no crash reporting
+- Crashlytics handles uncaught errors automatically when Firebase is configured
 
 ## Disclaimer
 

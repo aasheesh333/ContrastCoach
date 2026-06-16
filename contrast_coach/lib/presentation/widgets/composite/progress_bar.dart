@@ -1,3 +1,4 @@
+import 'package:contrast_coach/core/theme/gradients.dart';
 import 'package:flutter/material.dart';
 
 class SessionProgressBar extends StatelessWidget {
@@ -7,14 +8,21 @@ class SessionProgressBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
     final fraction = total == 0 ? 0.0 : current / total;
-    return SizedBox(
-      height: 2,
-      child: LinearProgressIndicator(
-        value: fraction,
-        backgroundColor: cs.outline,
-        valueColor: AlwaysStoppedAnimation<Color>(cs.onSurface),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(999),
+      child: Container(
+        height: 4,
+        color: Colors.white.withOpacity(0.25),
+        child: FractionallySizedBox(
+          alignment: Alignment.centerLeft,
+          widthFactor: fraction,
+          child: Container(
+            decoration: const BoxDecoration(
+              gradient: AppGradients.contrastHorizontal,
+            ),
+          ),
+        ),
       ),
     );
   }

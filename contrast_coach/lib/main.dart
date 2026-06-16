@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:contrast_coach/app.dart';
 import 'package:contrast_coach/core/env/env_config.dart';
-import 'package:contrast_coach/data/remote/crash/sentry_client.dart';
+import 'package:contrast_coach/data/remote/crash/crashlytics_client.dart';
 import 'package:contrast_coach/data/remote/firebase/firebase_config.dart';
 import 'package:contrast_coach/data/remote/subscription/revenue_cat_client.dart';
 import 'package:contrast_coach/data/repositories/subscription_repository.dart';
@@ -16,9 +16,10 @@ Future<void> main() async {
   await EnvConfig.init();
   await _initFirebaseSafely();
   await _initNotificationsSafely();
-  await _initSentrySafely();
+  await _initCrashlyticsSafely();
   await RevenueCatBootstrap.init();
   unawaited(_restoreOnLaunch());
+  runApp(const ContrastCoachApp());
 }
 
 Future<void> _initFirebaseSafely() async {
@@ -39,17 +40,11 @@ Future<void> _initNotificationsSafely() async {
   }
 }
 
-Future<void> _initSentrySafely() async {
-  final dsn = EnvConfig.sentryDsn;
-  if (dsn == null || dsn.isEmpty) {
-    runApp(const ContrastCoachApp());
-    return;
-  }
+Future<void> _initCrashlyticsSafely() async {
   try {
-    await SentryBootstrap.runWithSentry();
+    await CrashlyticsClient().init();
   } catch (e) {
-    debugPrint('Sentry init failed: $e');
-    runApp(const ContrastCoachApp());
+    debugPrint('Crashlytics init failed: $e');
   }
 }
 

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:contrast_coach/core/constants/app_colors.dart';
 import 'package:contrast_coach/core/constants/app_typography.dart';
 import 'package:contrast_coach/core/errors/app_exception.dart';
 import 'package:contrast_coach/core/errors/result.dart';
@@ -11,12 +12,10 @@ import 'package:contrast_coach/domain/entities/phase_type.dart';
 import 'package:contrast_coach/domain/entities/protocol.dart';
 import 'package:contrast_coach/domain/usecases/validate_custom_protocol.dart';
 import 'package:contrast_coach/presentation/widgets/atomic/app_button.dart';
-import 'package:contrast_coach/presentation/widgets/atomic/app_card.dart';
 import 'package:contrast_coach/presentation/widgets/atomic/app_chip.dart';
 import 'package:contrast_coach/presentation/widgets/atomic/app_icon.dart';
 import 'package:contrast_coach/presentation/widgets/atomic/app_slider.dart';
 import 'package:contrast_coach/presentation/widgets/atomic/app_text_field.dart';
-import 'package:contrast_coach/presentation/widgets/layout/app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
@@ -134,20 +133,47 @@ class _CustomProtocolBuilderScreenState extends State<CustomProtocolBuilderScree
 
   @override
   Widget build(BuildContext context) {
-    final tt = Theme.of(context).textTheme;
     return Scaffold(
-      appBar: const ContrastAppBar(title: 'Custom protocol', showBackButton: true),
+      backgroundColor: AppColors.offWhite,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              AppTextField(label: 'Name', controller: _nameController),
+              _sectionTitle('NAME'),
+              AppTextField(
+                label: 'Protocol name',
+                controller: _nameController,
+                prefixIcon: LucideIcons.tag,
+              ),
               const SizedBox(height: 12),
-              AppTextField(label: 'Description', controller: _descriptionController, maxLines: 2),
+              _sectionTitle('DESCRIPTION'),
+              AppTextField(
+                label: 'Short description',
+                controller: _descriptionController,
+                maxLines: 2,
+              ),
               const SizedBox(height: 24),
-              Text('Rounds: $_rounds', style: tt.titleMedium),
+              _sectionTitle('ROUNDS'),
+              Row(
+                children: [
+                  Text(
+                    '$_rounds',
+                    style: AppTypography.displaySmall,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    _rounds == 1 ? 'round' : 'rounds',
+                    style: const TextStyle(
+                      fontFamily: 'PlusJakartaSans',
+                      fontSize: 16,
+                      color: AppColors.darkGray,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
               AppSlider(
                 value: _rounds.toDouble(),
                 min: 1,
@@ -155,15 +181,37 @@ class _CustomProtocolBuilderScreenState extends State<CustomProtocolBuilderScree
                 divisions: 4,
                 onChanged: (v) => setState(() => _rounds = v.round()),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Phases (${_phases.length})', style: tt.titleMedium),
-                  AppButton(
-                    label: 'Add',
-                    onPressed: _addPhase,
-                    variant: AppButtonVariant.secondary,
+                  _sectionTitle('PHASES (${_phases.length})'),
+                  Material(
+                    color: AppColors.brandWarm,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+                    child: InkWell(
+                      onTap: _addPhase,
+                      borderRadius: BorderRadius.circular(999),
+                      child: const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(LucideIcons.plus, size: 16, color: AppColors.white),
+                            SizedBox(width: 6),
+                            Text(
+                              'Add',
+                              style: TextStyle(
+                                fontFamily: 'PlusJakartaSans',
+                                color: AppColors.white,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -180,17 +228,22 @@ class _CustomProtocolBuilderScreenState extends State<CustomProtocolBuilderScree
                     ),
                   ),
               const SizedBox(height: 16),
-              AppCard(
-                padding: const EdgeInsets.all(12),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.warmBeige,
+                  borderRadius: BorderRadius.circular(16),
+                ),
                 child: Row(
                   children: [
-                    const AppIcon(LucideIcons.info, size: 18),
+                    const AppIcon(LucideIcons.info, size: 16, color: AppColors.darkGray),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'Total: ${_buildProtocol().totalDuration.inMinutes}m. '
-                        'Cold 5-20C. Sauna <=30 min. <=60 min total.',
-                        style: AppTypography.monoSmall,
+                        'Total: ${_buildProtocol().totalDuration.inMinutes}m. Cold 5-20°C. Sauna ≤30 min. ≤60 min total.',
+                        style: AppTypography.monoSmall?.copyWith(
+                          color: AppColors.charcoal,
+                        ),
                       ),
                     ),
                   ],
@@ -198,16 +251,49 @@ class _CustomProtocolBuilderScreenState extends State<CustomProtocolBuilderScree
               ),
               if (_error != null) ...[
                 const SizedBox(height: 12),
-                Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppColors.error.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    _error!,
+                    style: const TextStyle(
+                      fontFamily: 'PlusJakartaSans',
+                      color: AppColors.error,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
               ],
               const SizedBox(height: 24),
               AppButton(
                 label: 'Save protocol',
                 onPressed: _saving ? null : _save,
+                variant: AppButtonVariant.warm,
+                fullWidth: true,
+                size: AppButtonSize.large,
                 isLoading: _saving,
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _sectionTitle(String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8, top: 4),
+      child: Text(
+        text,
+        style: const TextStyle(
+          fontFamily: 'PlusJakartaSans',
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+          color: AppColors.midGray,
+          letterSpacing: 1.4,
         ),
       ),
     );
@@ -242,19 +328,37 @@ class _PhaseEditor extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tt = Theme.of(context).textTheme;
-    return AppCard(
-      padding: const EdgeInsets.all(12),
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Phase ${index + 1}', style: tt.titleSmall),
+              Text(
+                'Phase ${index + 1}',
+                style: const TextStyle(
+                  fontFamily: 'PlusJakartaSans',
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.charcoal,
+                ),
+              ),
               if (onRemove != null)
                 IconButton(
-                  icon: const AppIcon(LucideIcons.x, size: 18),
+                  icon: const AppIcon(LucideIcons.x, size: 18, color: AppColors.midGray),
                   onPressed: onRemove,
                 ),
             ],
@@ -269,12 +373,39 @@ class _PhaseEditor extends StatelessWidget {
                     label: t.name.toUpperCase(),
                     selected: phase.type == t,
                     onSelected: () => onChanged(phase.copyWith(type: t)),
+                    accent: t == PhaseType.sauna
+                        ? AppColors.brandWarm
+                        : t == PhaseType.cold
+                            ? AppColors.brandCool
+                            : AppColors.midGray,
                   ),
                 )
                 .toList(),
           ),
-          const SizedBox(height: 12),
-          Text('Duration: ${(phase.durationSec / 60).round()}m', style: tt.bodyMedium),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Duration',
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
+                  fontSize: 13,
+                  color: AppColors.darkGray,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              Text(
+                '${(phase.durationSec / 60).round()}m',
+                style: const TextStyle(
+                  fontFamily: 'PlusJakartaSans',
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.charcoal,
+                ),
+              ),
+            ],
+          ),
           AppSlider(
             value: phase.durationSec.toDouble().clamp(30, 1800),
             min: 30,
@@ -283,12 +414,35 @@ class _PhaseEditor extends StatelessWidget {
             onChanged: (v) => onChanged(phase.copyWith(durationSec: v.round())),
           ),
           if (phase.type != PhaseType.rest) ...[
-            Text('Temp: ${phase.tempC.toStringAsFixed(0)}C', style: tt.bodyMedium),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Temperature',
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
+                    fontSize: 13,
+                    color: AppColors.darkGray,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                Text(
+                  '${phase.tempC.toStringAsFixed(0)}°C',
+                  style: const TextStyle(
+                    fontFamily: 'PlusJakartaSans',
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.charcoal,
+                  ),
+                ),
+              ],
+            ),
             AppSlider(
               value: phase.tempC.clamp(0, 90),
               min: 0,
               max: 90,
               divisions: 90,
+              activeColor: phase.type == PhaseType.sauna ? AppColors.brandWarm : AppColors.brandCool,
               onChanged: (v) => onChanged(phase.copyWith(tempC: v)),
             ),
           ],
@@ -297,3 +451,4 @@ class _PhaseEditor extends StatelessWidget {
     );
   }
 }
+

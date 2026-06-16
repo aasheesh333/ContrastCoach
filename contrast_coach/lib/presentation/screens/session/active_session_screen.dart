@@ -1,3 +1,4 @@
+import 'package:contrast_coach/core/constants/app_colors.dart';
 import 'package:contrast_coach/core/utils/score_calculator.dart';
 import 'package:contrast_coach/data/audio/audio_cue_service.dart';
 import 'package:contrast_coach/data/local/database/app_database.dart';
@@ -6,8 +7,6 @@ import 'package:contrast_coach/data/remote/firebase/analytics_api.dart';
 import 'package:contrast_coach/data/repositories/protocol_repository.dart';
 import 'package:contrast_coach/data/repositories/session_repository.dart';
 import 'package:contrast_coach/data/voice/speech_to_text_client.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:flutter/foundation.dart';
 import 'package:contrast_coach/domain/entities/goal.dart';
 import 'package:contrast_coach/domain/entities/phase.dart';
 import 'package:contrast_coach/domain/entities/phase_type.dart';
@@ -15,8 +14,8 @@ import 'package:contrast_coach/domain/entities/protocol.dart';
 import 'package:contrast_coach/domain/entities/session.dart';
 import 'package:contrast_coach/domain/entities/voice_command.dart';
 import 'package:contrast_coach/domain/voice/command_parser.dart';
-import 'package:contrast_coach/presentation/widgets/atomic/app_button.dart';
 import 'package:contrast_coach/presentation/widgets/composite/session_timer.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -291,106 +290,101 @@ class _ActiveSessionScreenState extends State<ActiveSessionScreen>
     super.dispose();
   }
 
-  String _phaseLabel(PhaseType type) => switch (type) {
-        PhaseType.sauna => 'Sauna',
-        PhaseType.cold => 'Cold',
-        PhaseType.rest => 'Rest',
-        PhaseType.custom => 'Custom',
-      };
-
   @override
   Widget build(BuildContext context) {
     if (_loading) {
-      return Scaffold(
-        body: SafeArea(
-          child: Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: const [
-                CircularProgressIndicator(),
-                SizedBox(height: 16),
-                Text('Loading session...'),
-              ],
-            ),
-          ),
+      return const Scaffold(
+        backgroundColor: AppColors.charcoal,
+        body: Center(
+          child: CircularProgressIndicator(color: AppColors.white),
         ),
       );
     }
 
     if (_error != null) {
       return Scaffold(
-        body: SafeArea(
-          child: Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text('Error: $_error'),
-                const SizedBox(height: 16),
-                AppButton(
-                  label: 'Go back',
-                  onPressed: () => context.pop(),
-                ),
-              ],
-            ),
-          ),
-        ),
+        body: Center(child: Text('Error: $_error')),
       );
     }
 
-    return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: SessionTimer(
-                phaseLabel: _phaseLabel(_protocol!.phases[_currentPhaseIndex].type),
-                remaining: _remaining,
-                currentRound: _currentRound + 1,
-                totalRounds: _protocol!.rounds,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  Text(
-                    _voiceActive
-                        ? "Say 'next phase' to continue"
-                        : 'Tap a button to control the session',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      AppButton(
-                        label: _paused ? 'Resume' : 'Pause',
-                        onPressed: () {
-                          if (_paused) {
-                            setState(() => _paused = false);
-                            _ticker.start();
-                          } else {
-                            _totalPhaseElapsed += _lastElapsed;
-                            _ticker.stop();
-                            setState(() => _paused = true);
-                          }
-                        },
-                        variant: AppButtonVariant.secondary,
-                        size: AppButtonSize.large,
+    final phaseType = _protocol!.phases[_currentPhaseIndex].type;
+    return ActiveSessionBackground(
+      phaseType: phaseType,
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: SafeArea(
+          child: Stack(
+            children: [
+              // Top: phase pills + close
+              Positioned(
+                top: 16,
+                left: 16,
+                right: 16,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    for (final t in PhaseType.values.where((t) => t != PhaseType.custom))
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        child: PhasePill(type: t, active: t == phaseType),
                       ),
-                      const SizedBox(width: 12),
-                      AppButton(
-                        label: 'End',
-                        onPressed: _handleEnd,
-                        variant: AppButtonVariant.text,
-                        size: AppButtonSize.large,
-                      ),
-                    ],
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+              // Center: timer
+              Center(
+                child: SessionTimer(
+                  phaseType: phaseType,
+                  remaining: _remaining,
+                  currentRound: _currentRound + 1,
+                  totalRounds: _protocol!.rounds,
+                  onPause: () {
+                    if (_paused) {
+                      setState(() => _paused = false);
+                      _ticker.start();
+                    } else {
+                      _totalPhaseElapsed += _lastElapsed;
+                      _ticker.stop();
+                      setState(() => _paused = true);
+                    }
+                  },
+                  onMic: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        backgroundColor: AppColors.white.withOpacity(0.9),
+                        content: Text(
+                          _voiceActive
+                              ? "Listening. Say 'next phase' to continue."
+                              : 'Tap to enable voice control in Settings.',
+                          style: const TextStyle(color: AppColors.charcoal),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              // Bottom: end button
+              Positioned(
+                bottom: 16,
+                left: 0,
+                right: 0,
+                child: Center(
+                  child: TextButton(
+                    onPressed: _handleEnd,
+                    child: const Text(
+                      'End session',
+                      style: TextStyle(
+                        color: AppColors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

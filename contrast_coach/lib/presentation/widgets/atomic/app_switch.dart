@@ -1,3 +1,4 @@
+import 'package:contrast_coach/core/constants/app_colors.dart';
 import 'package:flutter/material.dart';
 
 class AppSwitch extends StatelessWidget {
@@ -7,15 +8,14 @@ class AppSwitch extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
     return Switch(
       value: value,
       onChanged: onChanged,
-      activeColor: cs.onSurface,
-      activeTrackColor: cs.onSurface.withOpacity(0.5),
-      inactiveThumbColor: cs.onSurfaceVariant,
-      inactiveTrackColor: cs.surfaceContainerHigh,
-      trackOutlineColor: WidgetStateProperty.all(cs.outline),
+      activeColor: AppColors.white,
+      activeTrackColor: AppColors.brandWarm,
+      inactiveThumbColor: AppColors.midGray,
+      inactiveTrackColor: AppColors.lightGray,
+      trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
     );
   }
 }

@@ -11,6 +11,7 @@ class AppTextField extends StatelessWidget {
     this.onChanged,
     this.errorText,
     this.maxLines = 1,
+    this.prefixIcon,
   });
 
   final String label;
@@ -21,6 +22,7 @@ class AppTextField extends StatelessWidget {
   final ValueChanged<String>? onChanged;
   final String? errorText;
   final int maxLines;
+  final IconData? prefixIcon;
 
   @override
   Widget build(BuildContext context) {
@@ -36,10 +38,22 @@ class AppTextField extends StatelessWidget {
       decoration: InputDecoration(
         labelText: label,
         errorText: errorText,
-        filled: false,
-        border: UnderlineInputBorder(borderSide: BorderSide(color: cs.outline)),
-        focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: cs.onSurface, width: 2)),
-        contentPadding: const EdgeInsets.symmetric(vertical: 12),
+        filled: true,
+        fillColor: cs.surface,
+        prefixIcon: prefixIcon,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: cs.outline),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: cs.outline),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: cs.primary, width: 2),
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       ),
     );
   }
