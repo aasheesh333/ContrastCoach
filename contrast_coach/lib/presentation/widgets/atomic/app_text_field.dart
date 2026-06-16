@@ -40,7 +40,7 @@ class AppTextField extends StatelessWidget {
         errorText: errorText,
         filled: true,
         fillColor: cs.surface,
-        prefixIcon: prefixIcon,
+        prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide(color: cs.outline),

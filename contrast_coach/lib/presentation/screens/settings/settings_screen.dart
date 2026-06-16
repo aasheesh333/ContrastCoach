@@ -52,7 +52,7 @@ class _SettingsRow extends StatelessWidget {
               ),
             ),
             if (trailing != null)
-              trailing
+              trailing!
             else
               const AppIcon(LucideIcons.chevronRight, size: 18, color: AppColors.midGray),
           ],

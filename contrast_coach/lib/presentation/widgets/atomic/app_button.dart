@@ -46,7 +46,7 @@ class AppButton extends StatelessWidget {
         ? cs.surfaceContainerHigh
         : bg;
 
-    final height = size == AppButtonSize.large ? 72 : 56;
+    final double height = size == AppButtonSize.large ? 72 : 56;
 
     final child = Material(
       color: bgEffective,

@@ -181,12 +181,10 @@ class _StepHero extends StatelessWidget {
 
 class _StepPrivacy extends StatelessWidget {
   const _StepPrivacy({super.key});
-  final Key? key;
 
   @override
   Widget build(BuildContext context) {
     return Column(
-      key: key,
       children: [
         Container(
           width: 80,
