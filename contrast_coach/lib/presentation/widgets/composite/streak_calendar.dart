@@ -74,11 +74,12 @@ class StreakCalendar extends StatelessWidget {
                 for (int d = 0; d < 7; d++)
                   Padding(
                     padding: const EdgeInsets.only(right: 4),
-                      child: _Cell(
+                    child: _Cell(
                       date: start.add(Duration(days: w * 7 + d)),
                       today: today,
                       isSession: _sessionCount(start.add(Duration(days: w * 7 + d))),
                       color: _intensityColor(_sessionCount(start.add(Duration(days: w * 7 + d)))),
+                    ),
                   ),
               ],
             ),
