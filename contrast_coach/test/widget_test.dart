@@ -5,6 +5,6 @@ void main() {
   testWidgets('app boots to onboarding', (tester) async {
     await tester.pumpWidget(const ContrastCoachApp());
     await tester.pumpAndSettle();
-    expect(find.text('Track heat. Track cold. See what works.'), findsOneWidget);
+    expect(find.text('HEAT. COLD. REPEAT.'), findsOneWidget);
   });
 }
