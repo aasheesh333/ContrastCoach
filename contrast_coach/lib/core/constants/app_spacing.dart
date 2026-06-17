@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 /// Spacing scale (4pt base) and elevation tokens.
 /// Use these everywhere instead of literal paddings.
 class AppSpacing {

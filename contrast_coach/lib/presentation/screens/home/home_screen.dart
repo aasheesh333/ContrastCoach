@@ -10,22 +10,19 @@ import 'package:contrast_coach/data/repositories/user_profile_service.dart';
 import 'package:contrast_coach/domain/entities/protocol.dart';
 import 'package:contrast_coach/domain/entities/session.dart';
 import 'package:contrast_coach/domain/usecases/session_stats.dart';
+import 'package:contrast_coach/presentation/screens/home/firebase_auth_proxy.dart';
 import 'package:contrast_coach/presentation/widgets/atomic/app_card.dart';
 import 'package:contrast_coach/presentation/widgets/atomic/identity.dart';
 import 'package:contrast_coach/presentation/widgets/composite/hero_start_card.dart';
 import 'package:contrast_coach/presentation/widgets/composite/quick_stats_row.dart';
 import 'package:contrast_coach/presentation/widgets/layout/bottom_nav.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart' as fb;
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-/// `FirebaseAuth.instance` proxy so tests can swap it out cleanly.
-class FirebaseAuthNullableProxy {
-  static fb.FirebaseAuth auth = fb.FirebaseAuth.instance;
-}
+
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});

@@ -100,68 +100,6 @@ class SectionHeader extends StatelessWidget {
   }
 }
 
-/// Pill-shaped chip used for filters, status badges, etc.
-class AppChip extends StatelessWidget {
-  const AppChip({
-    super.key,
-    required this.label,
-    this.icon,
-    this.active = false,
-    this.onTap,
-  });
-
-  final String label;
-  final IconData? icon;
-  final bool active;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final bg = active ? AppColors.charcoal : cs.surface;
-    final fg = active ? AppColors.white : AppColors.charcoal;
-    final border = active ? AppColors.charcoal : AppColors.outline;
-
-    return Material(
-      color: bg,
-      borderRadius: BorderRadius.circular(999),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(999),
-        child: Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 9,
-          ),
-          decoration: BoxDecoration(
-            border: Border.all(color: border, width: 1.2),
-            borderRadius: BorderRadius.circular(999),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (icon != null) ...[
-                Icon(icon, size: 14, color: fg),
-                const SizedBox(width: 6),
-              ],
-              Text(
-                label,
-                style: TextStyle(
-                  fontFamily: Theme.of(context).textTheme.labelMedium?.fontFamily,
-                  color: fg,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 0.1,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 /// Empty state shown when the user has no data yet.
 class AppEmptyState extends StatelessWidget {
   const AppEmptyState({

@@ -137,6 +137,11 @@ class _SummaryBody extends StatelessWidget {
   final String Function(Duration) formatDuration;
   final SessionStats stats;
 
+  String _formatStreakBanner(int streak) {
+    if (streak <= 0) return 'No streak yet';
+    return '$streak day${streak == 1 ? '' : 's'} in a row';
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListView(
@@ -279,8 +284,7 @@ class _InsightRow extends StatelessWidget {
             ),
             child: Icon(icon, color: color, size: 22),
           ),
-          const SizedBox(width: AppSpacing.lg,
-          ),
+          const SizedBox(width: AppSpacing.lg),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

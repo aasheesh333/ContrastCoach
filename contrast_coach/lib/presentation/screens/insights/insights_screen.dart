@@ -7,6 +7,7 @@ import 'package:contrast_coach/data/local/encryption/sqlcipher_key_provider.dart
 import 'package:contrast_coach/data/repositories/protocol_repository.dart';
 import 'package:contrast_coach/data/repositories/session_repository.dart';
 import 'package:contrast_coach/domain/entities/goal.dart';
+import 'package:contrast_coach/domain/entities/insight.dart';
 import 'package:contrast_coach/domain/entities/protocol.dart';
 import 'package:contrast_coach/domain/entities/session.dart';
 import 'package:contrast_coach/domain/usecases/generate_insights.dart';

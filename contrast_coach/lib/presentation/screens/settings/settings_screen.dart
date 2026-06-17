@@ -1,12 +1,14 @@
 import 'package:contrast_coach/core/constants/app_colors.dart';
 import 'package:contrast_coach/core/constants/app_spacing.dart';
+import 'package:contrast_coach/core/errors/app_exception.dart';
+import 'package:contrast_coach/core/errors/result.dart';
 import 'package:contrast_coach/data/repositories/user_profile_service.dart';
-import 'package:contrast_coach/domain/repositories/session_repository.dart';
 import 'package:contrast_coach/data/repositories/session_repository.dart';
 import 'package:contrast_coach/data/local/database/app_database.dart';
 import 'package:contrast_coach/data/local/encryption/sqlcipher_key_provider.dart';
 import 'package:contrast_coach/domain/entities/session.dart';
 import 'package:contrast_coach/domain/usecases/session_stats.dart';
+import 'package:contrast_coach/presentation/screens/home/firebase_auth_proxy.dart';
 import 'package:contrast_coach/presentation/widgets/atomic/app_card.dart';
 import 'package:contrast_coach/presentation/widgets/atomic/app_divider.dart';
 import 'package:contrast_coach/presentation/widgets/atomic/app_switch.dart';
@@ -52,7 +54,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       firestore: FirebaseFirestore.instance,
     );
     final profileResult = await profileService.current();
-    final profile = profileResult is Ok<UserProfile, dynamic>
+    final profile = profileResult is Ok<UserProfile, AppException>
         ? profileResult.value
         : _profile;
 
@@ -61,7 +63,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final db = AppDatabase(key);
     final repo = SessionRepositoryImpl(db);
     final sessionsResult = await repo.getAll();
-    final sessions = sessionsResult is Ok<List<Session>, dynamic>
+    final sessions = sessionsResult is Ok<List<Session>, AppException>
         ? sessionsResult.value
         : <Session>[];
 
@@ -353,6 +355,3 @@ class _SettingsRow extends StatelessWidget {
     );
   }
 }
-
-// Re-exports so app_router/imports stay short.
-typedef SessionRepository = SessionRepositoryImpl;

@@ -1,8 +1,8 @@
 import 'package:contrast_coach/core/constants/app_colors.dart';
 import 'package:contrast_coach/core/constants/app_spacing.dart';
 import 'package:contrast_coach/core/theme/gradients.dart';
+import 'package:contrast_coach/presentation/widgets/atomic/app_card.dart';
 import 'package:flutter/material.dart';
-
 class InsightBlock extends StatelessWidget {
   const InsightBlock({
     super.key,
@@ -44,8 +44,7 @@ class InsightBlock extends StatelessWidget {
               ),
               child: Icon(icon, color: tint, size: 20),
             ),
-            const SizedBox(width: AppSpacing.lg,
-            ),
+            const SizedBox(width: AppSpacing.lg),
           ],
           Expanded(
             child: Column(
