@@ -45,42 +45,47 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     return Scaffold(
       backgroundColor: AppColors.offWhite,
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(
             AppSpacing.xxl,
             AppSpacing.xxl,
             AppSpacing.xxl,
             AppSpacing.xxl,
           ),
-          child: Column(
-            children: [
-              const SizedBox(height: AppSpacing.md),
-              _PageDots(active: _step, total: 3),
-              const Spacer(),
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 240),
-                child: _StepContent(key: ValueKey(_step), step: _step),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 0),
+            child: IntrinsicHeight(
+              child: Column(
+                children: [
+                  const SizedBox(height: AppSpacing.md),
+                  _PageDots(active: _step, total: 3),
+                  const Spacer(),
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 240),
+                    child: _StepContent(key: ValueKey(_step), step: _step),
+                  ),
+                  const Spacer(),
+                  const _Tagline(text: AppStrings.onboardingStep1Tagline),
+                  const SizedBox(height: AppSpacing.lg),
+                  AppButton(
+                    label: _step == 2 ? 'Get started' : 'Continue',
+                    onPressed: _next,
+                    variant: AppButtonVariant.warm,
+                    fullWidth: true,
+                    size: AppButtonSize.large,
+                  ),
+                  if (_step > 0) ...[
+                    const SizedBox(height: AppSpacing.sm),
+                    AppButton(
+                      label: 'Back',
+                      onPressed: () => setState(() => _step--),
+                      variant: AppButtonVariant.text,
+                      fullWidth: true,
+                    ),
+                  ],
+                ],
               ),
-              const Spacer(),
-              const _Tagline(text: AppStrings.onboardingStep1Tagline),
-              const SizedBox(height: AppSpacing.lg),
-              AppButton(
-                label: _step == 2 ? 'Get started' : 'Continue',
-                onPressed: _next,
-                variant: AppButtonVariant.warm,
-                fullWidth: true,
-                size: AppButtonSize.large,
-              ),
-              if (_step > 0) ...[
-                const SizedBox(height: AppSpacing.sm),
-                AppButton(
-                  label: 'Back',
-                  onPressed: () => setState(() => _step--),
-                  variant: AppButtonVariant.text,
-                  fullWidth: true,
-                ),
-              ],
-            ],
+            ),
           ),
         ),
       ),
