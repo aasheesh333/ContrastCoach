@@ -53,7 +53,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _load() async {
     // Tests don't wire up Firebase/Drift — bail out cleanly with empty state
     // so `pumpAndSettle` returns quickly.
-    if (FirebaseAuthNullableProxy.auth == null) {
+    if (FirebaseAuthNullableProxy.tryGet() == null) {
       if (mounted) setState(() => _loading = false);
       return;
     }
