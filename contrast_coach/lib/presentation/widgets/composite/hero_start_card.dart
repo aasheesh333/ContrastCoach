@@ -3,6 +3,7 @@ import 'package:contrast_coach/core/constants/app_spacing.dart';
 import 'package:contrast_coach/core/theme/gradients.dart';
 import 'package:contrast_coach/domain/entities/goal.dart';
 import 'package:contrast_coach/domain/entities/protocol.dart';
+import 'package:contrast_coach/presentation/widgets/atomic/app_card.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';

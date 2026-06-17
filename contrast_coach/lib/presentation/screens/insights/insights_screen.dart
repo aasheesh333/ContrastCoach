@@ -126,19 +126,19 @@ class _InsightsScreenState extends State<InsightsScreen> {
                         children: [
                           AppChip(
                             label: 'Week',
-                            active: _range == _Range.week,
+                            selected: _range == _Range.week,
                             onTap: () => _setRange(_Range.week),
                           ),
                           const SizedBox(width: 8),
                           AppChip(
                             label: 'Month',
-                            active: _range == _Range.month,
+                            selected: _range == _Range.month,
                             onTap: () => _setRange(_Range.month),
                           ),
                           const SizedBox(width: 8),
                           AppChip(
                             label: 'Year',
-                            active: _range == _Range.year,
+                            selected: _range == _Range.year,
                             onTap: () => _setRange(_Range.year),
                           ),
                         ],
