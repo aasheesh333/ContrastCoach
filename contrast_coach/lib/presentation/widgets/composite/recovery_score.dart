@@ -1,7 +1,7 @@
+import 'package:contrast_coach/core/constants/app_colors.dart';
 import 'package:contrast_coach/domain/entities/recovery_score.dart' as domain;
 import 'package:contrast_coach/domain/entities/score_band.dart';
 import 'package:flutter/material.dart';
-import 'package:contrast_coach/core/constants/app_colors.dart';
 
 class RecoveryScoreCard extends StatelessWidget {
   const RecoveryScoreCard({super.key, required this.score});
@@ -21,14 +21,15 @@ class RecoveryScoreCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tt = Theme.of(context).textTheme;
     return Column(
       children: [
         Text(
           score.value.round().toString(),
-          style: tt.displayLarge?.copyWith(
+          style: const TextStyle(
+            fontFamily: 'PlusJakartaSans',
             fontWeight: FontWeight.w200,
             fontSize: 96,
+            color: AppColors.charcoal,
             height: 1.0,
             letterSpacing: -2,
           ),
@@ -37,21 +38,29 @@ class RecoveryScoreCard extends StatelessWidget {
         Container(
           width: 48,
           height: 2,
-          color: Theme.of(context).colorScheme.onSurface,
+          color: AppColors.charcoal,
         ),
         const SizedBox(height: 12),
         Text(
           _bandLabel,
-          style: tt.labelLarge?.copyWith(
+          style: TextStyle(
+            fontFamily: 'PlusJakartaSans',
             color: _bandColor,
-            letterSpacing: 1.4,
+            fontSize: 12,
             fontWeight: FontWeight.w700,
+            letterSpacing: 1.4,
           ),
         ),
         const SizedBox(height: 16),
         Text(
           score.insight,
-          style: tt.bodyMedium,
+          style: const TextStyle(
+            fontFamily: 'PlusJakartaSans',
+            fontSize: 14,
+            color: AppColors.darkGray,
+            height: 1.45,
+            fontWeight: FontWeight.w500,
+          ),
           textAlign: TextAlign.center,
         ),
       ],

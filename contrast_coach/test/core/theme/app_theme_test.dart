@@ -9,8 +9,8 @@ void main() {
     test('light theme uses warm/cool brand colors', () {
       final theme = AppTheme.light();
       expect(theme.brightness, Brightness.light);
-      expect(theme.colorScheme.surface, AppColors.lightBackground);
-      expect(theme.colorScheme.onSurface, AppColors.lightTextPrimary);
+      expect(theme.colorScheme.surface, AppColors.offWhite);
+      expect(theme.colorScheme.onSurface, AppColors.charcoal);
       expect(theme.colorScheme.primary, AppColors.brandWarm);
     });
 

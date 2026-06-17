@@ -336,8 +336,10 @@ class _ActiveSessionScreenState extends State<ActiveSessionScreen>
                 child: SessionTimer(
                   phaseType: phaseType,
                   remaining: _remaining,
+                  plannedDuration: _currentPhaseDuration,
                   currentRound: _currentRound + 1,
                   totalRounds: _protocol!.rounds,
+                  targetTempC: _protocol!.phases[_currentPhaseIndex].targetTempC,
                   onPause: () {
                     if (_paused) {
                       setState(() => _paused = false);

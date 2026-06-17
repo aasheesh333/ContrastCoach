@@ -1,4 +1,5 @@
 import 'package:contrast_coach/core/constants/app_colors.dart';
+import 'package:contrast_coach/core/constants/app_spacing.dart';
 import 'package:contrast_coach/core/theme/gradients.dart';
 import 'package:contrast_coach/domain/entities/goal.dart';
 import 'package:contrast_coach/domain/entities/protocol.dart';
@@ -12,10 +13,12 @@ class HeroStartCard extends StatelessWidget {
   const HeroStartCard({
     super.key,
     required this.recommendedProtocol,
+    required this.sessionCount,
     this.onStart,
   });
 
   final Protocol? recommendedProtocol;
+  final int sessionCount;
   final VoidCallback? onStart;
 
   IconData _iconForCategory(ProtocolCategory c) => switch (c) {
@@ -34,18 +37,24 @@ class HeroStartCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tt = Theme.of(context).textTheme;
     final p = recommendedProtocol;
     final name = p?.name ?? 'Standard Recovery';
     final duration = p?.totalDuration ?? const Duration(minutes: 25);
     final rounds = p?.rounds ?? 3;
     final category = p?.category ?? ProtocolCategory.recovery;
     final accent = _accentForCategory(category);
+    final mins = duration.inMinutes;
+    final secs = duration.inSeconds.remainder(60);
 
-    return AppSurface(
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
+    return AppCard(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.xxl,
+        AppSpacing.xxl,
+        AppSpacing.xxl,
+        AppSpacing.xxl,
+      ),
       radius: 28,
-      elevation: 4,
+      elevation: AppCardElevation.medium,
       onTap: onStart,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -61,30 +70,43 @@ class HeroStartCard extends StatelessWidget {
                 ),
                 child: Icon(_iconForCategory(category), size: 18, color: accent),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: AppSpacing.md),
               Text(
                 "TODAY'S SESSION",
-                style: tt.labelSmall?.copyWith(
+                style: TextStyle(
+                  fontFamily: Theme.of(context).textTheme.labelSmall?.fontFamily,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
                   color: accent,
                   letterSpacing: 1.4,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.lg),
           Text(
             name,
-            style: tt.headlineLarge,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            '${duration.inMinutes} min · $rounds rounds · 78% effort',
-            style: tt.bodyMedium?.copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            style: const TextStyle(
+              fontFamily: 'PlusJakartaSans',
+              fontSize: 28,
+              fontWeight: FontWeight.w800,
+              color: AppColors.charcoal,
+              height: 1.1,
+              letterSpacing: -0.5,
             ),
           ),
-          const SizedBox(height: 20),
-          // Gradient progress bar
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            '$mins min${secs > 0 ? ' ${secs}s' : ''} · $rounds rounds',
+            style: const TextStyle(
+              fontFamily: 'PlusJakartaSans',
+              fontSize: 14,
+              color: AppColors.darkGray,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          // Gradient progress bar (visual: total session time)
           ClipRRect(
             borderRadius: BorderRadius.circular(999),
             child: Container(
@@ -92,13 +114,14 @@ class HeroStartCard extends StatelessWidget {
               decoration: const BoxDecoration(
                 gradient: AppGradients.contrastHorizontal,
               ),
-              child: const SizedBox.expand(),
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: AppSpacing.xl),
           _StartSessionPill(
             onPressed: onStart ?? () => _defaultStart(context),
-            label: 'Start session',
+            label: sessionCount == 0
+                ? 'Start first session'
+                : 'Start session',
           ),
         ],
       ),
@@ -121,7 +144,8 @@ class _StartSessionPill extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       color: AppColors.brandWarm,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+      borderRadius: BorderRadius.circular(999),
+      elevation: 0,
       child: InkWell(
         onTap: onPressed,
         borderRadius: BorderRadius.circular(999),
@@ -129,6 +153,10 @@ class _StartSessionPill extends StatelessWidget {
           height: 60,
           width: double.infinity,
           alignment: Alignment.center,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(999),
+            boxShadow: AppShadows.pill,
+          ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -137,8 +165,9 @@ class _StartSessionPill extends StatelessWidget {
                 style: const TextStyle(
                   fontFamily: 'PlusJakartaSans',
                   color: AppColors.white,
-                  fontSize: 18,
+                  fontSize: 17,
                   fontWeight: FontWeight.w700,
+                  letterSpacing: 0.2,
                 ),
               ),
               const SizedBox(width: 10),
@@ -161,19 +190,19 @@ class GoalCardsRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final entries = <_GoalEntry>[
-      _GoalEntry(Goal.recovery, 'Recovery', 'Standard', 'recovery_standard', AppColors.brandWarm, LucideIcons.snowflake),
-      _GoalEntry(Goal.energy, 'Energy', 'Morning', 'energy_morning', AppColors.brandCoral, LucideIcons.sun),
-      _GoalEntry(Goal.sleep, 'Sleep', 'Evening', 'sleep_evening', AppColors.brandCool, LucideIcons.moon),
-      _GoalEntry(Goal.immunity, 'Immunity', 'Weekly', 'immunity_weekly', AppColors.brandCool, LucideIcons.shield),
+      const _GoalEntry(Goal.recovery, 'Recovery', 'Standard', ProtocolCategory.recovery, AppColors.brandWarm, LucideIcons.snowflake),
+      const _GoalEntry(Goal.energy, 'Energy', 'Morning', ProtocolCategory.energy, AppColors.brandCoral, LucideIcons.sun),
+      const _GoalEntry(Goal.sleep, 'Sleep', 'Evening', ProtocolCategory.sleep, AppColors.brandCool, LucideIcons.moon),
+      const _GoalEntry(Goal.immunity, 'Immunity', 'Weekly', ProtocolCategory.immunity, AppColors.brandCool, LucideIcons.shield),
     ];
 
     return SizedBox(
-      height: 110,
+      height: 130,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 24),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.pageHorizontal),
         itemCount: entries.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 12),
+        separatorBuilder: (_, __) => const SizedBox(width: AppSpacing.md),
         itemBuilder: (_, i) => _GoalTile(entry: entries[i], onTap: () => onGoalTap(entries[i].goal)),
       ),
     );
@@ -181,11 +210,11 @@ class GoalCardsRow extends StatelessWidget {
 }
 
 class _GoalEntry {
-  const _GoalEntry(this.goal, this.title, this.subtitle, this.protocolId, this.color, this.icon);
+  const _GoalEntry(this.goal, this.title, this.subtitle, this.category, this.color, this.icon);
   final Goal goal;
   final String title;
   final String subtitle;
-  final String protocolId;
+  final ProtocolCategory category;
   final Color color;
   final IconData icon;
 }
@@ -197,12 +226,17 @@ class _GoalTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tt = Theme.of(context).textTheme;
     return SizedBox(
-      width: 130,
-      child: AppSurface(
-        radius: 20,
-        padding: const EdgeInsets.all(14),
+      width: 140,
+      child: AppCard(
+        radius: 22,
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.lg,
+          AppSpacing.lg,
+          AppSpacing.lg,
+          AppSpacing.lg,
+        ),
+        elevation: AppCardElevation.soft,
         onTap: onTap,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -217,18 +251,25 @@ class _GoalTile extends StatelessWidget {
               ),
               child: Icon(entry.icon, color: entry.color, size: 18),
             ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(entry.title, style: tt.titleMedium),
-                const SizedBox(height: 2),
-                Text(
-                  entry.subtitle,
-                  style: tt.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
+            const SizedBox(height: 4),
+            Text(
+              entry.title,
+              style: const TextStyle(
+                fontFamily: 'PlusJakartaSans',
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: AppColors.charcoal,
+                height: 1.2,
+              ),
+            ),
+            Text(
+              entry.subtitle,
+              style: const TextStyle(
+                fontFamily: 'PlusJakartaSans',
+                fontSize: 12,
+                color: AppColors.darkGray,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ],
         ),

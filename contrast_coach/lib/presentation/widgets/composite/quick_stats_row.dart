@@ -1,45 +1,60 @@
+import 'package:contrast_coach/core/constants/app_spacing.dart';
 import 'package:contrast_coach/core/theme/gradients.dart';
 import 'package:flutter/material.dart';
 import 'package:contrast_coach/core/constants/app_colors.dart';
 
+/// Quick stats row: 4 metrics, all derived from real data.
 class QuickStatsRow extends StatelessWidget {
   const QuickStatsRow({
     super.key,
     required this.streakDays,
     required this.avgDurationMin,
     required this.lastScore,
+    required this.bestScore,
+    required this.totalMinutes,
+    required this.weekDelta,
   });
 
   final int streakDays;
   final int avgDurationMin;
   final double? lastScore;
+  final double? bestScore;
+  final int totalMinutes;
+  final int weekDelta;
 
   @override
   Widget build(BuildContext context) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
           child: _Stat(
             label: 'STREAK',
             value: '$streakDays',
             suffix: streakDays == 1 ? 'day' : 'days',
+            icon: Icons.local_fire_department,
+            accent: AppColors.brandWarm,
           ),
         ),
-        const SizedBox(width: 10),
+        const SizedBox(width: AppSpacing.sm),
         Expanded(
           child: _Stat(
             label: 'AVG',
-            value: '${avgDurationMin}',
+            value: avgDurationMin.toString(),
             suffix: 'min',
+            icon: Icons.timer_outlined,
+            accent: AppColors.brandCool,
           ),
         ),
-        const SizedBox(width: 10),
+        const SizedBox(width: AppSpacing.sm),
         Expanded(
           child: _Stat(
             label: 'LAST',
-            value: lastScore == null ? '-' : lastScore!.round().toString(),
-            suffix: 'score',
-            accent: true,
+            value: lastScore == null ? '—' : lastScore!.round().toString(),
+            suffix: lastScore == null ? 'no data' : 'score',
+            icon: Icons.bolt_outlined,
+            accent: AppColors.brandWarm,
+            trend: weekDelta,
           ),
         ),
       ],
@@ -52,56 +67,128 @@ class _Stat extends StatelessWidget {
     required this.label,
     required this.value,
     required this.suffix,
-    this.accent = false,
+    required this.icon,
+    required this.accent,
+    this.trend,
   });
-
   final String label;
   final String value;
   final String suffix;
-  final bool accent;
+  final IconData icon;
+  final Color accent;
+  final int? trend;
 
   @override
   Widget build(BuildContext context) {
-    final tt = Theme.of(context).textTheme;
-    final cs = Theme.of(context).colorScheme;
-    return AppSurface(
-      radius: 20,
-      padding: const EdgeInsets.fromLTRB(14, 14, 14, 16),
-      elevation: 1,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: tt.labelSmall?.copyWith(
-              color: accent ? AppColors.brandWarm : cs.onSurfaceVariant,
-              letterSpacing: 1.2,
-              fontSize: 10,
-            ),
+    return Material(
+      color: AppColors.white,
+      borderRadius: BorderRadius.circular(20),
+      elevation: 0,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.md,
+            AppSpacing.md,
+            AppSpacing.md,
+            AppSpacing.lg,
           ),
-          const SizedBox(height: 8),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            color: AppColors.white,
+            boxShadow: AppShadows.cardSoft,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(value, style: tt.displaySmall),
-              const SizedBox(width: 4),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 4),
+              Row(
+                children: [
+                  Container(
+                    width: 22,
+                    height: 22,
+                    decoration: BoxDecoration(
+                      color: accent.withOpacity(0.14),
+                      borderRadius: BorderRadius.circular(7),
+                    ),
+                    child: Icon(icon, size: 13, color: accent),
+                  ),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      label,
+                      style: const TextStyle(
+                        fontFamily: 'PlusJakartaSans',
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.midGray,
+                        letterSpacing: 1.2,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
                 child: Text(
-                  suffix,
-                  style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+                  value,
+                  style: const TextStyle(
+                    fontFamily: 'PlusJakartaSans',
+                    fontSize: 28,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.charcoal,
+                    height: 1.0,
+                    letterSpacing: -0.5,
+                  ),
                 ),
+              ),
+              const SizedBox(height: 4),
+              Row(
+                children: [
+                  Text(
+                    suffix,
+                    style: const TextStyle(
+                      fontFamily: 'PlusJakartaSans',
+                      fontSize: 11,
+                      color: AppColors.midGray,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  if (trend != null && trend! != 0) ...[
+                    const SizedBox(width: 6),
+                    _TrendChip(delta: trend!),
+                  ],
+                ],
               ),
             ],
           ),
-        ],
+        ),
       ),
     );
   }
 }
 
-/// A small progress bar with gradient fill.
+class _TrendChip extends StatelessWidget {
+  const _TrendChip({required this.delta});
+  final int delta;
+
+  @override
+  Widget build(BuildContext context) {
+    final positive = delta > 0;
+    return Text(
+      '${positive ? '+' : ''}$delta wk',
+      style: TextStyle(
+        fontFamily: 'PlusJakartaSans',
+        fontSize: 10,
+        color: positive ? AppColors.success : AppColors.error,
+        fontWeight: FontWeight.w700,
+      ),
+    );
+  }
+}
+
 class GradientProgressBar extends StatelessWidget {
   const GradientProgressBar({super.key, required this.fraction, this.height = 8});
   final double fraction;
@@ -118,9 +205,7 @@ class GradientProgressBar extends StatelessWidget {
           alignment: Alignment.centerLeft,
           widthFactor: fraction.clamp(0.0, 1.0),
           child: Container(
-            decoration: const BoxDecoration(
-              gradient: AppGradients.contrastHorizontal,
-            ),
+            decoration: const BoxDecoration(gradient: AppGradients.contrastHorizontal),
           ),
         ),
       ),

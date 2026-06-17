@@ -1,6 +1,7 @@
+import 'package:contrast_coach/core/constants/app_colors.dart';
+import 'package:contrast_coach/core/constants/app_spacing.dart';
 import 'package:contrast_coach/core/theme/gradients.dart';
 import 'package:flutter/material.dart';
-import 'package:contrast_coach/core/constants/app_colors.dart';
 
 class InsightBlock extends StatelessWidget {
   const InsightBlock({
@@ -20,13 +21,16 @@ class InsightBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tt = Theme.of(context).textTheme;
-    final cs = Theme.of(context).colorScheme;
     final tint = accent ?? AppColors.brandWarm;
-    return AppSurface(
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 22),
+    return AppCard(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.xl,
+        AppSpacing.xl,
+        AppSpacing.xl,
+        AppSpacing.xxl,
+      ),
       radius: 20,
-      elevation: 1,
+      elevation: AppCardElevation.soft,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -40,7 +44,8 @@ class InsightBlock extends StatelessWidget {
               ),
               child: Icon(icon, color: tint, size: 20),
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: AppSpacing.lg,
+            ),
           ],
           Expanded(
             child: Column(
@@ -48,21 +53,34 @@ class InsightBlock extends StatelessWidget {
               children: [
                 Text(
                   heroMetric,
-                  style: tt.displaySmall?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    height: 1.1,
+                  style: const TextStyle(
+                    fontFamily: 'PlusJakartaSans',
+                    fontSize: 24,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.charcoal,
+                    height: 1.0,
+                    letterSpacing: -0.5,
                   ),
                 ),
                 const SizedBox(height: 6),
                 Text(
                   title,
-                  style: tt.titleMedium?.copyWith(color: cs.onSurface),
+                  style: const TextStyle(
+                    fontFamily: 'PlusJakartaSans',
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.charcoal,
+                    height: 1.2,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   body,
-                  style: tt.bodyMedium?.copyWith(
-                    color: cs.onSurfaceVariant,
+                  style: const TextStyle(
+                    fontFamily: 'PlusJakartaSans',
+                    fontSize: 13,
+                    color: AppColors.darkGray,
+                    height: 1.4,
                   ),
                 ),
               ],
@@ -74,7 +92,6 @@ class InsightBlock extends StatelessWidget {
   }
 }
 
-/// Hero stat card with gradient background (used on Insights screen)
 class GradientHeroStat extends StatelessWidget {
   const GradientHeroStat({
     super.key,
@@ -92,7 +109,12 @@ class GradientHeroStat extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 28),
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.xxl,
+        AppSpacing.xxl,
+        AppSpacing.xxl,
+        AppSpacing.xxl + 4,
+      ),
       decoration: BoxDecoration(
         gradient: gradient ?? AppGradients.contrast,
         borderRadius: BorderRadius.circular(24),
@@ -110,7 +132,7 @@ class GradientHeroStat extends StatelessWidget {
               letterSpacing: 1.4,
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppSpacing.md),
           Text(
             value,
             style: const TextStyle(
@@ -122,12 +144,12 @@ class GradientHeroStat extends StatelessWidget {
               letterSpacing: -1.5,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: AppSpacing.sm),
           Text(
             delta,
             style: TextStyle(
               fontFamily: 'PlusJakartaSans',
-              color: AppColors.white.withOpacity(0.8),
+              color: AppColors.white.withOpacity(0.85),
               fontSize: 13,
               fontWeight: FontWeight.w500,
             ),
@@ -138,7 +160,6 @@ class GradientHeroStat extends StatelessWidget {
   }
 }
 
-/// Simple horizontal bar with rounded corners.
 class ContrastBar extends StatelessWidget {
   const ContrastBar({
     super.key,
