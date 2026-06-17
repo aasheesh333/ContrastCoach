@@ -51,6 +51,12 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _load() async {
+    // Tests don't wire up Firebase/Drift — bail out cleanly with empty state
+    // so `pumpAndSettle` returns quickly.
+    if (FirebaseAuthNullableProxy.auth == null) {
+      if (mounted) setState(() => _loading = false);
+      return;
+    }
     final keyProvider = SqlcipherKeyProvider(storage: const FlutterSecureStorage());
     final key = await keyProvider.getOrCreateKey();
     final db = AppDatabase(key);
