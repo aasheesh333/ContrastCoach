@@ -39,7 +39,7 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('contrast_coach/android/gradle/wrapper/gradle-wrapper.properties', 'contrast_coach/android/settings.gradle') }}
+          key: ${{ runner.os }}-gradle-${{ hashFiles('contrast_coach/android/gradle/wrapper/gradle-wrapper.properties', 'contrast_coach/android/settings.gradle', 'contrast_coach/android/**/*.gradle') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
 
@@ -91,7 +91,7 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('contrast_coach/android/gradle/wrapper/gradle-wrapper.properties', 'contrast_coach/android/settings.gradle') }}
+          key: ${{ runner.os }}-gradle-${{ hashFiles('contrast_coach/android/gradle/wrapper/gradle-wrapper.properties', 'contrast_coach/android/settings.gradle', 'contrast_coach/android/**/*.gradle') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
 
