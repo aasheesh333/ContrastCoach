@@ -32,288 +32,74 @@ class _SessionSummaryScreenState extends State<SessionSummaryScreen> {
   bool _loading = true;
 
   @override
-  void initState() {
-    super.initState();
-    _load();
-  }
+  void initState() { super.initState(); _load(); }
 
   Future<void> _load() async {
     final keyProvider = SqlcipherKeyProvider(storage: const FlutterSecureStorage());
-    final key = await keyProvider.getOrCreateKey();
-    final db = AppDatabase(key);
-    final repo = SessionRepositoryImpl(db);
-
-    final result = await repo.getById(widget.sessionId);
-    final allResult = await repo.getAll();
-    final sessions = allResult is Ok<List<Session>, AppException>
-        ? allResult.value
-        : <Session>[];
-
-    if (mounted) {
-      setState(() {
-        if (result is Ok<Session?, AppException>) _session = result.value;
-        _stats = computeSessionStats(sessions);
-        _loading = false;
-      });
-    }
-  }
-
-  domain.RecoveryScore _buildScore(Session session) {
-    final value = session.recoveryScore ?? 0;
-    final band = value <= 40
-        ? ScoreBand.low
-        : value <= 70
-            ? ScoreBand.moderate
-            : ScoreBand.strong;
-    final adherence = session.protocolRounds > 0
-        ? (session.roundsCompleted / session.protocolRounds).clamp(0.0, 1.0)
-        : 1.0;
-    final insight = _insightFor(session, adherence, band);
-    return domain.RecoveryScore(
-      value: value,
-      band: band,
-      insight: insight,
-      factors: const [],
-    );
-  }
-
-  String _insightFor(Session session, double adherence, ScoreBand band) {
-    if (session.recoveryScore == null) {
-      return 'Session saved. Insights will appear after the recovery score is calculated.';
-    }
-    if (adherence < 0.6) {
-      return '${band.label} session. Stick closer to your plan to lift your score.';
-    }
-    if (session.roundsCompleted >= session.protocolRounds) {
-      return '${band.label} session. You finished every round — keep that streak going.';
-    }
-    return '${band.label} session. ${(adherence * 100).round()}% of rounds completed.';
-  }
-
-  String _formatDuration(Duration d) {
-    final m = d.inMinutes;
-    final s = d.inSeconds % 60;
-    if (m == 0) return '${s}s';
-    return '${m}m ${s}s';
-  }
-
-  String _formatStreakBanner(int streak) {
-    if (streak <= 0) return 'No streak yet';
-    return '$streak day${streak == 1 ? '' : 's'} in a row';
+    final key = await keyProvider.getKey();
+    if (key == null) { setState(() => _loading = false); return; }
+    final repo = SessionRepository(db: AppDatabase(key));
+    final r = await repo.getSession(widget.sessionId);
+    if (!mounted) return;
+    r.fold((_) => setState(() => _loading = false), (session) async {
+      final r2 = await repo.getAllSessions();
+      final sessions = r2.isOk ? (r2 as Ok<List<Session>>).value : <Session>[];
+      setState(() { _session = session; _stats = computeSessionStats(sessions); _loading = false; });
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.warmBeige,
-      body: SafeArea(
-        child: _loading
-            ? const Center(
-                child: CircularProgressIndicator(color: AppColors.brandWarm),
-              )
-            : _session == null
-                ? const Center(child: Text('Session not found'))
-                : _SummaryBody(
-                    session: _session!,
-                    score: _buildScore(_session!),
-                    formatDuration: _formatDuration,
-                    stats: _stats,
-                  ),
-      ),
-    );
-  }
-}
+    final cs = Theme.of(context).colorScheme;
+    final pad = AppSpacing.adaptivePage(context);
+    if (_loading) return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    final s = _session;
+    if (s == null) return Scaffold(body: Center(child: Text('Session not found', style: cs.textTheme.bodyLarge)));
+    final score = s.recoveryScore ?? 75.0;
+    final band = bandForScore(score);
 
-class _SummaryBody extends StatelessWidget {
-  const _SummaryBody({
-    required this.session,
-    required this.score,
-    required this.formatDuration,
-    required this.stats,
-  });
-
-  final Session session;
-  final domain.RecoveryScore score;
-  final String Function(Duration) formatDuration;
-  final SessionStats stats;
-
-  String _formatStreakBanner(int streak) {
-    if (streak <= 0) return 'No streak yet';
-    return '$streak day${streak == 1 ? '' : 's'} in a row';
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.pageHorizontal,
-        AppSpacing.huge,
-        AppSpacing.pageHorizontal,
-        AppSpacing.huge,
-      ),
-      children: [
-        _Celebration(),
-        const SizedBox(height: AppSpacing.xxl),
-        Text(
-          'Session complete.',
-          textAlign: TextAlign.center,
-          style: const TextStyle(
-            fontFamily: 'PlusJakartaSans',
-            fontSize: 32,
-            fontWeight: FontWeight.w800,
-            color: AppColors.charcoal,
-            height: 1.1,
-            letterSpacing: -0.5,
-          ),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          '${formatDuration(session.totalActualDuration)} · ${session.roundsCompleted}/${session.protocolRounds} rounds',
-          textAlign: TextAlign.center,
-          style: const TextStyle(
-            fontFamily: 'PlusJakartaSans',
-            fontSize: 15,
-            color: AppColors.darkGray,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        const SizedBox(height: AppSpacing.huge),
-        RecoveryScoreCard(score: score),
-        const SizedBox(height: AppSpacing.huge),
-        _InsightRow(
-          icon: LucideIcons.check,
-          color: AppColors.brandWarm,
-          title: 'Plan adherence',
-          subtitle: _adherenceLine(session),
-        ),
+    return Scaffold(backgroundColor: cs.surface, body: SafeArea(child: SingleChildScrollView(padding: pad, child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      Container(padding: const EdgeInsets.all(AppSpacing.xxxl), decoration: BoxDecoration(gradient: const LinearGradient(colors: [AppColors.brandWarm, AppColors.brandCoral], begin: Alignment.topLeft, end: Alignment.bottomRight), borderRadius: BorderRadius.circular(24)), child: Column(children: [
+        Text('Session complete!', textAlign: TextAlign.center, style: cs.textTheme.headlineMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.w700)),
+        const SizedBox(height: AppSpacing.lg),
+        RecoveryScoreWidget(score: score, size: 96),
         const SizedBox(height: AppSpacing.md),
-        _InsightRow(
-          icon: LucideIcons.flame,
-          color: AppColors.brandCoral,
-          title: _formatStreakBanner(stats.streakDays),
-          subtitle: stats.streakDays > 0
-              ? 'You are ${stats.streakDays} day${stats.streakDays == 1 ? '' : 's'} into a new streak.'
-              : 'Finish one tomorrow to start a streak.',
-        ),
-        const SizedBox(height: AppSpacing.md),
-        _InsightRow(
-          icon: LucideIcons.timer,
-          color: AppColors.brandCool,
-          title: 'Total time tracked',
-          subtitle: '${stats.totalMinutes} minutes across ${stats.totalSessions} sessions',
-        ),
-        const SizedBox(height: AppSpacing.huge),
-        Row(
-          children: [
-            Expanded(
-              child: AppButton(
-                label: 'Done',
-                onPressed: () => context.go('/home'),
-                variant: AppButtonVariant.warm,
-                fullWidth: true,
-              ),
-            ),
-            const SizedBox(width: AppSpacing.md),
-            Expanded(
-              child: AppButton(
-                label: 'Insights',
-                onPressed: () => context.go('/insights'),
-                variant: AppButtonVariant.secondary,
-                fullWidth: true,
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  String _adherenceLine(Session s) {
-    if (s.protocolRounds == 0) return 'Custom session';
-    final pct = (s.roundsCompleted / s.protocolRounds * 100).round();
-    return '$pct% of planned rounds completed';
+        Text(band.label, style: cs.textTheme.titleLarge?.copyWith(color: Colors.white, fontWeight: FontWeight.w600)),
+        Text(band.subtitle, style: cs.textTheme.bodySmall?.copyWith(color: Colors.white.withOpacity(0.7))),
+      ])),
+      const SizedBox(height: AppSpacing.xxxl),
+      Row(children: [
+        Expanded(child: AppCard.section(child: _StatTile(icon: LucideIcons.timer, label: 'Duration', value: '${s.totalDuration.inMinutes}m', color: cs.primary))),
+        const SizedBox(width: AppSpacing.md),
+        Expanded(child: AppCard.section(child: _StatTile(icon: LucideIcons.flame, label: 'Streak', value: '${_stats.currentStreak}d', color: cs.tertiary))),
+      ]),
+      const SizedBox(height: AppSpacing.md),
+      Row(children: [
+        Expanded(child: AppCard.section(child: _StatTile(icon: LucideIcons.repeat, label: 'Rounds', value: '${s.roundsCompleted}/${s.protocolRounds}', color: cs.secondary))),
+        const SizedBox(width: AppSpacing.md),
+        Expanded(child: AppCard.section(child: _StatTile(icon: LucideIcons.activity, label: 'Score', value: '${score.round()}', color: AppColors.success))),
+      ]),
+      const SizedBox(height: AppSpacing.xxxl),
+      AppButton(label: 'Done', onPressed: () => context.go('/home'), variant: AppButtonVariant.warm, fullWidth: true, size: AppButtonSize.large),
+      const SizedBox(height: AppSpacing.md),
+      AppButton(label: 'Share progress', onPressed: () {}, variant: AppButtonVariant.secondary, fullWidth: true, leadingIcon: LucideIcons.share2),
+      SizedBox(height: AppSpacing.adaptiveBottom(context)),
+    ]))));
   }
 }
 
-class _Celebration extends StatelessWidget {
+class _StatTile extends StatelessWidget {
+  const _StatTile({required this.icon, required this.label, required this.value, required this.color});
+  final IconData icon; final String label; final String value; final Color color;
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Container(
-        width: 96,
-        height: 96,
-        decoration: BoxDecoration(
-          color: AppColors.successSoft,
-          shape: BoxShape.circle,
-          boxShadow: AppShadows.cardSoft,
-        ),
-        child: const Center(
-          child: Icon(LucideIcons.check, color: AppColors.charcoal, size: 48),
-        ),
-      ),
-    );
-  }
-}
-
-class _InsightRow extends StatelessWidget {
-  const _InsightRow({
-    required this.icon,
-    required this.color,
-    required this.title,
-    required this.subtitle,
-  });
-  final IconData icon;
-  final Color color;
-  final String title;
-  final String subtitle;
-
-  @override
-  Widget build(BuildContext context) {
-    return AppCard(
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      radius: 20,
-      elevation: AppCardElevation.soft,
-      child: Row(
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.12),
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Icon(icon, color: color, size: 22),
-          ),
-          const SizedBox(width: AppSpacing.lg),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontFamily: 'PlusJakartaSans',
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.charcoal,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  subtitle,
-                  style: const TextStyle(
-                    fontFamily: 'PlusJakartaSans',
-                    fontSize: 13,
-                    color: AppColors.darkGray,
-                    fontWeight: FontWeight.w500,
-                    height: 1.35,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
+    final cs = Theme.of(context).colorScheme;
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Container(width: 36, height: 36, decoration: BoxDecoration(color: color.withOpacity(0.12), borderRadius: BorderRadius.circular(10)), child: Icon(icon, color: color, size: 18)),
+      const SizedBox(height: AppSpacing.sm),
+      Text(value, style: cs.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w700)),
+      const SizedBox(height: 2),
+      Text(label, style: cs.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+    ]);
   }
 }
