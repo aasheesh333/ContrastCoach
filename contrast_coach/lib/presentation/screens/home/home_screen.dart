@@ -2,20 +2,22 @@ import 'package:contrast_coach/core/constants/app_colors.dart';
 import 'package:contrast_coach/core/constants/app_spacing.dart';
 import 'package:contrast_coach/core/errors/app_exception.dart';
 import 'package:contrast_coach/core/errors/result.dart';
+import 'package:contrast_coach/core/feature_gating.dart';
 import 'package:contrast_coach/data/local/database/app_database.dart';
 import 'package:contrast_coach/data/local/encryption/sqlcipher_key_provider.dart';
 import 'package:contrast_coach/data/repositories/protocol_repository.dart';
 import 'package:contrast_coach/data/repositories/session_repository.dart';
+import 'package:contrast_coach/data/repositories/subscription_repository.dart';
 import 'package:contrast_coach/data/repositories/user_profile_service.dart';
 import 'package:contrast_coach/domain/entities/protocol.dart';
 import 'package:contrast_coach/domain/entities/session.dart';
+import 'package:contrast_coach/domain/entities/subscription_tier.dart';
 import 'package:contrast_coach/domain/usecases/session_stats.dart';
 import 'package:contrast_coach/presentation/screens/home/firebase_auth_proxy.dart';
 import 'package:contrast_coach/presentation/widgets/atomic/app_card.dart';
 import 'package:contrast_coach/presentation/widgets/atomic/identity.dart';
 import 'package:contrast_coach/presentation/widgets/composite/hero_start_card.dart';
 import 'package:contrast_coach/presentation/widgets/composite/quick_stats_row.dart';
-import 'package:contrast_coach/presentation/widgets/layout/bottom_nav.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -42,6 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
     createdAt: null,
   );
   Protocol? _recommended;
+  SubscriptionTier _tier = SubscriptionTier.free;
   bool _loading = true;
 
   @override
@@ -96,12 +99,17 @@ class _HomeScreenState extends State<HomeScreen> {
     final profile = profileResult is Ok<UserProfile, AppException>
         ? profileResult.value
         : _profile;
+    final tierResult = await SubscriptionRepositoryImpl().currentTier();
+    final tier = tierResult is Ok<SubscriptionTier, AppException>
+        ? tierResult.value
+        : SubscriptionTier.free;
 
     if (mounted) {
       setState(() {
         _stats = computeSessionStats(sessions);
         _recommended = pick;
         _profile = profile;
+        _tier = tier;
         _loading = false;
       });
     }
@@ -109,7 +117,23 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _onStartSession() {
     final id = _recommended?.id ?? 'recovery_standard';
-    context.push('/session/$id');
+    _openProtocol(id);
+  }
+
+  void _openProtocol(String protocolId) {
+    if (!FeatureGating.canAccessProtocol(protocolId, _tier)) {
+      context.push('/paywall');
+      return;
+    }
+    context.push('/session/$protocolId');
+  }
+
+  void _openCustomProtocolBuilder() {
+    if (!FeatureGating.canUseCustomProtocols(_tier)) {
+      context.push('/paywall');
+      return;
+    }
+    context.push('/protocol/custom');
   }
 
   Protocol _placeholderProtocol() => Protocol(
@@ -163,7 +187,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     SectionHeader(
                       label: 'Pick a goal',
                       trailing: TextButton(
-                        onPressed: () => context.push('/protocol/custom'),
+                        onPressed: _openCustomProtocolBuilder,
                         child: const Text(
                           'Custom',
                           style: TextStyle(
@@ -182,7 +206,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         'immunity' => 'immunity_weekly',
                         _ => 'recovery_standard',
                       };
-                      context.push('/session/$id');
+                      _openProtocol(id);
                     }),
                     const SizedBox(height: AppSpacing.lg),
                     if (_stats.lastSession != null)
@@ -190,10 +214,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 ),
               ),
-      ),
-      bottomNavigationBar: ContrastBottomNav(
-        currentLocation: '/home',
-        onTap: (loc) => context.go(loc),
       ),
     );
   }

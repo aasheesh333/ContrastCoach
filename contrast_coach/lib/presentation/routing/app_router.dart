@@ -27,7 +27,29 @@ class AppRouter {
   static GoRouter build({required bool isOnboarded, required bool isAuthed}) {
     return GoRouter(
       initialLocation: isOnboarded ? (isAuthed ? '/home' : '/sign-in') : '/onboarding',
-      debugLogDiagnostics: false,      routes: [
+      debugLogDiagnostics: false,
+      redirect: (_, state) {
+        final path = state.uri.path;
+        final authRoutes = {'/sign-in', '/sign-up'};
+        final onboardingRoute = path == '/onboarding';
+        final isAuthRoute = authRoutes.contains(path);
+        final isPublicRoute = onboardingRoute || isAuthRoute;
+
+        if (!isOnboarded) {
+          return onboardingRoute ? null : '/onboarding';
+        }
+
+        if (!isAuthed) {
+          return isPublicRoute ? null : '/sign-in';
+        }
+
+        if (isPublicRoute) {
+          return '/home';
+        }
+
+        return null;
+      },
+      routes: [
         GoRoute(
           path: '/onboarding',
           name: RouteNames.onboarding,

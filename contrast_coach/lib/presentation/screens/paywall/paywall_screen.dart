@@ -2,11 +2,9 @@ import 'package:contrast_coach/core/constants/app_colors.dart';
 import 'package:contrast_coach/core/theme/gradients.dart';
 import 'package:contrast_coach/data/remote/firebase/analytics_api.dart';
 import 'package:contrast_coach/data/repositories/subscription_repository.dart';
-import 'package:contrast_coach/domain/entities/subscription_tier.dart';
 import 'package:contrast_coach/domain/repositories/subscription_repository.dart';
 import 'package:contrast_coach/presentation/widgets/atomic/app_button.dart';
 import 'package:contrast_coach/presentation/widgets/dialogs/medical_disclaimer_dialog.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -21,7 +19,7 @@ class PaywallScreen extends StatefulWidget {
 
 class _PaywallScreenState extends State<PaywallScreen> {
   final SubscriptionRepository _repo = SubscriptionRepositoryImpl();
-  final AnalyticsApi _analytics = AnalyticsApi(FirebaseAnalytics.instance);
+  final AnalyticsApi? _analytics = AnalyticsApi.tryCreate();
   List<Package> _packages = [];
   bool _loading = true;
   String? _selectedPeriod = 'yearly';
@@ -29,7 +27,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
   @override
   void initState() {
     super.initState();
-    _analytics.trackPaywallViewed();
+    _analytics?.trackPaywallViewed();
     _loadOfferings();
   }
 
@@ -56,7 +54,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
       },
       (tier) {
         if (tier.isPro) {
-          _analytics.trackSubscriptionStarted(tier.name);
+          _analytics?.trackSubscriptionStarted(tier.name);
           context.pop();
         } else {
           setState(() => _loading = false);

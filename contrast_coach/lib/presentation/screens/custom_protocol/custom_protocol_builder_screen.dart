@@ -4,14 +4,18 @@ import 'package:contrast_coach/core/constants/app_colors.dart';
 import 'package:contrast_coach/core/constants/app_typography.dart';
 import 'package:contrast_coach/core/errors/app_exception.dart';
 import 'package:contrast_coach/core/errors/result.dart';
+import 'package:contrast_coach/core/feature_gating.dart';
 import 'package:contrast_coach/data/local/database/app_database.dart';
 import 'package:contrast_coach/data/local/encryption/sqlcipher_key_provider.dart';
 import 'package:contrast_coach/data/repositories/custom_protocol_repository.dart';
+import 'package:contrast_coach/data/repositories/subscription_repository.dart';
 import 'package:contrast_coach/domain/entities/phase_template.dart';
 import 'package:contrast_coach/domain/entities/phase_type.dart';
 import 'package:contrast_coach/domain/entities/protocol.dart';
+import 'package:contrast_coach/domain/entities/subscription_tier.dart';
 import 'package:contrast_coach/domain/usecases/validate_custom_protocol.dart';
 import 'package:contrast_coach/presentation/widgets/atomic/app_button.dart';
+import 'package:contrast_coach/presentation/widgets/atomic/app_card.dart';
 import 'package:contrast_coach/presentation/widgets/atomic/app_chip.dart';
 import 'package:contrast_coach/presentation/widgets/atomic/app_icon.dart';
 import 'package:contrast_coach/presentation/widgets/atomic/app_slider.dart';
@@ -34,8 +38,28 @@ class _CustomProtocolBuilderScreenState extends State<CustomProtocolBuilderScree
   final _descriptionController = TextEditingController(text: 'Custom contrast routine');
   int _rounds = 1;
   final List<_PhaseDraft> _phases = [_PhaseDraft(type: PhaseType.sauna, durationSec: 600, tempC: 80)];
+  SubscriptionTier _tier = SubscriptionTier.free;
+  bool _checkingAccess = true;
   bool _saving = false;
   String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAccess();
+  }
+
+  Future<void> _loadAccess() async {
+    final tierResult = await SubscriptionRepositoryImpl().currentTier();
+    final tier = tierResult is Ok<SubscriptionTier, AppException>
+        ? tierResult.value
+        : SubscriptionTier.free;
+    if (!mounted) return;
+    setState(() {
+      _tier = tier;
+      _checkingAccess = false;
+    });
+  }
 
   @override
   void dispose() {
@@ -133,6 +157,66 @@ class _CustomProtocolBuilderScreenState extends State<CustomProtocolBuilderScree
 
   @override
   Widget build(BuildContext context) {
+    if (_checkingAccess) {
+      return const Scaffold(
+        backgroundColor: AppColors.offWhite,
+        body: Center(
+          child: CircularProgressIndicator(color: AppColors.brandWarm),
+        ),
+      );
+    }
+
+    if (!FeatureGating.canUseCustomProtocols(_tier)) {
+      return Scaffold(
+        backgroundColor: AppColors.offWhite,
+        body: SafeArea(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: AppCard(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(LucideIcons.lock, color: AppColors.brandWarm, size: 32),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Custom protocols are part of Pro.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontFamily: 'PlusJakartaSans',
+                        fontSize: 22,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.charcoal,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Upgrade to build your own sauna and plunge sequences, then save them for repeat sessions.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontFamily: 'PlusJakartaSans',
+                        fontSize: 14,
+                        color: AppColors.darkGray,
+                        height: 1.5,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    AppButton(
+                      label: 'Unlock Pro',
+                      onPressed: () => context.push('/paywall'),
+                      variant: AppButtonVariant.warm,
+                      fullWidth: true,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: AppColors.offWhite,
       body: SafeArea(

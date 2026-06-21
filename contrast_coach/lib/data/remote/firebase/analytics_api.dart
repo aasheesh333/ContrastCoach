@@ -1,10 +1,30 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:contrast_coach/core/preferences/app_preferences.dart';
 
 class AnalyticsApi {
   AnalyticsApi(this._analytics);
   final FirebaseAnalytics _analytics;
 
+  static AnalyticsApi? tryCreate() {
+    try {
+      return AnalyticsApi(FirebaseAnalytics.instance);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  static Future<void> syncCollectionEnabled() async {
+    try {
+      await FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(
+        AppPreferences.analyticsEnabled,
+      );
+    } catch (_) {
+      // Never crash on analytics configuration
+    }
+  }
+
   Future<void> track(String eventName, {Map<String, Object>? params}) async {
+    if (!AppPreferences.analyticsEnabled) return;
     try {
       await _analytics.logEvent(name: eventName, parameters: params);
     } catch (_) {

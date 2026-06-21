@@ -1,4 +1,6 @@
 import 'package:contrast_coach/core/constants/app_colors.dart';
+import 'package:contrast_coach/core/preferences/app_preferences.dart';
+import 'package:contrast_coach/data/remote/firebase/analytics_api.dart';
 import 'package:contrast_coach/presentation/widgets/atomic/app_switch.dart';
 import 'package:flutter/material.dart';
 
@@ -9,7 +11,14 @@ class PrivacyScreen extends StatefulWidget {
 }
 
 class _PrivacyScreenState extends State<PrivacyScreen> {
-  bool _analytics = true;
+  bool _analytics = AppPreferences.analyticsEnabled;
+
+  Future<void> _setAnalytics(bool value) async {
+    await AppPreferences.setAnalyticsEnabled(value);
+    await AnalyticsApi.syncCollectionEnabled();
+    if (!mounted) return;
+    setState(() => _analytics = value);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -73,7 +82,7 @@ class _PrivacyScreenState extends State<PrivacyScreen> {
                     ),
                     AppSwitch(
                       value: _analytics,
-                      onChanged: (v) => setState(() => _analytics = v),
+                      onChanged: (value) => _setAnalytics(value),
                     ),
                   ],
                 ),

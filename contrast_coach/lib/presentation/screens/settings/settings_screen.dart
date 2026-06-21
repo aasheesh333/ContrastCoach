@@ -2,6 +2,7 @@ import 'package:contrast_coach/core/constants/app_colors.dart';
 import 'package:contrast_coach/core/constants/app_spacing.dart';
 import 'package:contrast_coach/core/errors/app_exception.dart';
 import 'package:contrast_coach/core/errors/result.dart';
+import 'package:contrast_coach/core/preferences/app_preferences.dart';
 import 'package:contrast_coach/data/repositories/user_profile_service.dart';
 import 'package:contrast_coach/data/repositories/session_repository.dart';
 import 'package:contrast_coach/data/local/database/app_database.dart';
@@ -71,9 +72,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
       setState(() {
         _profile = profile;
         _stats = computeSessionStats(sessions);
+        _voice = AppPreferences.voiceEnabled;
+        _notifications = AppPreferences.notificationsEnabled;
         _loading = false;
       });
     }
+  }
+
+  Future<void> _setVoice(bool value) async {
+    await AppPreferences.setVoiceEnabled(value);
+    if (!mounted) return;
+    setState(() => _voice = value);
+  }
+
+  Future<void> _setNotifications(bool value) async {
+    await AppPreferences.setNotificationsEnabled(value);
+    if (!mounted) return;
+    setState(() => _notifications = value);
   }
 
   @override
@@ -134,7 +149,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     iconColor: AppColors.brandCool,
                     trailing: AppSwitch(
                       value: _voice,
-                      onChanged: (v) => setState(() => _voice = v),
+                      onChanged: (value) => _setVoice(value),
                     ),
                   ),
                   const AppDivider(),
@@ -144,7 +159,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     iconColor: AppColors.brandCoral,
                     trailing: AppSwitch(
                       value: _notifications,
-                      onChanged: (v) => setState(() => _notifications = v),
+                      onChanged: (value) => _setNotifications(value),
                     ),
                   ),
                   const SectionHeader(label: 'Privacy'),

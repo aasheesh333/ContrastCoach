@@ -1,4 +1,6 @@
 import 'package:contrast_coach/core/constants/app_colors.dart';
+import 'package:contrast_coach/core/feature_gating.dart';
+import 'package:contrast_coach/core/preferences/app_preferences.dart';
 import 'package:contrast_coach/core/utils/score_calculator.dart';
 import 'package:contrast_coach/data/audio/audio_cue_service.dart';
 import 'package:contrast_coach/data/local/database/app_database.dart';
@@ -6,16 +8,19 @@ import 'package:contrast_coach/data/local/encryption/sqlcipher_key_provider.dart
 import 'package:contrast_coach/data/remote/firebase/analytics_api.dart';
 import 'package:contrast_coach/data/repositories/protocol_repository.dart';
 import 'package:contrast_coach/data/repositories/session_repository.dart';
+import 'package:contrast_coach/data/repositories/subscription_repository.dart';
 import 'package:contrast_coach/data/voice/speech_to_text_client.dart';
 import 'package:contrast_coach/domain/entities/goal.dart';
 import 'package:contrast_coach/domain/entities/phase.dart';
 import 'package:contrast_coach/domain/entities/phase_type.dart';
 import 'package:contrast_coach/domain/entities/protocol.dart';
 import 'package:contrast_coach/domain/entities/session.dart';
+import 'package:contrast_coach/domain/entities/subscription_tier.dart';
 import 'package:contrast_coach/domain/entities/voice_command.dart';
 import 'package:contrast_coach/domain/voice/command_parser.dart';
+import 'package:contrast_coach/presentation/screens/home/firebase_auth_proxy.dart';
+import 'package:contrast_coach/presentation/widgets/atomic/app_button.dart';
 import 'package:contrast_coach/presentation/widgets/composite/session_timer.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -50,7 +55,8 @@ class _ActiveSessionScreenState extends State<ActiveSessionScreen>
   late final Ticker _ticker;
   final SpeechToTextClient _stt = SpeechToTextClient();
   final AudioCueService _audio = AudioCueService();
-  final AnalyticsApi _analytics = AnalyticsApi(FirebaseAnalytics.instance);
+  final AnalyticsApi? _analytics = AnalyticsApi.tryCreate();
+  SubscriptionTier _tier = SubscriptionTier.free;
   bool _voiceActive = false;
 
   int get _currentRound => _totalPhasesCompleted ~/ (_protocol?.phases.length ?? 1);
@@ -71,10 +77,22 @@ class _ActiveSessionScreenState extends State<ActiveSessionScreen>
   void initState() {
     super.initState();
     _ticker = createTicker(_onTick);
-    _initSession();
-    _initVoice();
+    _bootstrap();
+  }
+
+  Future<void> _bootstrap() async {
+    final tierResult = await SubscriptionRepositoryImpl().currentTier();
+    final tier = tierResult.fold((_) => SubscriptionTier.free, (value) => value);
+    if (!mounted) return;
+    if (!FeatureGating.canAccessProtocol(widget.protocolId, tier)) {
+      context.go('/paywall');
+      return;
+    }
+    _tier = tier;
+    await _initSession();
+    await _initVoice();
     _audio.playSessionStart();
-    _analytics.trackSessionStarted(widget.protocolId);
+    _analytics?.trackSessionStarted(widget.protocolId);
   }
 
   Future<void> _initSession() async {
@@ -109,6 +127,9 @@ class _ActiveSessionScreenState extends State<ActiveSessionScreen>
   }
 
   Future<void> _initVoice() async {
+    if (!AppPreferences.voiceEnabled || !FeatureGating.canUseVoiceControl(_tier)) return;
+    final hasPermission = await _stt.requestPermission();
+    if (!hasPermission) return;
     final ok = await _stt.init();
     if (ok && mounted) {
       setState(() => _voiceActive = true);
@@ -203,7 +224,7 @@ class _ActiveSessionScreenState extends State<ActiveSessionScreen>
     final session = _buildSession();
     await _saveSession(session);
     if (session.recoveryScore != null) {
-      _analytics.trackSessionCompleted(widget.protocolId, session.recoveryScore!);
+      _analytics?.trackSessionCompleted(widget.protocolId, session.recoveryScore!);
     }
     if (mounted) context.push('/summary/${session.id}');
   }
@@ -240,6 +261,7 @@ class _ActiveSessionScreenState extends State<ActiveSessionScreen>
 
     final session = Session(
       id: const Uuid().v4(),
+      userId: FirebaseAuthNullableProxy.tryGet()?.currentUser?.uid,
       protocolId: widget.protocolId,
       goal: _goalFromProtocol(widget.protocolId),
       startedAt: _sessionStartedAt!,
@@ -288,6 +310,47 @@ class _ActiveSessionScreenState extends State<ActiveSessionScreen>
     _stt.stopListening();
     _audio.dispose();
     super.dispose();
+  }
+
+  void _togglePause() {
+    if (_paused) {
+      setState(() => _paused = false);
+      _ticker.start();
+      return;
+    }
+    _totalPhaseElapsed += _lastElapsed;
+    _ticker.stop();
+    setState(() => _paused = true);
+  }
+
+  void _showVoiceStatus() {
+    if (_voiceActive) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: AppColors.white.withOpacity(0.9),
+          content: const Text(
+            "Listening. Say 'next phase' to continue.",
+            style: TextStyle(color: AppColors.charcoal),
+          ),
+        ),
+      );
+      return;
+    }
+
+    if (!FeatureGating.canUseVoiceControl(_tier)) {
+      context.push('/paywall');
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: AppColors.white.withOpacity(0.9),
+        content: const Text(
+          'Voice control is off. Enable it in Settings to use the mic during sessions.',
+          style: TextStyle(color: AppColors.charcoal),
+        ),
+      ),
+    );
   }
 
   @override
@@ -340,49 +403,52 @@ class _ActiveSessionScreenState extends State<ActiveSessionScreen>
                   currentRound: _currentRound + 1,
                   totalRounds: _protocol!.rounds,
                   targetTempC: _protocol!.phases[_currentPhaseIndex].targetTempC,
-                  onPause: () {
-                    if (_paused) {
-                      setState(() => _paused = false);
-                      _ticker.start();
-                    } else {
-                      _totalPhaseElapsed += _lastElapsed;
-                      _ticker.stop();
-                      setState(() => _paused = true);
-                    }
-                  },
-                  onMic: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        backgroundColor: AppColors.white.withOpacity(0.9),
-                        content: Text(
-                          _voiceActive
-                              ? "Listening. Say 'next phase' to continue."
-                              : 'Tap to enable voice control in Settings.',
-                          style: const TextStyle(color: AppColors.charcoal),
-                        ),
-                      ),
-                    );
-                  },
+                  onPause: _togglePause,
+                  onMic: _showVoiceStatus,
                 ),
               ),
-              // Bottom: end button
+              // Bottom: controls
               Positioned(
                 bottom: 16,
-                left: 0,
-                right: 0,
-                child: Center(
-                  child: TextButton(
-                    onPressed: _handleEnd,
-                    child: const Text(
-                      'End session',
-                      style: TextStyle(
-                        color: AppColors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 0.5,
+                left: 16,
+                right: 16,
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: AppButton(
+                            label: _paused ? 'Resume' : 'Pause',
+                            onPressed: _togglePause,
+                            variant: AppButtonVariant.secondary,
+                            fullWidth: true,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: AppButton(
+                            label: 'Next phase',
+                            onPressed: () => _advanceToNextPhase(_totalPhaseElapsed + _lastElapsed),
+                            variant: AppButtonVariant.warm,
+                            fullWidth: true,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    TextButton(
+                      onPressed: _handleEnd,
+                      child: const Text(
+                        'End session',
+                        style: TextStyle(
+                          color: AppColors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.5,
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                 ),
               ),
             ],

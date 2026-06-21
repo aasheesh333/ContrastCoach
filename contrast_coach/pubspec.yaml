@@ -65,6 +65,7 @@ dependencies:
   workmanager: ^0.6.0
   firebase_crashlytics: ^4.3.7
   google_fonts: ^6.2.1
+  shared_preferences: ^2.3.3
 
 dev_dependencies:
   flutter_test:
@@ -102,7 +103,6 @@ flutter:
     - assets/audio/session_start.wav
     - assets/audio/phase_transition.wav
     - assets/audio/session_complete.wav
-    - .env.example
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

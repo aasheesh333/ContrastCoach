@@ -56,10 +56,10 @@ jobs:
         run: dart run build_runner build --delete-conflicting-outputs
 
       - name: Analyze
-        run: flutter analyze --no-fatal-infos --no-fatal-warnings || true
+        run: flutter analyze --no-fatal-infos --no-fatal-warnings
 
       - name: Check formatting
-        run: dart format --set-exit-if-changed lib/ test/ || true
+        run: dart format --set-exit-if-changed lib/ test/
 
       - name: Run tests
         run: flutter test --coverage
@@ -108,7 +108,15 @@ jobs:
         run: dart run build_runner build --delete-conflicting-outputs
 
       - name: Build debug APK
-        run: flutter build apk --debug --flavor dev
+        run: |
+          flutter build apk --debug --flavor dev \
+            --dart-define=FIREBASE_API_KEY=${{ secrets.FIREBASE_API_KEY }} \
+            --dart-define=FIREBASE_PROJECT_ID=${{ secrets.FIREBASE_PROJECT_ID }} \
+            --dart-define=FIREBASE_APP_ID=${{ secrets.FIREBASE_APP_ID }} \
+            --dart-define=FIREBASE_MESSAGING_SENDER_ID=${{ secrets.FIREBASE_MESSAGING_SENDER_ID }} \
+            --dart-define=FIREBASE_STORAGE_BUCKET=${{ secrets.FIREBASE_STORAGE_BUCKET }} \
+            --dart-define=REVENUECAT_API_KEY=${{ secrets.REVENUECAT_API_KEY }} \
+            --dart-define=ENV=dev
 
       - name: Upload APK
         uses: actions/upload-artifact@v4

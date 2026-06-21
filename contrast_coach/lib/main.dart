@@ -2,7 +2,10 @@ import 'dart:async';
 
 import 'package:contrast_coach/app.dart';
 import 'package:contrast_coach/core/env/env_config.dart';
+import 'package:contrast_coach/core/preferences/app_preferences.dart';
+import 'package:contrast_coach/data/background/sync_worker.dart';
 import 'package:contrast_coach/data/remote/crash/crashlytics_client.dart';
+import 'package:contrast_coach/data/remote/firebase/analytics_api.dart';
 import 'package:contrast_coach/data/remote/firebase/firebase_config.dart';
 import 'package:contrast_coach/data/remote/subscription/revenue_cat_client.dart';
 import 'package:contrast_coach/data/repositories/subscription_repository.dart';
@@ -14,9 +17,12 @@ import 'package:contrast_coach/data/notifications/notification_service.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EnvConfig.init();
+  await AppPreferences.init();
   await _initFirebaseSafely();
+  await AnalyticsApi.syncCollectionEnabled();
   await _initNotificationsSafely();
   await _initCrashlyticsSafely();
+  await SyncWorker.init();
   await RevenueCatBootstrap.init();
   unawaited(_restoreOnLaunch());
   runApp(const ContrastCoachApp());

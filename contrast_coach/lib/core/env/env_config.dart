@@ -1,5 +1,4 @@
 import 'package:contrast_coach/core/env/env_keys.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class EnvConfig {
   const EnvConfig._();
@@ -8,21 +7,13 @@ class EnvConfig {
 
   static Future<void> init() async {
     if (_initialized) return;
-    try {
-      await dotenv.load(fileName: '.env.example');
-    } catch (_) {
-      // .env file may not exist in tests / CI; ignore
-    }
     _initialized = true;
   }
 
   static String? _read(String key) {
     final fromDefine = String.fromEnvironment(key, defaultValue: '');
     if (fromDefine.isNotEmpty) return fromDefine;
-    if (!dotenv.isInitialized) return null;
-    final v = dotenv.env[key];
-    if (v == null || v.isEmpty) return null;
-    return v;
+    return null;
   }
 
   static String? get env {

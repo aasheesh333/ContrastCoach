@@ -1,6 +1,7 @@
 import 'package:contrast_coach/core/constants/app_colors.dart';
 import 'package:contrast_coach/core/constants/app_spacing.dart';
 import 'package:contrast_coach/core/constants/app_strings.dart';
+import 'package:contrast_coach/core/preferences/app_preferences.dart';
 import 'package:contrast_coach/presentation/widgets/atomic/app_button.dart';
 import 'package:contrast_coach/presentation/widgets/atomic/app_card.dart';
 import 'package:contrast_coach/presentation/widgets/dialogs/medical_disclaimer_dialog.dart';
@@ -19,7 +20,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   int _step = 0;
   bool _disclaimerAcknowledged = false;
 
-  void _next() {
+  Future<void> _next() async {
     if (_step == 2 && !_disclaimerAcknowledged) {
       showDialog<void>(
         context: context,
@@ -36,6 +37,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     if (_step < 2) {
       setState(() => _step++);
     } else {
+      await AppPreferences.setOnboardingComplete(true);
+      if (!mounted) return;
       context.go('/sign-in');
     }
   }
@@ -69,7 +72,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   const SizedBox(height: AppSpacing.lg),
                   AppButton(
                     label: _step == 2 ? 'Get started' : 'Continue',
-                    onPressed: _next,
+                    onPressed: () => _next(),
                     variant: AppButtonVariant.warm,
                     fullWidth: true,
                     size: AppButtonSize.large,

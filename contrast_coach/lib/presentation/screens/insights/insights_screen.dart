@@ -2,22 +2,27 @@ import 'package:contrast_coach/core/constants/app_colors.dart';
 import 'package:contrast_coach/core/constants/app_spacing.dart';
 import 'package:contrast_coach/core/errors/app_exception.dart';
 import 'package:contrast_coach/core/errors/result.dart';
+import 'package:contrast_coach/core/feature_gating.dart';
 import 'package:contrast_coach/data/local/database/app_database.dart';
 import 'package:contrast_coach/data/local/encryption/sqlcipher_key_provider.dart';
 import 'package:contrast_coach/data/repositories/protocol_repository.dart';
 import 'package:contrast_coach/data/repositories/session_repository.dart';
+import 'package:contrast_coach/data/repositories/subscription_repository.dart';
 import 'package:contrast_coach/domain/entities/goal.dart';
 import 'package:contrast_coach/domain/entities/insight.dart';
 import 'package:contrast_coach/domain/entities/protocol.dart';
 import 'package:contrast_coach/domain/entities/session.dart';
+import 'package:contrast_coach/domain/entities/subscription_tier.dart';
 import 'package:contrast_coach/domain/usecases/generate_insights.dart';
 import 'package:contrast_coach/domain/usecases/session_stats.dart';
+import 'package:contrast_coach/presentation/widgets/atomic/app_button.dart';
 import 'package:contrast_coach/presentation/widgets/atomic/app_card.dart';
 import 'package:contrast_coach/presentation/widgets/atomic/app_chip.dart';
 import 'package:contrast_coach/presentation/widgets/composite/insight_block.dart';
 import 'package:contrast_coach/presentation/widgets/layout/app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 enum _Range { week, month, year }
@@ -32,6 +37,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
   List<Insight> _insights = const [];
   SessionStats _stats = computeSessionStats(const []);
   Map<String, Protocol> _protocolsById = {};
+  SubscriptionTier _tier = SubscriptionTier.free;
   _Range _range = _Range.month;
   bool _loading = true;
 
@@ -48,6 +54,20 @@ class _InsightsScreenState extends State<InsightsScreen> {
   }
 
   Future<void> _load() async {
+    final tierResult = await SubscriptionRepositoryImpl().currentTier();
+    final tier = tierResult is Ok<SubscriptionTier, AppException>
+        ? tierResult.value
+        : SubscriptionTier.free;
+    if (!FeatureGating.canUseInsights(tier)) {
+      if (mounted) {
+        setState(() {
+          _tier = tier;
+          _loading = false;
+        });
+      }
+      return;
+    }
+
     final keyProvider = SqlcipherKeyProvider(storage: const FlutterSecureStorage());
     final key = await keyProvider.getOrCreateKey();
     final db = AppDatabase(key);
@@ -73,6 +93,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
           period: _period,
         );
         _protocolsById = {for (final p in all) p.id: p};
+        _tier = tier;
         _loading = false;
       });
     }
@@ -89,6 +110,8 @@ class _InsightsScreenState extends State<InsightsScreen> {
             ? const Center(
                 child: CircularProgressIndicator(color: AppColors.brandWarm),
               )
+            : !FeatureGating.canUseInsights(_tier)
+                ? _paywallGate(context)
             : _stats.isEmpty
                 ? _emptyState()
                 : ListView(
@@ -195,6 +218,52 @@ class _InsightsScreenState extends State<InsightsScreen> {
                       ),
                     ],
                   ),
+      ),
+    );
+  }
+
+  Widget _paywallGate(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.pageHorizontal),
+        child: AppCard(
+          padding: const EdgeInsets.all(AppSpacing.xxl),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(LucideIcons.sparkles, color: AppColors.brandWarm, size: 32),
+              const SizedBox(height: AppSpacing.md),
+              const Text(
+                'Insights are part of Pro.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
+                  fontSize: 22,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.charcoal,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              const Text(
+                'Unlock trend analysis, streak patterns, and recovery guidance with ContrastCoach Pro.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
+                  fontSize: 14,
+                  color: AppColors.darkGray,
+                  height: 1.5,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              AppButton(
+                label: 'See Pro plans',
+                onPressed: () => context.push('/paywall'),
+                variant: AppButtonVariant.warm,
+                fullWidth: true,
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

@@ -36,14 +36,45 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Write google-services.json
+        run: echo "${{ secrets.GOOGLE_SERVICES_JSON }}" | base64 --decode > android/app/google-services.json
+
+      - name: Write release keystore
+        run: echo "${{ secrets.RELEASE_KEYSTORE }}" | base64 --decode > android/app/release.keystore
+
+      - name: Write key.properties
+        run: |
+          cat > android/key.properties << EOF
+          storePassword=${{ secrets.KEYSTORE_PASSWORD }}
+          storeFile=release.keystore
+          keyAlias=${{ secrets.KEY_ALIAS }}
+          keyPassword=${{ secrets.KEY_PASSWORD }}
+          EOF
+
       - name: Verify code generation
         run: dart run build_runner build --delete-conflicting-outputs
 
       - name: Build App Bundle
-        run: flutter build appbundle --release --flavor prod 2>&1 | tail -200
+        run: |
+          flutter build appbundle --release --flavor prod \
+            --dart-define=FIREBASE_API_KEY=${{ secrets.FIREBASE_API_KEY }} \
+            --dart-define=FIREBASE_PROJECT_ID=${{ secrets.FIREBASE_PROJECT_ID }} \
+            --dart-define=FIREBASE_APP_ID=${{ secrets.FIREBASE_APP_ID }} \
+            --dart-define=FIREBASE_MESSAGING_SENDER_ID=${{ secrets.FIREBASE_MESSAGING_SENDER_ID }} \
+            --dart-define=FIREBASE_STORAGE_BUCKET=${{ secrets.FIREBASE_STORAGE_BUCKET }} \
+            --dart-define=REVENUECAT_API_KEY=${{ secrets.REVENUECAT_API_KEY }} \
+            --dart-define=ENV=prod 2>&1 | tail -200
 
       - name: Build universal APK
-        run: flutter build apk --release --flavor prod 2>&1 | tail -50
+        run: |
+          flutter build apk --release --flavor prod \
+            --dart-define=FIREBASE_API_KEY=${{ secrets.FIREBASE_API_KEY }} \
+            --dart-define=FIREBASE_PROJECT_ID=${{ secrets.FIREBASE_PROJECT_ID }} \
+            --dart-define=FIREBASE_APP_ID=${{ secrets.FIREBASE_APP_ID }} \
+            --dart-define=FIREBASE_MESSAGING_SENDER_ID=${{ secrets.FIREBASE_MESSAGING_SENDER_ID }} \
+            --dart-define=FIREBASE_STORAGE_BUCKET=${{ secrets.FIREBASE_STORAGE_BUCKET }} \
+            --dart-define=REVENUECAT_API_KEY=${{ secrets.REVENUECAT_API_KEY }} \
+            --dart-define=ENV=prod 2>&1 | tail -50
 
       - name: List build outputs
         run: ls -laR contrast_coach/build/app/outputs/ 2>&1 | tail -20
@@ -74,4 +105,3 @@ jobs:
           packageName: com.dhanuk.contrastcoach
           releaseFiles: contrast_coach/build/app/outputs/bundle/prodRelease/app-prod-release.aab
           track: internal
-        continue-on-error: true
