@@ -52,10 +52,10 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Generate code
+- name: Generate code
         run: dart run build_runner build --delete-conflicting-outputs
 
-- name: Analyze
+      - name: Analyze
         run: flutter analyze --no-fatal-infos --no-fatal-warnings || true
 
       - name: Check formatting
