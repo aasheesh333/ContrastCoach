@@ -49,4 +49,10 @@ class AppPreferences {
     await _prefs!.setBool(_notificationsEnabledKey, value);
     changes.value++;
   }
+
+  static Future<void> clearAll() async {
+    await init();
+    await _prefs!.clear();
+    changes.value++;
+  }
 }

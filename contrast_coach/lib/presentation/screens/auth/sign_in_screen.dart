@@ -148,7 +148,7 @@ class _SignInScreenState extends State<SignInScreen> {
                 obscureText: _obscurePassword,
                 autofillHints: const [AutofillHints.password],
                 prefixIcon: LucideIcons.lock,
-                suffixIcon: IconButton(
+                suffix: IconButton(
                   icon: Icon(
                     _obscurePassword ? LucideIcons.eyeOff : LucideIcons.eye,
                     color: AppColors.midGray,

@@ -12,6 +12,7 @@ class AppTextField extends StatelessWidget {
     this.errorText,
     this.maxLines = 1,
     this.prefixIcon,
+    this.suffix,
   });
 
   final String label;
@@ -23,6 +24,7 @@ class AppTextField extends StatelessWidget {
   final String? errorText;
   final int maxLines;
   final IconData? prefixIcon;
+  final Widget? suffix;
 
   @override
   Widget build(BuildContext context) {
@@ -41,6 +43,7 @@ class AppTextField extends StatelessWidget {
         filled: true,
         fillColor: cs.surface,
         prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
+        suffixIcon: suffix,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide(color: cs.outline),

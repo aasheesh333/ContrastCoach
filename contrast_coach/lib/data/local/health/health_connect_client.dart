@@ -138,12 +138,14 @@ class HealthConnectClient implements HealthRepository {
           return result;
         }
         // Check if error is rate limit related
-        final err = result.error;
-        if (err is HealthReadException && _isRateLimitError(err.message)) {
-          attempt++;
-          if (attempt < _maxRetries) {
-            await Future.delayed(_baseDelay * (1 << attempt)); // Exponential backoff
-            continue;
+        if (result.isErr) {
+          final err = (result as Err<T, AppException>).error;
+          if (err is HealthReadException && _isRateLimitError(err.message)) {
+            attempt++;
+            if (attempt < _maxRetries) {
+              await Future.delayed(_baseDelay * (1 << attempt)); // Exponential backoff
+              continue;
+            }
           }
         }
         return result;

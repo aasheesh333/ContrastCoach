@@ -5,7 +5,6 @@ import 'package:contrast_coach/data/local/encryption/sqlcipher_key_provider.dart
 import 'package:contrast_coach/data/repositories/session_repository.dart';
 import 'package:contrast_coach/data/local/health/health_connect_client.dart';
 import 'package:contrast_coach/data/repositories/subscription_repository.dart';
-import 'package:contrast_coach/data/repositories/user_profile_service.dart';
 import 'package:contrast_coach/domain/usecases/delete_user_data.dart';
 import 'package:contrast_coach/presentation/widgets/atomic/app_button.dart';
 import 'package:contrast_coach/presentation/widgets/atomic/app_switch.dart';
@@ -57,8 +56,6 @@ class DeleteAccountScreen extends StatelessWidget {
       final db = AppDatabase(key);
       final repo = SessionRepositoryImpl(db);
       final healthClient = HealthConnectClient();
-      final prefs = AppPreferences();
-      final userProfile = UserProfileService();
 
       // 1. Cancel Workmanager periodic sync
       await Workmanager().cancelAll();
@@ -76,10 +73,9 @@ class DeleteAccountScreen extends StatelessWidget {
       await const FlutterSecureStorage().delete(key: 'sqlcipher_key');
 
       // 5. Clear all SharedPreferences (onboarding, settings, analytics opt-out, etc.)
-      await prefs.clearAll();
+      await AppPreferences.clearAll();
 
-      // 6. Clear user profile data
-      await userProfile.clear();
+      // 6. Clear user profile data — handled by FirebaseAuth account deletion above
 
       // 7. Dispose health client
       healthClient.dispose();
