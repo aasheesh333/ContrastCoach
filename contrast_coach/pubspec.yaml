@@ -28,7 +28,10 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
-  flutter:
+  dependency_overrides:
+  shared_preferences_android: 2.3.4
+
+flutter:
     sdk: flutter
 
 
@@ -91,6 +94,9 @@ dev_dependencies:
 # following page: https://dart.dev/tools/pub/pubspec
 
 # The following section is specific to Flutter packages.
+dependency_overrides:
+  shared_preferences_android: 2.3.4
+
 flutter:
 
   # The following line ensures that the Material Icons font is

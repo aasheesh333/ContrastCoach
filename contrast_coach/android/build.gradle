@@ -1,18 +1,4 @@
-// Some Flutter plugins (e.g. speech_to_text 7.x, package_info_plus,
-// jni) reference `flutter.compileSdkVersion` / `flutter.ndkVersion`
-// from within their android { } block. The real Flutter Gradle Plugin
-// only registers the `flutter` extension on the :app project, so
-// plugin subprojects fail with: "Could not get unknown property
-// 'flutter' for extension 'android' of type
-// com.android.build.gradle.LibraryExtension".
-//
-// We work around this by registering a minimal `flutter` stub on
-// every plugin subproject before it's evaluated, both at the project
-// level (so bare-property access via the closure owner finds it) and,
-// once the Android library plugin is applied, on the android
-// extension itself (so delegate-first lookup inside `android { }`
-// finds it too). This is strictly additive and does not interfere
-// with the real Flutter Gradle Plugin on :app.
+// Flutter Gradle Plugin stub for plugin subproject compatibility.
 class FlutterPluginStub {
     int compileSdkVersion = 34
     int minSdkVersion = 21
@@ -23,11 +9,9 @@ class FlutterPluginStub {
 gradle.beforeProject { subproject ->
     if (subproject == rootProject) { return }
     if (subproject.path == ':app') { return }
-
     if (subproject.extensions.findByName('flutter') == null) {
         subproject.extensions.add('flutter', new FlutterPluginStub())
     }
-
     subproject.plugins.withId('com.android.library') {
         def androidExt = subproject.extensions.findByName('android')
         if (androidExt != null && androidExt.extensions.findByName('flutter') == null) {
@@ -43,17 +27,6 @@ allprojects {
     }
 }
 
-subprojects {
-    configurations.all {
-        resolutionStrategy.eachDependency { DependencyResolveDetails details ->
-            if (details.requested.group == 'io.flutter' &&
-                details.requested.name == 'shared_preferences_android') {
-                details.useVersion '2.4.23'
-            }
-        }
-    }
-}
-
 buildscript {
     repositories {
         google()
@@ -64,14 +37,14 @@ buildscript {
     }
 }
 
-rootProject.buildDir = '../build'
+rootProject.buildDir = "../build"
 subprojects {
-    project.buildDir = new File(rootProject.buildDir as String, project.name)
+    project.buildDir = new File(rootProject.buildDir, project.name)
 }
 subprojects {
-    project.evaluationDependsOn(':app')
+    project.evaluationDependsOn(":app")
 }
 
-tasks.register('clean', Delete) {
+tasks.register("clean", Delete) {
     delete rootProject.buildDir
 }
