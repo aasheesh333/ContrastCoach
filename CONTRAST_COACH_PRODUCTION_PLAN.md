@@ -625,28 +625,25 @@ if (_error != null) {
 
 ## 7. UI/UX Analysis & Improvements
 
-### 7.1 Design System Divergence (MAJOR)
+### 7.1 Design System — Warm/Cool Palette (FINAL)
 
-The master plan specifies **"Monochrome Material 3 Expressive"** with strict rules:
-- "No blue, red, green, orange, or any chromatic accent. Ever."
-- "No gradients except monochrome tonal."
-- "All states communicate via opacity, weight, or shape. Never color."
+The app uses a **warm/cool color palette** — this is the **final, confirmed design direction**. The original master plan's monochrome concept has been superseded. The warm/cool palette is the right choice for a contrast therapy app: orange represents heat (sauna), blue represents cold (plunge). This metaphorical color mapping is more intuitive and visually engaging than a monochrome approach.
 
-The actual implementation uses a **warm/cool color palette**:
-- `brandWarm = #FF6B35` (vibrant orange)
-- `brandCool = #2D7CF1` (bright blue)
-- `brandCoral = #FF8A65` (coral)
-- `brandCoralPop = #FF6B9D` (pink)
-- `success = #4CAF50` (green)
-- `error = #E53935` (red)
-- Heatmap: 5-level orange gradient
+**Current palette (keep and refine):**
+- `brandWarm = #FF6B35` (vibrant orange — heat/sauna/primary brand)
+- `brandCool = #2D7CF1` (bright blue — cold/plunge/secondary brand)
+- `brandCoral = #FF8A65` (coral — warm accent)
+- `brandCoralPop = #FF6B9D` (pink — playful accent)
+- `success = #4CAF50` (green — positive states)
+- `error = #E53935` (red — error states)
+- Heatmap: 5-level orange gradient (intensity = session frequency)
 - Gradients: `heat` (orange→coral), `contrast` (orange→blue), `contrastHorizontal`
 
-**Decision needed:** Either:
-- **Option A:** Align with the plan — strip ALL chromatic colors, go true monochrome (black/white/gray only). This is a significant redesign.
-- **Option B:** Update the plan to accept the warm/cool palette. The current design is actually quite polished and the orange/blue contrast metaphorically represents heat/cold therapy.
-
-**Recommendation:** Option B. The warm/cool palette is more appropriate for a contrast therapy app (orange = heat, blue = cold). The monochrome plan was aspirational but the implemented design is better for this domain. Update the plan docs to match.
+**Action for agents:** Do NOT revert to monochrome. Do NOT strip chromatic colors. The warm/cool palette is final. Focus design work on:
+1. Ensuring all screens use `Theme.of(context).colorScheme` instead of hardcoded `AppColors.*` (for dark mode support)
+2. Adding dark-mode counterparts for all warm/cool colors
+3. Maintaining consistent use of the gradient system across screens
+4. Ensuring color contrast meets WCAG AA standards (4.5:1 for text)
 
 ### 7.2 Typography Divergence
 
@@ -694,7 +691,7 @@ All 4 font families are bundled in `assets/fonts/` but only PlusJakartaSans and 
 
 #### Streak Calendar
 - ✅ 12-week heatmap grid — matches plan concept
-- ⚠️ Heatmap uses orange gradient (plan says monochrome)
+- ✅ Heatmap uses orange gradient — aligns with warm/cool design system
 - ⚠️ No tap-to-see-session-details (plan says "Tap a day to see session details")
 - 💡 **Improvement:** Add month labels above the grid
 - 💡 **Improvement:** Add a "longest streak" stat
@@ -702,9 +699,9 @@ All 4 font families are bundled in `assets/fonts/` but only PlusJakartaSans and 
 #### Insights Screen
 - ✅ Range selector (week/month/year), insight blocks — well structured
 - ⚠️ No medical disclaimer (P2-6)
-- ⚠️ `GradientHeroStat` uses gradients (plan says no gradients)
+- ✅ `GradientHeroStat` uses gradients — aligns with warm/cool design system
 - ⚠️ Insights don't include "Recommendations" section (plan specifies it)
-- 💡 **Improvement:** Add a simple bar chart for sessions per week (plan says "no charts" but a minimal monochrome bar would aid comprehension)
+- 💡 **Improvement:** Add a simple bar chart for sessions per week using the warm/cool palette
 
 #### Settings Screen
 - ❌ **All toggles non-functional** (P1-2)
@@ -716,7 +713,7 @@ All 4 font families are bundled in `assets/fonts/` but only PlusJakartaSans and 
 
 #### Paywall Screen
 - ✅ Loads offerings from RevenueCat, purchase, restore
-- ⚠️ Uses orange→coral gradient background (plan says monochrome, no urgency)
+- ✅ Uses orange→coral gradient background — aligns with warm/cool design system
 - ⚠️ "UPGRADE" in caps with letter spacing — plan says "No fake urgency"
 - ⚠️ Feature list is hardcoded, not dynamic from feature gating
 - ⚠️ No "Terms" and "Privacy Policy" links (Play Store requirement for subscriptions)
