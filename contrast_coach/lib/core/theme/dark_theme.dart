@@ -34,12 +34,6 @@ ThemeData buildDarkTheme() {
     scaffoldBackgroundColor: cs.surface,
     splashFactory: NoSplash.splashFactory,
     visualDensity: VisualDensity.standard,
-    pageTransitionsTheme: const PageTransitionsTheme(
-      builders: {
-        TargetPlatform.android: ZoomPageTransitionsBuilder(),
-        TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-      },
-    ),
     appBarTheme: const AppBarTheme(
       backgroundColor: AppColors.darkBackground,
       foregroundColor: AppColors.darkTextPrimary,
