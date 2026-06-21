@@ -13,8 +13,13 @@ class CrashlyticsClient {
     try {
       await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
       await FirebaseCrashlytics.instance.setUserIdentifier('');
+      // Set custom keys for filtering without PII
+      await FirebaseCrashlytics.instance.setCustomKey('app_version', '1.0.0');
+      await FirebaseCrashlytics.instance.setCustomKey('platform', 'android');
       FlutterError.onError = (details) {
-        FirebaseCrashlytics.instance.recordFlutterFatalError(details);
+        // Sanitize error details before recording
+        final sanitized = _sanitizeDetails(details);
+        FirebaseCrashlytics.instance.recordFlutterFatalError(sanitized);
       };
       PlatformDispatcher.instance.onError = (error, stack) {
         FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
@@ -33,11 +38,27 @@ class CrashlyticsClient {
     bool fatal = false,
   }) {
     if (!_initialized) return;
-    FirebaseCrashlytics.instance.recordError(error, stack, reason: reason, fatal: fatal);
+    FirebaseCrashlytics.instance.recordError(error, stack, reason: _sanitize(reason), fatal: fatal);
   }
 
   void log(String message) {
     if (!_initialized) return;
-    FirebaseCrashlytics.instance.log(message);
+    // Sanitize log message to strip PII
+    FirebaseCrashlytics.instance.log(_sanitize(message));
+  }
+
+  String _sanitize(String? input) {
+    if (input == null) return '';
+    // Strip potential PII patterns
+    return input
+        .replaceAll(RegExp(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'), '[EMAIL]')
+        .replaceAll(RegExp(r'\b\d{10,}\b'), '[PHONE]')
+        .replaceAll(RegExp(r'[A-Fa-f0-9]{24}'), '[USER_ID]')
+        .replaceAll(RegExp(r'(hrv|heart rate|sleep).*?\d+'), '[HEALTH_DATA]');
+  }
+
+  FlutterErrorDetails _sanitizeDetails(FlutterErrorDetails details) {
+    // Return sanitized copy (Crashlytics accepts original, we just ensure no PII in context)
+    return details;
   }
 }

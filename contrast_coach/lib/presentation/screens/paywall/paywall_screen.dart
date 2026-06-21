@@ -274,6 +274,45 @@ class _PaywallScreenState extends State<PaywallScreen> {
                   ),
                 ),
               ),
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  GestureDetector(
+                    onTap: () => context.push('/terms'),
+                    child: const Text(
+                      'Terms of Service',
+                      style: TextStyle(
+                        fontFamily: 'PlusJakartaSans',
+                        color: AppColors.white,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w500,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 12),
+                    child: Text(
+                      '·',
+                      style: TextStyle(color: AppColors.white, fontSize: 11),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () => context.push('/privacy'),
+                    child: const Text(
+                      'Privacy Policy',
+                      style: TextStyle(
+                        fontFamily: 'PlusJakartaSans',
+                        color: AppColors.white,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w500,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
               const SizedBox(height: 16),
             ],
           ),

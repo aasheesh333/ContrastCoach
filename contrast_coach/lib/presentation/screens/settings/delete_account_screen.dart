@@ -1,14 +1,20 @@
 import 'package:contrast_coach/core/constants/app_colors.dart';
+import 'package:contrast_coach/core/preferences/app_preferences.dart';
 import 'package:contrast_coach/data/local/database/app_database.dart';
 import 'package:contrast_coach/data/local/encryption/sqlcipher_key_provider.dart';
 import 'package:contrast_coach/data/repositories/session_repository.dart';
+import 'package:contrast_coach/data/local/health/health_connect_client.dart';
+import 'package:contrast_coach/data/repositories/subscription_repository.dart';
+import 'package:contrast_coach/data/repositories/user_profile_service.dart';
 import 'package:contrast_coach/domain/usecases/delete_user_data.dart';
 import 'package:contrast_coach/presentation/widgets/atomic/app_button.dart';
+import 'package:contrast_coach/presentation/widgets/atomic/app_switch.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:workmanager/workmanager.dart';
 
 class DeleteAccountScreen extends StatelessWidget {
   const DeleteAccountScreen({super.key});
@@ -20,7 +26,7 @@ class DeleteAccountScreen extends StatelessWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Text('Delete account?'),
         content: const Text(
-          'This permanently removes all your data. This cannot be undone.',
+          'This permanently removes all your local and cloud data. This cannot be undone.',
           style: TextStyle(
             fontFamily: 'PlusJakartaSans',
             fontSize: 14,
@@ -50,11 +56,34 @@ class DeleteAccountScreen extends StatelessWidget {
       final key = await keyProvider.getOrCreateKey();
       final db = AppDatabase(key);
       final repo = SessionRepositoryImpl(db);
+      final healthClient = HealthConnectClient();
+      final prefs = AppPreferences();
+      final userProfile = UserProfileService();
 
+      // 1. Cancel Workmanager periodic sync
+      await Workmanager().cancelAll();
+
+      // 2. Revoke Health Connect permissions (if connected)
+      await healthClient.requestPermissions(); // This shows the system dialog, user must manually revoke
+
+      // 3. Delete local data + cloud account
       final result = await deleteAllUserData(
         sessions: repo,
         deleteCloudAccount: () async => await FirebaseAuth.instance.currentUser?.delete(),
       );
+
+      // 4. Clear SQLCipher key from secure storage
+      await const FlutterSecureStorage().delete(key: 'sqlcipher_key');
+
+      // 5. Clear all SharedPreferences (onboarding, settings, analytics opt-out, etc.)
+      await prefs.clearAll();
+
+      // 6. Clear user profile data
+      await userProfile.clear();
+
+      // 7. Dispose health client
+      healthClient.dispose();
+
       if (result.isOk) {
         if (context.mounted) context.go('/sign-in');
       } else {

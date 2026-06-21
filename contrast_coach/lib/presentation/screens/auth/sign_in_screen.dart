@@ -23,6 +23,7 @@ class _SignInScreenState extends State<SignInScreen> {
   final _email = TextEditingController();
   final _password = TextEditingController();
   bool _loading = false;
+  bool _obscurePassword = true;
   String? _error;
   late final AuthRepository _auth = AuthRepositoryImpl(
     auth: FirebaseAuth.instance,
@@ -64,6 +65,29 @@ class _SignInScreenState extends State<SignInScreen> {
       }),
       (_) => context.go('/home'),
     );
+  }
+
+  Future<void> _sendPasswordResetEmail(BuildContext context) async {
+    if (_email.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Enter your email first')),
+      );
+      return;
+    }
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: _email.text.trim());
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Password reset email sent')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to send reset email: $e')),
+        );
+      }
+    }
   }
 
   @override
@@ -121,9 +145,32 @@ class _SignInScreenState extends State<SignInScreen> {
               AppTextField(
                 label: 'Password',
                 controller: _password,
-                obscureText: true,
+                obscureText: _obscurePassword,
                 autofillHints: const [AutofillHints.password],
                 prefixIcon: LucideIcons.lock,
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _obscurePassword ? LucideIcons.eyeOff : LucideIcons.eye,
+                    color: AppColors.midGray,
+                    size: 20,
+                  ),
+                  onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                ),
+              ),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: () => _sendPasswordResetEmail(context),
+                  child: const Text(
+                    'Forgot password?',
+                    style: TextStyle(
+                      fontFamily: 'PlusJakartaSans',
+                      fontSize: 13,
+                      color: AppColors.brandWarm,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
               ),
               if (_error != null) ...[
                 const SizedBox(height: 12),

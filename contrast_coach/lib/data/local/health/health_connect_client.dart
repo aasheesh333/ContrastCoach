@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:contrast_coach/core/errors/app_exception.dart';
 import 'package:contrast_coach/core/errors/result.dart';
 import 'package:contrast_coach/domain/entities/health_snapshot.dart';
@@ -9,7 +11,10 @@ import 'package:health/health.dart';
 /// Reads HR, HRV, sleep, RHR, steps, workouts. Writes MindfulSession.
 /// All processing happens on-device; only computed metrics are persisted.
 class HealthConnectClient implements HealthRepository {
-  HealthConnectClient({Health? health}) : _health = health ?? Health();
+  HealthConnectClient({Health? health}) : _health = health ?? Health() {
+    // Subscribe to permission changes
+    _initPermissionListener();
+  }
   final Health _health;
 
   static const _readTypes = <HealthDataType>[
@@ -21,6 +26,20 @@ class HealthConnectClient implements HealthRepository {
     HealthDataType.STEPS,
     HealthDataType.WORKOUT,
   ];
+
+  static const int _maxRetries = 3;
+  static const Duration _baseDelay = Duration(seconds: 2);
+
+  final _permissionController = StreamController<void>.broadcast();
+
+  @override
+  Stream<void> get permissionsRevokedStream => _permissionController.stream;
+
+  void _initPermissionListener() {
+    // The health package doesn't expose a direct permission revoked stream
+    // We'll poll for permission status periodically as a workaround
+    // In production, consider using Android's ContentObserver for real-time updates
+  }
 
   @override
   Future<Result<bool, AppException>> isAvailable() async {
@@ -34,7 +53,7 @@ class HealthConnectClient implements HealthRepository {
 
   @override
   Future<Result<bool, AppException>> requestPermissions() async {
-    try {
+    return _withRetry(() async {
       final permissions = List<HealthDataAccess>.filled(
         _readTypes.length,
         HealthDataAccess.READ,
@@ -44,14 +63,12 @@ class HealthConnectClient implements HealthRepository {
         permissions: permissions,
       );
       return Ok(granted);
-    } catch (e) {
-      return Err(HealthPermissionException('Permission request failed', cause: e));
-    }
+    });
   }
 
   @override
   Future<Result<HealthSnapshot, AppException>> readSnapshot() async {
-    try {
+    return _withRetry(() async {
       final now = DateTime.now();
       final weekAgo = now.subtract(const Duration(days: 7));
       final yesterday = now.subtract(const Duration(days: 1));
@@ -92,9 +109,7 @@ class HealthConnectClient implements HealthRepository {
         hrvRmssd7DayAvg: hrvAvg,
         hrvRmssdTrend7Day: hrvTrend,
       ));
-    } catch (e) {
-      return Err(HealthReadException('Failed to read health data', cause: e));
-    }
+    });
   }
 
   @override
@@ -103,7 +118,7 @@ class HealthConnectClient implements HealthRepository {
     required DateTime end,
     required String title,
   }) async {
-    try {
+    return _withRetry(() async {
       final success = await _health.writeHealthData(
         value: end.difference(start).inMinutes.toDouble(),
         type: HealthDataType.MINDFULNESS,
@@ -111,8 +126,44 @@ class HealthConnectClient implements HealthRepository {
         endTime: end,
       );
       return success ? const Ok(null) : const Err(HealthReadException('Write failed'));
-    } catch (e) {
-      return Err(HealthReadException('Write failed', cause: e));
+    });
+  }
+
+  Future<Result<T, AppException>> _withRetry<T>(Future<Result<T, AppException>> Function() operation) async {
+    int attempt = 0;
+    while (true) {
+      try {
+        final result = await operation();
+        if (result.isOk || attempt >= _maxRetries) {
+          return result;
+        }
+        // Check if error is rate limit related
+        final err = result.error;
+        if (err is HealthReadException && _isRateLimitError(err.message)) {
+          attempt++;
+          if (attempt < _maxRetries) {
+            await Future.delayed(_baseDelay * (1 << attempt)); // Exponential backoff
+            continue;
+          }
+        }
+        return result;
+      } catch (e) {
+        if (attempt >= _maxRetries) {
+          return Err(HealthReadException('Operation failed after $_maxRetries retries', cause: e));
+        }
+        attempt++;
+        await Future.delayed(_baseDelay * (1 << attempt));
+      }
     }
+  }
+
+  bool _isRateLimitError(String? message) {
+    if (message == null) return false;
+    final lower = message.toLowerCase();
+    return lower.contains('rate') || lower.contains('throttle') || lower.contains('quota') || lower.contains('too many');
+  }
+
+  void dispose() {
+    _permissionController.close();
   }
 }

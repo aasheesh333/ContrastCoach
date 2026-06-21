@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:contrast_coach/core/errors/app_exception.dart';
 import 'package:contrast_coach/core/errors/result.dart';
 import 'package:contrast_coach/domain/entities/health_snapshot.dart';
@@ -11,4 +13,5 @@ abstract class HealthRepository {
     required DateTime end,
     required String title,
   });
+  Stream<void> get permissionsRevokedStream;
 }

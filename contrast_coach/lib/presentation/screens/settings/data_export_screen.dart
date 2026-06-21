@@ -14,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 class DataExportScreen extends StatefulWidget {
   const DataExportScreen({super.key});
@@ -46,6 +47,8 @@ class _DataExportScreenState extends State<DataExportScreen> {
             _filePath = file.path;
             _exporting = false;
           });
+          // Show share sheet
+          await Share.shareXFiles([XFile(file.path)], text: 'ContrastCoach data export');
         }
       }
     } catch (e) {
