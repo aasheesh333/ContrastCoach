@@ -65,7 +65,7 @@ dependencies:
   workmanager: ^0.6.0
   firebase_crashlytics: ^4.3.7
   google_fonts: ^6.2.1
-  shared_preferences: ^2.3.3
+  shared_preferences: ^2.3.5
   share_plus: ^11.0.0
   package_info_plus: ^8.0.0
 
