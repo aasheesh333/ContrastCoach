@@ -6,9 +6,27 @@ import 'package:contrast_coach/presentation/widgets/layout/app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
-class AboutScreen extends StatelessWidget {
+class AboutScreen extends StatefulWidget {
   const AboutScreen({super.key});
+  @override
+  State<AboutScreen> createState() => _AboutScreenState();
+}
+
+class _AboutScreenState extends State<AboutScreen> {
+  String _appVersion = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadVersion();
+  }
+
+  Future<void> _loadVersion() async {
+    final info = await PackageInfo.fromPlatform();
+    if (mounted) setState(() => _appVersion = '${info.version}+${info.buildNumber}');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,19 +42,22 @@ class AboutScreen extends StatelessWidget {
               Center(
                 child: Column(
                   children: [
-                    Container(
-                      width: 96,
-                      height: 96,
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [AppColors.brandWarm, AppColors.brandCoral],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
+                    Semantics(
+                      label: 'ContrastCoach app icon',
+                      child: Container(
+                        width: 96,
+                        height: 96,
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [AppColors.brandWarm, AppColors.brandCoral],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(28),
                         ),
-                        borderRadius: BorderRadius.circular(28),
-                      ),
-                      child: const Center(
-                        child: Icon(LucideIcons.thermometer, color: AppColors.white, size: 48),
+                        child: const Center(
+                          child: Icon(LucideIcons.thermometer, color: AppColors.white, size: 48),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -56,6 +77,17 @@ class AboutScreen extends StatelessWidget {
                         color: AppColors.darkGray,
                       ),
                     ),
+                    if (_appVersion.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        'Version $_appVersion',
+                        style: const TextStyle(
+                          fontFamily: 'PlusJakartaSans',
+                          fontSize: 12,
+                          color: AppColors.midGray,
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),

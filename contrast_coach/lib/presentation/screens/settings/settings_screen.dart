@@ -3,11 +3,13 @@ import 'package:contrast_coach/core/constants/app_spacing.dart';
 import 'package:contrast_coach/core/errors/app_exception.dart';
 import 'package:contrast_coach/core/errors/result.dart';
 import 'package:contrast_coach/core/preferences/app_preferences.dart';
+import 'package:contrast_coach/data/repositories/auth_repository.dart';
 import 'package:contrast_coach/data/repositories/user_profile_service.dart';
 import 'package:contrast_coach/data/repositories/session_repository.dart';
 import 'package:contrast_coach/data/local/database/app_database.dart';
 import 'package:contrast_coach/data/local/encryption/sqlcipher_key_provider.dart';
 import 'package:contrast_coach/domain/entities/session.dart';
+import 'package:contrast_coach/domain/repositories/auth_repository.dart' as domain;
 import 'package:contrast_coach/domain/usecases/session_stats.dart';
 import 'package:contrast_coach/presentation/screens/home/firebase_auth_proxy.dart';
 import 'package:contrast_coach/presentation/widgets/atomic/app_card.dart';
@@ -16,9 +18,11 @@ import 'package:contrast_coach/presentation/widgets/atomic/app_switch.dart';
 import 'package:contrast_coach/presentation/widgets/atomic/identity.dart';
 import 'package:contrast_coach/presentation/widgets/layout/app_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -89,6 +93,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
     await AppPreferences.setNotificationsEnabled(value);
     if (!mounted) return;
     setState(() => _notifications = value);
+  }
+
+  Future<void> _signOut() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Sign out?'),
+        content: const Text('Your local data will remain on this device.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.of(ctx).pop(true), child: const Text('Sign out')),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    final auth = AuthRepositoryImpl(
+      auth: FirebaseAuth.instance,
+      firestore: FirebaseFirestore.instance,
+      googleSignIn: GoogleSignIn(),
+    );
+    await auth.signOut();
+    if (mounted) context.go('/sign-in');
   }
 
   @override
@@ -183,12 +210,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     iconColor: AppColors.error,
                     location: '/settings/delete',
                   ),
+                  const SectionHeader(label: 'Subscription'),
+                  _SettingsRow(
+                    label: 'Manage subscription',
+                    icon: LucideIcons.creditCard,
+                    iconColor: AppColors.brandCoral,
+                    location: '/paywall',
+                  ),
                   const SectionHeader(label: 'Help'),
                   _SettingsRow(
                     label: 'About',
                     icon: LucideIcons.info,
                     iconColor: AppColors.midGray,
                     location: '/settings/about',
+                  ),
+                  const AppDivider(),
+                  _SettingsRow(
+                    label: 'Sign out',
+                    icon: LucideIcons.logOut,
+                    iconColor: AppColors.error,
+                    onTap: _signOut,
                   ),
                 ],
               ),
@@ -313,20 +354,24 @@ class _SettingsRow extends StatelessWidget {
     this.iconColor,
     this.location,
     this.trailing,
+    this.onTap,
   });
   final String label;
   final IconData? icon;
   final Color? iconColor;
   final String? location;
   final Widget? trailing;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    final tappable = location != null;
+    final tappable = location != null || onTap != null;
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: tappable ? () => context.push(location!) : null,
+        onTap: tappable
+            ? (onTap ?? () => context.push(location!))
+            : null,
         child: Padding(
           padding: const EdgeInsets.symmetric(
             vertical: 14,

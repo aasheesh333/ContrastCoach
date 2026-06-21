@@ -1,16 +1,20 @@
 import 'package:contrast_coach/core/constants/app_colors.dart';
+import 'package:contrast_coach/core/errors/app_exception.dart';
+import 'package:contrast_coach/core/errors/result.dart';
 import 'package:contrast_coach/core/feature_gating.dart';
 import 'package:contrast_coach/core/preferences/app_preferences.dart';
 import 'package:contrast_coach/core/utils/score_calculator.dart';
 import 'package:contrast_coach/data/audio/audio_cue_service.dart';
 import 'package:contrast_coach/data/local/database/app_database.dart';
 import 'package:contrast_coach/data/local/encryption/sqlcipher_key_provider.dart';
+import 'package:contrast_coach/data/local/health/health_connect_client.dart';
 import 'package:contrast_coach/data/remote/firebase/analytics_api.dart';
 import 'package:contrast_coach/data/repositories/protocol_repository.dart';
 import 'package:contrast_coach/data/repositories/session_repository.dart';
 import 'package:contrast_coach/data/repositories/subscription_repository.dart';
 import 'package:contrast_coach/data/voice/speech_to_text_client.dart';
 import 'package:contrast_coach/domain/entities/goal.dart';
+import 'package:contrast_coach/domain/entities/health_snapshot.dart';
 import 'package:contrast_coach/domain/entities/phase.dart';
 import 'package:contrast_coach/domain/entities/phase_type.dart';
 import 'package:contrast_coach/domain/entities/protocol.dart';
@@ -23,6 +27,7 @@ import 'package:contrast_coach/presentation/widgets/atomic/app_button.dart';
 import 'package:contrast_coach/presentation/widgets/composite/session_timer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
@@ -187,6 +192,7 @@ class _ActiveSessionScreenState extends State<ActiveSessionScreen>
   void _advanceToNextPhase(Duration actualDuration) {
     _ticker.stop();
     _audio.playPhaseTransition();
+    HapticFeedback.lightImpact();
 
     final template = _protocol!.phases[_currentPhaseIndex];
     _completedPhases.add(Phase(
@@ -221,7 +227,10 @@ class _ActiveSessionScreenState extends State<ActiveSessionScreen>
     _audio.playSessionComplete();
     setState(() => _sessionComplete = true);
 
-    final session = _buildSession();
+    HapticFeedback.mediumImpact();
+
+    final healthData = await _tryCaptureHealthSnapshot();
+    final session = _buildSession(healthSnapshot: healthData);
     await _saveSession(session);
     if (session.recoveryScore != null) {
       _analytics?.trackSessionCompleted(widget.protocolId, session.recoveryScore!);
@@ -232,6 +241,8 @@ class _ActiveSessionScreenState extends State<ActiveSessionScreen>
   Future<void> _handleEnd() async {
     _ticker.stop();
     _audio.playSessionComplete();
+
+    HapticFeedback.mediumImpact();
 
     final template = _protocol!.phases[_currentPhaseIndex];
     _completedPhases.add(Phase(
@@ -247,12 +258,34 @@ class _ActiveSessionScreenState extends State<ActiveSessionScreen>
 
     setState(() => _sessionComplete = true);
 
-    final session = _buildSession();
+    final healthData = await _tryCaptureHealthSnapshot();
+    final session = _buildSession(healthSnapshot: healthData);
     await _saveSession(session);
     if (mounted) context.push('/summary/${session.id}');
   }
 
-  Session _buildSession() {
+  Future<Map<String, dynamic>?> _tryCaptureHealthSnapshot() async {
+    try {
+      final client = HealthConnectClient();
+      final result = await client.readSnapshot();
+      client.dispose();
+      if (result.isOk) {
+        final s = result is Ok<HealthSnapshot, AppException> ? result.value : null;
+        if (s == null) return null;
+        return {
+          'capturedAt': s.capturedAt.toIso8601String(),
+          if (s.lastNightSleepMinutes != null) 'lastNightSleepMinutes': s.lastNightSleepMinutes,
+          if (s.hrvRmssd7DayAvg != null) 'hrvRmssd7DayAvg': s.hrvRmssd7DayAvg,
+          if (s.hrvRmssdTrend7Day != null) 'hrvRmssdTrend7Day': s.hrvRmssdTrend7Day,
+          if (s.restingHr7DayAvg != null) 'restingHr7DayAvg': s.restingHr7DayAvg,
+          if (s.stepsYesterday != null) 'stepsYesterday': s.stepsYesterday,
+        };
+      }
+    } catch (_) {}
+    return null;
+  }
+
+  Session _buildSession({Map<String, dynamic>? healthSnapshot}) {
     final now = DateTime.now();
     final totalActual = _completedPhases.fold<Duration>(
       Duration.zero,
@@ -271,6 +304,7 @@ class _ActiveSessionScreenState extends State<ActiveSessionScreen>
       roundsCompleted: _currentRound,
       protocolRounds: _protocol!.rounds,
       recoveryScore: null,
+      healthDataSnapshot: healthSnapshot,
       createdAt: now,
       updatedAt: now,
       phases: _completedPhases,
@@ -290,6 +324,7 @@ class _ActiveSessionScreenState extends State<ActiveSessionScreen>
       roundsCompleted: session.roundsCompleted,
       protocolRounds: session.protocolRounds,
       recoveryScore: score.value,
+      healthDataSnapshot: healthSnapshot,
       createdAt: session.createdAt,
       updatedAt: session.updatedAt,
       phases: session.phases,
@@ -366,7 +401,28 @@ class _ActiveSessionScreenState extends State<ActiveSessionScreen>
 
     if (_error != null) {
       return Scaffold(
-        body: Center(child: Text('Error: $_error')),
+        backgroundColor: AppColors.charcoal,
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text('Error: $_error', textAlign: TextAlign.center,
+                    style: const TextStyle(color: AppColors.white, fontSize: 15)),
+                const SizedBox(height: 16),
+                AppButton(
+                  label: 'Try again',
+                  onPressed: () {
+                    setState(() => _error = null);
+                    _initSession();
+                  },
+                  variant: AppButtonVariant.warm,
+                ),
+              ],
+            ),
+          ),
+        ),
       );
     }
 
@@ -417,20 +473,27 @@ class _ActiveSessionScreenState extends State<ActiveSessionScreen>
                     Row(
                       children: [
                         Expanded(
-                          child: AppButton(
-                            label: _paused ? 'Resume' : 'Pause',
-                            onPressed: _togglePause,
-                            variant: AppButtonVariant.secondary,
-                            fullWidth: true,
+                          child: Semantics(
+                            label: _paused ? 'Resume session' : 'Pause session',
+                            button: true,
+                            child: AppButton(
+                              label: _paused ? 'Resume' : 'Pause',
+                              onPressed: _togglePause,
+                              variant: AppButtonVariant.secondary,
+                              fullWidth: true,
+                            ),
                           ),
                         ),
                         const SizedBox(width: 12),
-                        Expanded(
+                        Semantics(
+                          label: 'End session',
+                          button: true,
                           child: AppButton(
-                            label: 'Next phase',
-                            onPressed: () => _advanceToNextPhase(_totalPhaseElapsed + _lastElapsed),
-                            variant: AppButtonVariant.warm,
-                            fullWidth: true,
+                            label: 'End',
+                            onPressed: _handleEnd,
+                            variant: AppButtonVariant.secondary,
+                          ),
+                        ),
                           ),
                         ),
                       ],
