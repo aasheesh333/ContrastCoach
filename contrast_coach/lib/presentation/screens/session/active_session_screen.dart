@@ -494,8 +494,6 @@ class _ActiveSessionScreenState extends State<ActiveSessionScreen>
                             variant: AppButtonVariant.secondary,
                           ),
                         ),
-                          ),
-                        ),
                       ],
                     ),
                     const SizedBox(height: 8),
