@@ -1,23 +1,25 @@
-// Some Flutter plugins (e.g. speech_to_text 7.x, package_info_plus,
-// jni) reference `flutter.compileSdkVersion` / `flutter.ndkVersion`
-// from within their android { } block. The real Flutter Gradle Plugin
-// only registers the `flutter` extension on the :app project, so
-// plugin subprojects fail with: "Could not get unknown property
-// 'flutter' for extension 'android' of type
-// com.android.build.gradle.LibraryExtension".
+// Some Flutter plugins (e.g. shared_preferences_android)
+// reference `flutter.compileSdkVersion` from within their android { } block.
+// The real Flutter Gradle Plugin only registers the `flutter` extension on the :app project.
+// Plugin subprojects fail with: "Could not get unknown property 'flutter'"
 //
-// We work around this by registering a minimal `flutter` stub on
-// every plugin subproject before it's evaluated, both at the project
-// level (so bare-property access via the closure owner finds it) and,
-// once the Android library plugin is applied, on the android
-// extension itself (so delegate-first lookup inside `android { }`
-// finds it too). This is strictly additive and does not interfere
-// with the real Flutter Gradle Plugin on :app.
+// We work around this by registering a minimal `flutter` stub on every plugin subproject.
+// Added explicit getter methods for KTS (Kotlin) plugin compatibility.
 class FlutterPluginStub {
     int compileSdkVersion = 34
     int minSdkVersion = 21
     int targetSdkVersion = 34
     String ndkVersion = "27.0.12077973"
+
+    int getCompileSdkVersion() { return compileSdkVersion }
+    int getMinSdkVersion() { return minSdkVersion }
+    int getTargetSdkVersion() { return targetSdkVersion }
+    String getNdkVersion() { return ndkVersion }
+
+    // Properties used by KTS plugins (shared_preferences_android)
+    int getCompileSdk() { return compileSdkVersion }
+    int getMinSdk() { return minSdkVersion }
+    int getTargetSdk() { return targetSdkVersion }
 }
 
 gradle.beforeProject { subproject ->
@@ -55,7 +57,7 @@ buildscript {
 
 rootProject.buildDir = "../build"
 subprojects {
-    project.buildDir = "${rootProject.buildDir}/${project.name}"
+    project.buildDir = "\${rootProject.buildDir}/\${project.name}"
 }
 subprojects {
     project.evaluationDependsOn(":app")
