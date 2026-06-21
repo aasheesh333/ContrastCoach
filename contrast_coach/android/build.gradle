@@ -43,7 +43,6 @@ allprojects {
     }
 }
 
-// Force shared_preferences_android to Groovy version (KTS version 2.4.26 breaks)
 subprojects {
     configurations.all {
         resolutionStrategy.eachDependency { DependencyResolveDetails details ->
@@ -65,14 +64,14 @@ buildscript {
     }
 }
 
-rootProject.buildDir = "../build"
+rootProject.buildDir = '../build'
 subprojects {
-    project.buildDir = "\${rootProject.buildDir}/\${project.name}"
+    project.buildDir = new File(rootProject.buildDir as String, project.name)
 }
 subprojects {
-    project.evaluationDependsOn(":app")
+    project.evaluationDependsOn(':app')
 }
 
-tasks.register("clean", Delete) {
+tasks.register('clean', Delete) {
     delete rootProject.buildDir
 }
