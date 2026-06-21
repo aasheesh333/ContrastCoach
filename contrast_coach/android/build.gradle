@@ -1,4 +1,18 @@
-// Flutter Plugin stub for plugins referencing flutter.compileSdkVersion
+// Some Flutter plugins (e.g. speech_to_text 7.x, package_info_plus,
+// jni) reference `flutter.compileSdkVersion` / `flutter.ndkVersion`
+// from within their android { } block. The real Flutter Gradle Plugin
+// only registers the `flutter` extension on the :app project, so
+// plugin subprojects fail with: "Could not get unknown property
+// 'flutter' for extension 'android' of type
+// com.android.build.gradle.LibraryExtension".
+//
+// We work around this by registering a minimal `flutter` stub on
+// every plugin subproject before it's evaluated, both at the project
+// level (so bare-property access via the closure owner finds it) and,
+// once the Android library plugin is applied, on the android
+// extension itself (so delegate-first lookup inside `android { }`
+// finds it too). This is strictly additive and does not interfere
+// with the real Flutter Gradle Plugin on :app.
 class FlutterPluginStub {
     int compileSdkVersion = 34
     int minSdkVersion = 21
@@ -9,9 +23,11 @@ class FlutterPluginStub {
 gradle.beforeProject { subproject ->
     if (subproject == rootProject) { return }
     if (subproject.path == ':app') { return }
+
     if (subproject.extensions.findByName('flutter') == null) {
         subproject.extensions.add('flutter', new FlutterPluginStub())
     }
+
     subproject.plugins.withId('com.android.library') {
         def androidExt = subproject.extensions.findByName('android')
         if (androidExt != null && androidExt.extensions.findByName('flutter') == null) {
@@ -21,19 +37,30 @@ gradle.beforeProject { subproject ->
 }
 
 allprojects {
-    repositories { google(); mavenCentral() }
+    repositories {
+        google()
+        mavenCentral()
+    }
 }
 
 buildscript {
-    repositories { google(); mavenCentral() }
-    dependencies { classpath 'com.google.gms:google-services:4.4.2' }
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.google.gms:google-services:4.4.2'
+    }
 }
 
 rootProject.buildDir = "../build"
 subprojects {
-    project.buildDir = "\${rootProject.buildDir}/\${project.name}"
+    project.buildDir = "${rootProject.buildDir}/${project.name}"
 }
 subprojects {
     project.evaluationDependsOn(":app")
 }
-tasks.register("clean", Delete) { delete rootProject.buildDir }
+
+tasks.register("clean", Delete) {
+    delete rootProject.buildDir
+}
