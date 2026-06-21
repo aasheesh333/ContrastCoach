@@ -2,6 +2,7 @@ import 'package:contrast_coach/core/constants/app_colors.dart';
 import 'package:contrast_coach/core/theme/gradients.dart';
 import 'package:contrast_coach/data/remote/firebase/analytics_api.dart';
 import 'package:contrast_coach/data/repositories/subscription_repository.dart';
+import 'package:contrast_coach/domain/entities/subscription_tier.dart';
 import 'package:contrast_coach/domain/repositories/subscription_repository.dart';
 import 'package:contrast_coach/presentation/widgets/atomic/app_button.dart';
 import 'package:contrast_coach/presentation/widgets/dialogs/medical_disclaimer_dialog.dart';
