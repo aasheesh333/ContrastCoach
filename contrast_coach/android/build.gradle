@@ -1,10 +1,10 @@
-// Some Flutter plugins (e.g. shared_preferences_android)
-// reference `flutter.compileSdkVersion` from within their android { } block.
-// The real Flutter Gradle Plugin only registers the `flutter` extension on the :app project.
-// Plugin subprojects fail with: "Could not get unknown property 'flutter'"
+// Some Flutter plugins reference flutter.compileSdkVersion from within their
+// android { } block. The real Flutter Gradle Plugin only registers the `flutter`
+// extension on the :app project. Plugin subprojects fail with:
+// "Could not get unknown property 'flutter' for extension 'android'"
 //
-// We work around this by registering a minimal `flutter` stub on every plugin subproject.
-// Added explicit getter methods for KTS (Kotlin) plugin compatibility.
+// Workaround: register a minimal stub on every plugin subproject before evaluation.
+// Added explicit getter methods for KTS (Kotlin Gradle) plugin compatibility.
 class FlutterPluginStub {
     int compileSdkVersion = 34
     int minSdkVersion = 21
@@ -15,8 +15,6 @@ class FlutterPluginStub {
     int getMinSdkVersion() { return minSdkVersion }
     int getTargetSdkVersion() { return targetSdkVersion }
     String getNdkVersion() { return ndkVersion }
-
-    // Properties used by KTS plugins (shared_preferences_android)
     int getCompileSdk() { return compileSdkVersion }
     int getMinSdk() { return minSdkVersion }
     int getTargetSdk() { return targetSdkVersion }
@@ -25,11 +23,9 @@ class FlutterPluginStub {
 gradle.beforeProject { subproject ->
     if (subproject == rootProject) { return }
     if (subproject.path == ':app') { return }
-
     if (subproject.extensions.findByName('flutter') == null) {
         subproject.extensions.add('flutter', new FlutterPluginStub())
     }
-
     subproject.plugins.withId('com.android.library') {
         def androidExt = subproject.extensions.findByName('android')
         if (androidExt != null && androidExt.extensions.findByName('flutter') == null) {
@@ -55,14 +51,14 @@ buildscript {
     }
 }
 
-rootProject.buildDir = "../build"
+rootProject.layout.buildDirectory = file("../build")
 subprojects {
-    project.buildDir = "\${rootProject.buildDir}/\${project.name}"
+    project.layout.buildDirectory = rootProject.layout.buildDirectory.dir(project.name)
 }
 subprojects {
     project.evaluationDependsOn(":app")
 }
 
 tasks.register("clean", Delete) {
-    delete rootProject.buildDir
+    delete rootProject.layout.buildDirectory
 }
