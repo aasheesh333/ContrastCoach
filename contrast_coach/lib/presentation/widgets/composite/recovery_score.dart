@@ -29,7 +29,7 @@ class RecoveryScoreCard extends StatelessWidget {
             fontFamily: 'PlusJakartaSans',
             fontWeight: FontWeight.w200,
             fontSize: 96,
-            color: AppColors.charcoal,
+            color: Theme.of(context).colorScheme.onSurface,
             height: 1.0,
             letterSpacing: -2,
           ),
@@ -38,7 +38,7 @@ class RecoveryScoreCard extends StatelessWidget {
         Container(
           width: 48,
           height: 2,
-          color: AppColors.charcoal,
+          color: Theme.of(context).colorScheme.onSurface,
         ),
         const SizedBox(height: 12),
         Text(
@@ -57,7 +57,7 @@ class RecoveryScoreCard extends StatelessWidget {
           style: const TextStyle(
             fontFamily: 'PlusJakartaSans',
             fontSize: 14,
-            color: AppColors.darkGray,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
             height: 1.45,
             fontWeight: FontWeight.w500,
           ),

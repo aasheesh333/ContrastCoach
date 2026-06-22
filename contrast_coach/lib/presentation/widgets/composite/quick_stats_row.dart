@@ -81,7 +81,7 @@ class _Stat extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: AppColors.white,
+      color: Theme.of(context).colorScheme.surface,
       borderRadius: BorderRadius.circular(20),
       elevation: 0,
       child: InkWell(
@@ -95,7 +95,7 @@ class _Stat extends StatelessWidget {
           ),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
-            color: AppColors.white,
+            color: Theme.of(context).colorScheme.surface,
             boxShadow: AppShadows.cardSoft,
           ),
           child: Column(
@@ -138,7 +138,7 @@ class _Stat extends StatelessWidget {
                     fontFamily: 'PlusJakartaSans',
                     fontSize: 28,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.charcoal,
+                    color: Theme.of(context).colorScheme.onSurface,
                     height: 1.0,
                     letterSpacing: -0.5,
                   ),

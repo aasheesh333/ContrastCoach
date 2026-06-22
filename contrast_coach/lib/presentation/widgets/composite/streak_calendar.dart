@@ -57,7 +57,7 @@ class StreakCalendar extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.midGray,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                         height: 1.0,
                       ),
                     ),

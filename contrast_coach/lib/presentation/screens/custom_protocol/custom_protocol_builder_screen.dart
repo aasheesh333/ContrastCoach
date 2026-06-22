@@ -6,7 +6,7 @@ import 'package:contrast_coach/core/errors/app_exception.dart';
 import 'package:contrast_coach/core/errors/result.dart';
 import 'package:contrast_coach/core/feature_gating.dart';
 import 'package:contrast_coach/data/local/database/app_database.dart';
-import 'package:contrast_coach/data/local/encryption/sqlcipher_key_provider.dart';
+import 'package:contrast_coach/data/local/database/database_provider.dart';
 import 'package:contrast_coach/data/repositories/custom_protocol_repository.dart';
 import 'package:contrast_coach/data/repositories/subscription_repository.dart';
 import 'package:contrast_coach/domain/entities/phase_template.dart';
@@ -21,7 +21,6 @@ import 'package:contrast_coach/presentation/widgets/atomic/app_icon.dart';
 import 'package:contrast_coach/presentation/widgets/atomic/app_slider.dart';
 import 'package:contrast_coach/presentation/widgets/atomic/app_text_field.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:uuid/uuid.dart';
@@ -104,9 +103,7 @@ class _CustomProtocolBuilderScreenState extends State<CustomProtocolBuilderScree
         return;
       }
 
-      final storage = const FlutterSecureStorage();
-      final key = await SqlcipherKeyProvider(storage: storage).getOrCreateKey();
-      final db = AppDatabase(key);
+      final db = await DatabaseProvider.instance();
       final repo = CustomProtocolRepository(db);
 
       final phasesJson = jsonEncode(_phases

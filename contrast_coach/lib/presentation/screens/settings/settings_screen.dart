@@ -7,7 +7,7 @@ import 'package:contrast_coach/data/repositories/auth_repository.dart';
 import 'package:contrast_coach/data/repositories/user_profile_service.dart';
 import 'package:contrast_coach/data/repositories/session_repository.dart';
 import 'package:contrast_coach/data/local/database/app_database.dart';
-import 'package:contrast_coach/data/local/encryption/sqlcipher_key_provider.dart';
+import 'package:contrast_coach/data/local/database/database_provider.dart';
 import 'package:contrast_coach/domain/entities/session.dart';
 import 'package:contrast_coach/domain/repositories/auth_repository.dart' as domain;
 import 'package:contrast_coach/domain/usecases/session_stats.dart';
@@ -20,7 +20,6 @@ import 'package:contrast_coach/presentation/widgets/layout/app_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -63,9 +62,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ? profileResult.value
         : _profile;
 
-    final keyProvider = SqlcipherKeyProvider(storage: const FlutterSecureStorage());
-    final key = await keyProvider.getOrCreateKey();
-    final db = AppDatabase(key);
+    final db = await DatabaseProvider.instance();
     final repo = SessionRepositoryImpl(db);
     final sessionsResult = await repo.getAll();
     final sessions = sessionsResult is Ok<List<Session>, AppException>
@@ -93,7 +90,66 @@ class _SettingsScreenState extends State<SettingsScreen> {
     await AppPreferences.setNotificationsEnabled(value);
     if (!mounted) return;
     setState(() => _notifications = value);
+  
+  String get _themeLabel => switch (AppPreferences.themeMode) {
+        'light' => 'Light',
+        'dark' => 'Dark',
+        _ => 'System',
+      };
+
+  void _showThemePicker() {
+    showModalBottomSheet<void>(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Padding(
+              padding: EdgeInsets.fromLTRB(24, 20, 24, 12),
+              child: Text(
+                'Theme',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+            for (final mode in ['system', 'light', 'dark'])
+              ListTile(
+                leading: Icon(
+                  mode == 'system'
+                      ? LucideIcons.monitorSmartphone
+                      : mode == 'light'
+                          ? LucideIcons.sun
+                          : LucideIcons.moon,
+                  color: AppColors.brandWarm,
+                ),
+                title: Text(
+                  mode == 'system'
+                      ? 'System'
+                      : mode == 'light'
+                          ? 'Light'
+                          : 'Dark',
+                ),
+                trailing: AppPreferences.themeMode == mode
+                    ? const Icon(Icons.check, color: AppColors.brandWarm)
+                    : null,
+                onTap: () async {
+                  await AppPreferences.setThemeMode(mode);
+                  if (mounted) setState(() {});
+                  if (ctx.mounted) Navigator.of(ctx).pop();
+                },
+              ),
+            const SizedBox(height: 12),
+          ],
+        ),
+      ),
+    );
   }
+}
 
   Future<void> _signOut() async {
     final confirmed = await showDialog<bool>(
@@ -121,7 +177,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.offWhite,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: const ContrastAppBar(title: 'Profile', showBackButton: true),
       body: SafeArea(
         top: false,
@@ -147,10 +203,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     label: 'Theme',
                     icon: LucideIcons.sun,
                     iconColor: AppColors.brandWarm,
-                    trailing: const _TrailingValue(
-                      label: 'System',
+                    trailing: _TrailingValue(
+                      label: _themeLabel,
                       icon: LucideIcons.chevronRight,
                     ),
+                    onTap: _showThemePicker,
                   ),
                   const AppDivider(),
                   _SettingsRow(

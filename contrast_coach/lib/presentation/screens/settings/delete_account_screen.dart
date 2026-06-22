@@ -1,7 +1,7 @@
 import 'package:contrast_coach/core/constants/app_colors.dart';
 import 'package:contrast_coach/core/preferences/app_preferences.dart';
 import 'package:contrast_coach/data/local/database/app_database.dart';
-import 'package:contrast_coach/data/local/encryption/sqlcipher_key_provider.dart';
+import 'package:contrast_coach/data/local/database/database_provider.dart';
 import 'package:contrast_coach/data/repositories/session_repository.dart';
 import 'package:contrast_coach/data/local/health/health_connect_client.dart';
 import 'package:contrast_coach/data/repositories/subscription_repository.dart';
@@ -51,9 +51,7 @@ class DeleteAccountScreen extends StatelessWidget {
     if (confirmed != true) return;
 
     try {
-      final keyProvider = SqlcipherKeyProvider(storage: const FlutterSecureStorage());
-      final key = await keyProvider.getOrCreateKey();
-      final db = AppDatabase(key);
+      final db = await DatabaseProvider.instance();
       final repo = SessionRepositoryImpl(db);
       final healthClient = HealthConnectClient();
 
