@@ -394,7 +394,6 @@ class _ActiveSessionScreenState extends State<ActiveSessionScreen>
       ),
     );
   }
-}
 
   void _showVoiceStatus() {
     if (_voiceActive) {

@@ -129,7 +129,6 @@ class _StreakCalendarScreenState extends State<StreakCalendarScreen> {
       ),
     );
   }
-}
 
   @override
   Widget build(BuildContext context) {
