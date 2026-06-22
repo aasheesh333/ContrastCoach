@@ -89,7 +89,7 @@ class SectionHeader extends StatelessWidget {
               fontFamily: Theme.of(context).textTheme.labelSmall?.fontFamily,
               fontSize: 11,
               fontWeight: FontWeight.w700,
-              color: AppColors.midGray,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
               letterSpacing: 1.4,
             ),
           ),

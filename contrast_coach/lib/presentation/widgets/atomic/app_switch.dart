@@ -13,8 +13,8 @@ class AppSwitch extends StatelessWidget {
       onChanged: onChanged,
       activeColor: AppColors.white,
       activeTrackColor: AppColors.brandWarm,
-      inactiveThumbColor: AppColors.midGray,
-      inactiveTrackColor: AppColors.lightGray,
+      inactiveThumbColor: Theme.of(context).colorScheme.onSurfaceVariant,
+      inactiveTrackColor: Theme.of(context).colorScheme.surfaceContainerHigh,
       trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
     );
   }

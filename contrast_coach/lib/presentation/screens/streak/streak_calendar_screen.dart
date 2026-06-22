@@ -63,7 +63,7 @@ class _StreakCalendarScreenState extends State<StreakCalendarScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.offWhite,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: const ContrastAppBar(title: 'Streak'),
       body: SafeArea(
         top: false,

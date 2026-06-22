@@ -145,6 +145,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Scaffold(
       backgroundColor: AppColors.warmBeige,
       body: SafeArea(
