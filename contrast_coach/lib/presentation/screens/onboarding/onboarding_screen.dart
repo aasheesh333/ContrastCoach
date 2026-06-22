@@ -169,7 +169,7 @@ class _StepHero extends StatelessWidget {
           textAlign: TextAlign.center,
           style: const TextStyle(
             fontFamily: 'PlusJakartaSans',
-            fontSize: 44,
+            fontSize: 56,
             fontWeight: FontWeight.w800,
             color: AppColors.charcoal,
             height: 1.05,
@@ -182,7 +182,7 @@ class _StepHero extends StatelessWidget {
           textAlign: TextAlign.center,
           style: const TextStyle(
             fontFamily: 'PlusJakartaSans',
-            fontSize: 16,
+            fontSize: 18,
             fontWeight: FontWeight.w500,
             color: AppColors.darkGray,
             height: 1.5,
@@ -418,105 +418,126 @@ class _Pill extends StatelessWidget {
   }
 }
 
-/// Phone + sauna + cold visual; no emoji.
+/// Geometric circles in orange/blue representing thermal contrast.
 class _SessionReadyIllustration extends StatelessWidget {
   const _SessionReadyIllustration();
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 220,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppColors.warmBeige,
-        borderRadius: BorderRadius.circular(28),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          _Tile(
-            size: 70,
-            color: AppColors.charcoal,
-            icon: LucideIcons.lock,
-            iconColor: AppColors.white,
-            label: 'Phone',
-          ),
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: AppColors.white,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(LucideIcons.arrowRight, color: AppColors.brandWarm, size: 20),
-          ),
-          const _Tile(
-            size: 70,
-            color: AppColors.brandWarm,
-            icon: LucideIcons.flame,
-            iconColor: AppColors.white,
-            label: 'Sauna',
-          ),
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: AppColors.white,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(LucideIcons.arrowRight, color: AppColors.brandCool, size: 20),
-          ),
-          const _Tile(
-            size: 70,
-            color: AppColors.brandCool,
-            icon: LucideIcons.snowflake,
-            iconColor: AppColors.white,
-            label: 'Plunge',
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _Tile extends StatelessWidget {
-  const _Tile({
-    required this.size,
-    required this.color,
-    required this.icon,
-    required this.iconColor,
-    required this.label,
-  });
-  final double size;
-  final Color color;
-  final IconData icon;
-  final Color iconColor;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Container(
-          width: size,
-          height: size,
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(16),
+        SizedBox(
+          height: 200,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Container(
+                width: 180,
+                height: 180,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(
+                    colors: [Color(0xFFFFE0CC), Color(0xFFFF6B35)],
+                    stops: [0.4, 1.0],
+                  ),
+                ),
+              ),
+              Container(
+                width: 100,
+                height: 100,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(
+                    colors: [Color(0xFFD7E5FF), Color(0xFF2D7CF1)],
+                    stops: [0.3, 1.0],
+                  ),
+                ),
+              ),
+              Positioned(
+                top: 0,
+                right: 16,
+                child: Container(
+                  width: 48,
+                  height: 48,
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: RadialGradient(
+                      colors: [Color(0xFFFFE0CC), Color(0xFFFF6B35)],
+                      stops: [0.4, 1.0],
+                    ),
+                  ),
+                ),
+              ),
+              Positioned(
+                bottom: 8,
+                left: 8,
+                child: Container(
+                  width: 36,
+                  height: 36,
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: RadialGradient(
+                      colors: [Color(0xFFD7E5FF), Color(0xFF2D7CF1)],
+                      stops: [0.3, 1.0],
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
-          child: Center(child: Icon(icon, color: iconColor, size: 26)),
         ),
-        const SizedBox(height: 8),
-        Text(
-          label,
-          style: const TextStyle(
-            fontFamily: 'PlusJakartaSans',
-            fontSize: 11,
-            fontWeight: FontWeight.w600,
-            color: AppColors.midGray,
-          ),
+        const SizedBox(height: AppSpacing.xxl),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              decoration: BoxDecoration(
+                color: AppColors.brandWarm.withOpacity(0.10),
+                borderRadius: BorderRadius.circular(999),
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(LucideIcons.mic, color: AppColors.brandWarm, size: 14),
+                  SizedBox(width: 6),
+                  Text(
+                    'Voice control',
+                    style: TextStyle(
+                      fontFamily: 'PlusJakartaSans',
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.brandWarm,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: AppSpacing.md),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              decoration: BoxDecoration(
+                color: AppColors.brandCool.withOpacity(0.10),
+                borderRadius: BorderRadius.circular(999),
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(LucideIcons.heartPulse, color: AppColors.brandCool, size: 14),
+                  SizedBox(width: 6),
+                  Text(
+                    'Health sync',
+                    style: TextStyle(
+                      fontFamily: 'PlusJakartaSans',
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.brandCool,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ],
     );

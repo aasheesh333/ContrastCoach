@@ -282,7 +282,7 @@ class _HomeHeader extends StatelessWidget {
           UserAvatar(
             initials: profile.initials,
             photoUrl: profile.photoURL,
-            size: 44,
+            size: 40,
           ),
         ],
       ),

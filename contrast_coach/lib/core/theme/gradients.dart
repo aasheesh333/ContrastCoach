@@ -32,6 +32,13 @@ class AppGradients {
     end: Alignment.bottomCenter,
     colors: [AppColors.warmBeige, AppColors.offWhite],
   );
+
+  /// Coral pop (premium badges)
+  static const LinearGradient coralPop = LinearGradient(
+    begin: Alignment.centerLeft,
+    end: Alignment.centerRight,
+    colors: [AppColors.brandCoral, AppColors.brandCoralPop],
+  );
 }
 
 /// Decorative card with soft elevation. Used for hero, goal, insight cards.

@@ -431,20 +431,20 @@ class _SettingsRow extends StatelessWidget {
             : null,
         child: Padding(
           padding: const EdgeInsets.symmetric(
-            vertical: 14,
+            vertical: 16,
             horizontal: 2,
           ),
           child: Row(
             children: [
               if (icon != null) ...[
                 Container(
-                  width: 32,
-                  height: 32,
+                  width: 24,
+                  height: 24,
                   decoration: BoxDecoration(
                     color: (iconColor ?? AppColors.brandWarm).withOpacity(0.12),
-                    borderRadius: BorderRadius.circular(10),
+                    shape: BoxShape.circle,
                   ),
-                  child: Icon(icon, color: iconColor ?? AppColors.brandWarm, size: 16),
+                  child: Icon(icon, color: iconColor ?? AppColors.brandWarm, size: 14),
                 ),
                 const SizedBox(width: 14),
               ],

@@ -21,10 +21,10 @@ class AppSpacing {
   static const double massive = 56;
 
   // Page-level
-  static const double pageHorizontal = 20;
+  static const double pageHorizontal = 24;
   static const double pageTop = 12;
   static const double pageBottom = 24;
-  static const double sectionGap = 28;
+  static const double sectionGap = 24;
 }
 
 /// Shadow tokens (consistent elevation across the app).

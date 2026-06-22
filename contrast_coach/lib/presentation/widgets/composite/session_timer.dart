@@ -296,16 +296,11 @@ class ActiveSessionBackground extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: switch (phaseType) {
-            PhaseType.sauna => const [Color(0xFFFF6B35), Color(0xFFFF8A65)],
-            PhaseType.cold => const [Color(0xFF2D7CF1), Color(0xFF62A6FF)],
-            PhaseType.rest => const [Color(0xFF1A1A1A), Color(0xFF2A2A2A)],
-            PhaseType.custom => const [Color(0xFFFF6B9D), Color(0xFFFF8A65)],
-          },
+          colors: [Color(0xFFFF6B35), Color(0xFF2D7CF1)],
         ),
       ),
       child: child,

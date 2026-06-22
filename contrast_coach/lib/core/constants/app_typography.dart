@@ -82,7 +82,7 @@ class AppTypography {
     fontFamily: bodyFont,
     fontSize: 16,
     height: 1.45,
-    fontWeight: FontWeight.w400,
+    fontWeight: FontWeight.w500,
   );
 
   static const TextStyle bodyMedium = TextStyle(
@@ -120,7 +120,7 @@ class AppTypography {
     fontFamily: bodyFont,
     fontSize: 11,
     height: 1.3,
-    fontWeight: FontWeight.w700,
+    fontWeight: FontWeight.w600,
     letterSpacing: 1.2,
   );
 

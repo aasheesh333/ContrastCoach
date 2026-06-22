@@ -4,7 +4,6 @@ import 'package:contrast_coach/data/remote/firebase/analytics_api.dart';
 import 'package:contrast_coach/data/repositories/subscription_repository.dart';
 import 'package:contrast_coach/domain/entities/subscription_tier.dart';
 import 'package:contrast_coach/domain/repositories/subscription_repository.dart';
-import 'package:contrast_coach/presentation/widgets/atomic/app_button.dart';
 import 'package:contrast_coach/presentation/widgets/dialogs/medical_disclaimer_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -233,28 +232,44 @@ class _PaywallScreenState extends State<PaywallScreen> {
               const Spacer(),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: AppButton(
-                  label: 'Continue with ${_capitalize(_selectedPeriod ?? 'yearly')}',
-                  onPressed: () {
-                    // Find matching package from RevenueCat
-                    Package? match;
-                    for (final p in _packages) {
-                      if (_packageIdentifier(p) == _selectedPeriod) {
-                        match = p;
-                        break;
-                      }
-                    }
-                    if (match != null) {
-                      _purchase(match);
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Subscription not available in this build.')),
-                      );
-                    }
-                  },
-                  variant: AppButtonVariant.primary,
-                  fullWidth: true,
-                  size: AppButtonSize.large,
+                child: SizedBox(
+                  width: double.infinity,
+                  child: Material(
+                    color: AppColors.white,
+                    borderRadius: BorderRadius.circular(999),
+                    child: InkWell(
+                      onTap: () {
+                        Package? match;
+                        for (final p in _packages) {
+                          if (_packageIdentifier(p) == _selectedPeriod) {
+                            match = p;
+                            break;
+                          }
+                        }
+                        if (match != null) {
+                          _purchase(match);
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Subscription not available in this build.')),
+                          );
+                        }
+                      },
+                      borderRadius: BorderRadius.circular(999),
+                      child: Container(
+                        height: 56,
+                        alignment: Alignment.center,
+                        child: Text(
+                          'Continue with ${_capitalize(_selectedPeriod ?? 'yearly')}',
+                          style: const TextStyle(
+                            fontFamily: 'PlusJakartaSans',
+                            color: AppColors.charcoal,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
               ),
               const SizedBox(height: 12),

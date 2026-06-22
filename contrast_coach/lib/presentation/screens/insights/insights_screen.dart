@@ -176,7 +176,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
                             : 'No streak yet · start one today',
                       ),
                       const SizedBox(height: AppSpacing.lg),
-                      _StatRow(stats: _stats),
+                      _StatGrid(stats: _stats),
                       const SizedBox(height: AppSpacing.lg),
                       _PatternSection(stats: _stats, range: _range),
                       const SizedBox(height: AppSpacing.lg),
@@ -339,39 +339,68 @@ class _InsightsScreenState extends State<InsightsScreen> {
   }
 }
 
-class _StatRow extends StatelessWidget {
-  const _StatRow({required this.stats});
+class _StatGrid extends StatelessWidget {
+  const _StatGrid({required this.stats});
   final SessionStats stats;
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Column(
       children: [
-        Expanded(
-          child: _MiniStat(
-            label: 'SESSIONS',
-            value: '${stats.totalSessions}',
-            icon: LucideIcons.activity,
-            color: AppColors.brandWarm,
-          ),
+        Row(
+          children: [
+            Expanded(
+              child: _GridStat(
+                label: 'TOTAL SESSIONS',
+                value: '${stats.totalSessions}',
+                icon: LucideIcons.activity,
+                color: AppColors.brandWarm,
+              ),
+            ),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(
+              child: _GridStat(
+                label: 'AVG DURATION',
+                value: '${stats.avgDurationMin}',
+                suffix: 'min',
+                icon: LucideIcons.timer,
+                color: AppColors.brandCool,
+              ),
+            ),
+          ],
         ),
-        const SizedBox(width: AppSpacing.sm),
-        Expanded(
-          child: _MiniStat(
-            label: 'AVG TIME',
-            value: '${stats.avgDurationMin}',
-            suffix: 'min',
-            icon: LucideIcons.timer,
-            color: AppColors.brandCool,
-          ),
+        const SizedBox(height: AppSpacing.sm),
+        Row(
+          children: [
+            Expanded(
+              child: _GridStat(
+                label: 'BEST SCORE',
+                value: stats.bestScore != null
+                    ? '${stats.bestScore!.round()}'
+                    : '—',
+                icon: LucideIcons.trophy,
+                color: AppColors.brandWarm,
+              ),
+            ),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(
+              child: _GridStat(
+                label: 'TOTAL MINUTES',
+                value: '${stats.totalMinutes}',
+                suffix: 'min',
+                icon: LucideIcons.flame,
+                color: AppColors.brandCool,
+              ),
+            ),
+          ],
         ),
       ],
     );
   }
 }
 
-class _MiniStat extends StatelessWidget {
-  const _MiniStat({
+class _GridStat extends StatelessWidget {
+  const _GridStat({
     required this.label,
     required this.value,
     required this.icon,
@@ -387,12 +416,7 @@ class _MiniStat extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppCard(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.lg,
-        AppSpacing.lg,
-        AppSpacing.lg,
-        AppSpacing.lg,
-      ),
+      padding: const EdgeInsets.all(AppSpacing.lg),
       radius: 20,
       elevation: AppCardElevation.soft,
       child: Column(

@@ -205,30 +205,23 @@ class _SummaryBody extends StatelessWidget {
           children: [
             Expanded(
               child: AppButton(
-                label: 'Done',
-                onPressed: () => context.go('/home'),
-                variant: AppButtonVariant.warm,
+                label: 'Share',
+                onPressed: () => _shareProgress(context),
+                variant: AppButtonVariant.secondary,
+                leadingIcon: LucideIcons.share2,
                 fullWidth: true,
               ),
             ),
             const SizedBox(width: AppSpacing.md),
             Expanded(
               child: AppButton(
-                label: 'Insights',
-                onPressed: () => context.go('/insights'),
-                variant: AppButtonVariant.secondary,
+                label: 'Done',
+                onPressed: () => context.go('/home'),
+                variant: AppButtonVariant.warm,
                 fullWidth: true,
               ),
             ),
           ],
-        ),
-        const SizedBox(height: AppSpacing.md),
-        AppButton(
-          label: 'Share progress',
-          onPressed: () => _shareProgress(context),
-          variant: AppButtonVariant.text,
-          leadingIcon: LucideIcons.share2,
-          fullWidth: true,
         ),
       ],
     );
@@ -258,15 +251,15 @@ class _Celebration extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Container(
-        width: 96,
-        height: 96,
+        width: 80,
+        height: 80,
         decoration: BoxDecoration(
           color: AppColors.successSoft,
           shape: BoxShape.circle,
           boxShadow: AppShadows.cardSoft,
         ),
         child: const Center(
-          child: Icon(LucideIcons.check, color: AppColors.charcoal, size: 48),
+          child: Icon(LucideIcons.check, color: AppColors.charcoal, size: 40),
         ),
       ),
     );
