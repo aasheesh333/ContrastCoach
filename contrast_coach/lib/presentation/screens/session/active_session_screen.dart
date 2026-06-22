@@ -353,11 +353,12 @@ class _ActiveSessionScreenState extends State<ActiveSessionScreen>
     _totalPhaseElapsed += _lastElapsed;
     _ticker.stop();
     setState(() => _paused = true);
-  
+  }
+
   void _skipPhase() {
     if (_sessionComplete || _protocol == null) return;
     HapticFeedback.mediumImpact();
-    _completeCurrentPhase();
+    _nextPhase();
   }
 
   void _addTime() {

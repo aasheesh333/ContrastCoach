@@ -90,7 +90,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     await AppPreferences.setNotificationsEnabled(value);
     if (!mounted) return;
     setState(() => _notifications = value);
-  
+  }
+
   String get _themeLabel => switch (AppPreferences.themeMode) {
         'light' => 'Light',
         'dark' => 'Dark',

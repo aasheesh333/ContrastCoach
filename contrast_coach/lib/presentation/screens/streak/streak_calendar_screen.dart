@@ -58,7 +58,8 @@ class _StreakCalendarScreenState extends State<StreakCalendarScreen> {
     } else if (mounted) {
       setState(() => _loading = false);
     }
-  
+  }
+
   void _showDayDetails(DateTime date, int sessionCount) {
     final dateStr = '${date.month}/${date.day}/${date.year}';
     showModalBottomSheet<void>(

@@ -28,7 +28,7 @@ class DatabaseProvider {
   static Future<void> dispose() async {
     final db = _instance;
     _instance = null;
-    if (db != null && db.isOpen) {
+    if (db != null) {
       await db.close();
     }
   }

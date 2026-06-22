@@ -239,12 +239,11 @@ class _SummaryBody extends StatelessWidget {
     final pct = (s.roundsCompleted / s.protocolRounds * 100).round();
     return '$pct% of planned rounds completed';
   }
-}
 
-void _shareProgress(BuildContext context) {
-    final score = _session?.recoveryScore;
+  void _shareProgress(BuildContext context) {
+    final score = session.recoveryScore;
     final scoreText = score != null ? score.round().toString() : 'N/A';
-    final minutes = _session?.totalActualDuration?.inMinutes ?? 0;
+    final minutes = session.totalActualDuration?.inMinutes ?? 0;
     Share.share(
       'I just completed a contrast therapy session on ContrastCoach! '
       'Recovery score: $scoreText/100, $minutes minutes. '
@@ -252,6 +251,7 @@ void _shareProgress(BuildContext context) {
       subject: 'My ContrastCoach recovery score',
     );
   }
+}
 
 class _Celebration extends StatelessWidget {
   @override

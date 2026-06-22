@@ -87,7 +87,7 @@ class HeroStartCard extends StatelessWidget {
           const SizedBox(height: AppSpacing.lg),
           Text(
             name,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: 'PlusJakartaSans',
               fontSize: 28,
               fontWeight: FontWeight.w800,
@@ -99,7 +99,7 @@ class HeroStartCard extends StatelessWidget {
           const SizedBox(height: AppSpacing.sm),
           Text(
             '$mins min${secs > 0 ? ' ${secs}s' : ''} · $rounds rounds',
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: 'PlusJakartaSans',
               fontSize: 14,
               color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -255,7 +255,7 @@ class _GoalTile extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               entry.title,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: 'PlusJakartaSans',
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
