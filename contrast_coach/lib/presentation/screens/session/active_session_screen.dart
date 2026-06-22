@@ -353,7 +353,47 @@ class _ActiveSessionScreenState extends State<ActiveSessionScreen>
     _totalPhaseElapsed += _lastElapsed;
     _ticker.stop();
     setState(() => _paused = true);
+  
+  void _skipPhase() {
+    if (_sessionComplete || _protocol == null) return;
+    HapticFeedback.mediumImpact();
+    _completeCurrentPhase();
   }
+
+  void _addTime() {
+    if (_sessionComplete || _paused) return;
+    HapticFeedback.lightImpact();
+    setState(() {
+      _remaining += const Duration(seconds: 30);
+    });
+  }
+
+  void _confirmEnd() {
+    if (_sessionComplete) return;
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('End session?'),
+        content: const Text(
+          'Your progress will be saved with the phases completed so far.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              _handleEnd();
+            },
+            child: const Text('End session'),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
   void _showVoiceStatus() {
     if (_voiceActive) {
@@ -467,6 +507,18 @@ class _ActiveSessionScreenState extends State<ActiveSessionScreen>
                 right: 16,
                 child: Column(
                   children: [
+                    // Phase indicator
+                    Text(
+                      'Phase ${_currentPhaseIndex + 1} of ${_protocol?.phases.length ?? 1} · Round ${_currentRound + 1} of ${_protocol?.rounds ?? 1}',
+                      style: TextStyle(
+                        color: AppColors.white.withOpacity(0.7),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    // Manual control buttons
                     Row(
                       children: [
                         Expanded(
@@ -481,13 +533,23 @@ class _ActiveSessionScreenState extends State<ActiveSessionScreen>
                             ),
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        const SizedBox(width: 8),
                         Semantics(
-                          label: 'End session',
+                          label: 'Skip current phase',
                           button: true,
                           child: AppButton(
-                            label: 'End',
-                            onPressed: _handleEnd,
+                            label: 'Skip',
+                            onPressed: _skipPhase,
+                            variant: AppButtonVariant.secondary,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Semantics(
+                          label: 'Add 30 seconds',
+                          button: true,
+                          child: AppButton(
+                            label: '+30s',
+                            onPressed: _addTime,
                             variant: AppButtonVariant.secondary,
                           ),
                         ),
@@ -495,7 +557,7 @@ class _ActiveSessionScreenState extends State<ActiveSessionScreen>
                     ),
                     const SizedBox(height: 8),
                     TextButton(
-                      onPressed: _handleEnd,
+                      onPressed: _confirmEnd,
                       child: const Text(
                         'End session',
                         style: TextStyle(
