@@ -31,4 +31,5 @@ class EnvConfig {
   static String? get firebaseMessagingSenderId => _read(EnvKeys.firebaseMessagingSenderId);
   static String? get firebaseStorageBucket => _read(EnvKeys.firebaseStorageBucket);
   static String? get revenuecatApiKey => _read(EnvKeys.revenuecatApiKey);
+  static String? get googleWebClientId => _read(EnvKeys.googleWebClientId);
 }

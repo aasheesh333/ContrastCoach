@@ -126,6 +126,29 @@ jobs:
           ")
           echo "key=$FIREBASE_API_KEY" >> "$GITHUB_OUTPUT"
 
+      - name: Extract Google Web Client ID from google-services.json
+        id: google-client-id
+        run: |
+          GOOGLE_WEB_CLIENT_ID=$(python3 -c "
+          import json, sys
+          with open('android/app/google-services.json') as f:
+              data = json.load(f)
+          for client in data.get('client', []):
+              for oauth in client.get('oauth_client', []):
+                  if oauth.get('client_type') == 3:
+                      print(oauth['client_id'])
+                      sys.exit(0)
+          # Fallback: check other_platform_oauth_client
+          for client in data.get('client', []):
+              services = client.get('services', {})
+              for oauth in services.get('appinvite_service', {}).get('other_platform_oauth_client', []):
+                  if oauth.get('client_type') == 3:
+                      print(oauth['client_id'])
+                      sys.exit(0)
+          print('', end='')
+          ")
+          echo "id=$GOOGLE_WEB_CLIENT_ID" >> "$GITHUB_OUTPUT"
+
       - name: Build debug APK
         run: |
           flutter build apk --debug --flavor dev \
@@ -135,6 +158,7 @@ jobs:
             --dart-define=FIREBASE_MESSAGING_SENDER_ID=${{ secrets.FIREBASE_MESSAGING_SENDER_ID }} \
             --dart-define=FIREBASE_STORAGE_BUCKET=${{ secrets.FIREBASE_STORAGE_BUCKET }} \
             --dart-define=REVENUECAT_API_KEY=${{ secrets.REVENUECAT_API_KEY }} \
+            --dart-define=GOOGLE_WEB_CLIENT_ID=${{ steps.google-client-id.outputs.id }} \
             --dart-define=ENV=dev
 
       - name: Upload APK

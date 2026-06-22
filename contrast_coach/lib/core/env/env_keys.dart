@@ -8,4 +8,5 @@ class EnvKeys {
   static const String firebaseMessagingSenderId = 'FIREBASE_MESSAGING_SENDER_ID';
   static const String firebaseStorageBucket = 'FIREBASE_STORAGE_BUCKET';
   static const String revenuecatApiKey = 'REVENUECAT_API_KEY';
+  static const String googleWebClientId = 'GOOGLE_WEB_CLIENT_ID';
 }

@@ -1,3 +1,4 @@
+import 'package:contrast_coach/core/env/env_config.dart';
 import 'package:contrast_coach/core/constants/app_colors.dart';
 import 'package:contrast_coach/core/constants/app_strings.dart';
 import 'package:contrast_coach/core/errors/app_exception.dart';
@@ -28,7 +29,9 @@ class _SignInScreenState extends State<SignInScreen> {
   late final AuthRepository _auth = AuthRepositoryImpl(
     auth: FirebaseAuth.instance,
     firestore: FirebaseFirestore.instance,
-    googleSignIn: GoogleSignIn(),
+    googleSignIn: GoogleSignIn(
+      serverClientId: EnvConfig.googleWebClientId,
+    ),
   );
 
   Future<void> _signInEmail() async {
