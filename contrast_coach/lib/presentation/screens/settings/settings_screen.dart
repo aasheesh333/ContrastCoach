@@ -90,7 +90,66 @@ class _SettingsScreenState extends State<SettingsScreen> {
     await AppPreferences.setNotificationsEnabled(value);
     if (!mounted) return;
     setState(() => _notifications = value);
+  
+  String get _themeLabel => switch (AppPreferences.themeMode) {
+        'light' => 'Light',
+        'dark' => 'Dark',
+        _ => 'System',
+      };
+
+  void _showThemePicker() {
+    showModalBottomSheet<void>(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Padding(
+              padding: EdgeInsets.fromLTRB(24, 20, 24, 12),
+              child: Text(
+                'Theme',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+            for (final mode in ['system', 'light', 'dark'])
+              ListTile(
+                leading: Icon(
+                  mode == 'system'
+                      ? LucideIcons.monitorSmartphone
+                      : mode == 'light'
+                          ? LucideIcons.sun
+                          : LucideIcons.moon,
+                  color: AppColors.brandWarm,
+                ),
+                title: Text(
+                  mode == 'system'
+                      ? 'System'
+                      : mode == 'light'
+                          ? 'Light'
+                          : 'Dark',
+                ),
+                trailing: AppPreferences.themeMode == mode
+                    ? const Icon(Icons.check, color: AppColors.brandWarm)
+                    : null,
+                onTap: () async {
+                  await AppPreferences.setThemeMode(mode);
+                  if (mounted) setState(() {});
+                  if (ctx.mounted) Navigator.of(ctx).pop();
+                },
+              ),
+            const SizedBox(height: 12),
+          ],
+        ),
+      ),
+    );
   }
+}
 
   Future<void> _signOut() async {
     final confirmed = await showDialog<bool>(
@@ -144,10 +203,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     label: 'Theme',
                     icon: LucideIcons.sun,
                     iconColor: AppColors.brandWarm,
-                    trailing: const _TrailingValue(
-                      label: 'System',
+                    trailing: _TrailingValue(
+                      label: _themeLabel,
                       icon: LucideIcons.chevronRight,
                     ),
+                    onTap: _showThemePicker,
                   ),
                   const AppDivider(),
                   _SettingsRow(

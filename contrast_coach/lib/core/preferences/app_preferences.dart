@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class AppPreferences {
@@ -23,7 +24,13 @@ class AppPreferences {
     _analyticsEnabled = await _getBool(_analyticsEnabledKey, true);
     _voiceEnabled = await _getBool(_voiceEnabledKey, true);
     _notificationsEnabled = await _getBool(_notificationsEnabledKey, true);
+    _themeMode = await _getStr(_themeModeKey, 'system');
     _initialized = true;
+  }
+
+  static Future<String> _getStr(String key, String d) async {
+    final v = await _storage.read(key: key);
+    return v ?? d;
   }
 
   static bool get isInitialized => _initialized;
@@ -51,12 +58,30 @@ class AppPreferences {
   static bool get notificationsEnabled => _notificationsEnabled;
   static Future<void> setNotificationsEnabled(bool v) async => _setBool(_notificationsEnabledKey, v);
 
+  static const _themeModeKey = 'theme_mode';
+  static String _themeMode = 'system'; // system, light, dark
+
+  static String get themeMode => _themeMode;
+  static ThemeMode get themeModeValue => switch (_themeMode) {
+        'light' => ThemeMode.light,
+        'dark' => ThemeMode.dark,
+        _ => ThemeMode.system,
+      };
+  static Future<void> setThemeMode(String v) async => _setStr(_themeModeKey, v);
+
+  static Future<void> _setStr(String key, String v) async {
+    await _storage.write(key: key, value: v);
+    if (key == _themeModeKey) _themeMode = v;
+    changes.value++;
+  }
+
   static Future<void> clearAll() async {
     await _storage.deleteAll();
     _isOnboardingComplete = false;
     _analyticsEnabled = true;
     _voiceEnabled = true;
     _notificationsEnabled = true;
+    _themeMode = 'system';
     changes.value++;
   }
 }
