@@ -52,7 +52,7 @@ class InsightBlock extends StatelessWidget {
               children: [
                 Text(
                   heroMetric,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: 'PlusJakartaSans',
                     fontSize: 24,
                     fontWeight: FontWeight.w800,
@@ -64,7 +64,7 @@ class InsightBlock extends StatelessWidget {
                 const SizedBox(height: 6),
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: 'PlusJakartaSans',
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
@@ -75,7 +75,7 @@ class InsightBlock extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   body,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: 'PlusJakartaSans',
                     fontSize: 13,
                     color: Theme.of(context).colorScheme.onSurfaceVariant,

@@ -25,7 +25,7 @@ class RecoveryScoreCard extends StatelessWidget {
       children: [
         Text(
           score.value.round().toString(),
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: 'PlusJakartaSans',
             fontWeight: FontWeight.w200,
             fontSize: 96,
@@ -54,7 +54,7 @@ class RecoveryScoreCard extends StatelessWidget {
         const SizedBox(height: 16),
         Text(
           score.insight,
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: 'PlusJakartaSans',
             fontSize: 14,
             color: Theme.of(context).colorScheme.onSurfaceVariant,
