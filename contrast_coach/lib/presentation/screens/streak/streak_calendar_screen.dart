@@ -58,7 +58,77 @@ class _StreakCalendarScreenState extends State<StreakCalendarScreen> {
     } else if (mounted) {
       setState(() => _loading = false);
     }
+  
+  void _showDayDetails(DateTime date, int sessionCount) {
+    final dateStr = '${date.month}/${date.day}/${date.year}';
+    showModalBottomSheet<void>(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                dateStr,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: AppColors.brandWarm.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: const Icon(
+                      LucideIcons.flame,
+                      color: AppColors.brandWarm,
+                      size: 22,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '$sessionCount session${sessionCount == 1 ? '' : 's'}',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Keep up the streak!',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Theme.of(ctx).colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+            ],
+          ),
+        ),
+      ),
+    );
   }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -93,6 +163,7 @@ class _StreakCalendarScreenState extends State<StreakCalendarScreen> {
                       StreakCalendar(
                         daysWithSessions: _daysWithSessions,
                         intensity: _intensity,
+                        onDayTap: _showDayDetails,
                       ),
                       const SizedBox(height: AppSpacing.lg),
                       const _Legend(),

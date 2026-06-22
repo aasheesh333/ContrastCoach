@@ -10,6 +10,7 @@ class StreakCalendar extends StatelessWidget {
     required this.daysWithSessions,
     this.intensity,
     this.weeks = 12,
+    this.onDayTap,
   });
 
   /// Set of dates that have sessions.
@@ -19,6 +20,9 @@ class StreakCalendar extends StatelessWidget {
   final Map<DateTime, int>? intensity;
 
   final int weeks;
+
+  /// Called when a day cell is tapped.
+  final void Function(DateTime date, int sessionCount)? onDayTap;
 
   int _sessionCount(DateTime date) {
     if (intensity != null) {
@@ -79,6 +83,12 @@ class StreakCalendar extends StatelessWidget {
                       today: today,
                       isSession: _sessionCount(start.add(Duration(days: w * 7 + d))),
                       color: _intensityColor(_sessionCount(start.add(Duration(days: w * 7 + d)))),
+                      onTap: onDayTap != null
+                          ? () => onDayTap!(
+                                start.add(Duration(days: w * 7 + d)),
+                                _sessionCount(start.add(Duration(days: w * 7 + d))),
+                              )
+                          : null,
                     ),
                   ),
               ],
@@ -90,26 +100,30 @@ class StreakCalendar extends StatelessWidget {
 }
 
 class _Cell extends StatelessWidget {
-  const _Cell({required this.date, required this.today, required this.isSession, required this.color});
+  const _Cell({required this.date, required this.today, required this.isSession, required this.color, this.onTap});
   final DateTime date;
   final DateTime today;
   final int isSession;
   final Color color;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final isToday = date.year == today.year &&
         date.month == today.month &&
         date.day == today.day;
-    return Container(
-      width: AppShapes.heatmapCell,
-      height: AppShapes.heatmapCell,
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(AppShapes.heatmapRadius),
-        border: isToday
-            ? Border.all(color: AppColors.charcoal, width: 2)
-            : null,
+    return GestureDetector(
+      onTap: isSession > 0 ? onTap : null,
+      child: Container(
+        width: AppShapes.heatmapCell,
+        height: AppShapes.heatmapCell,
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(AppShapes.heatmapRadius),
+          border: isToday
+              ? Border.all(color: AppColors.charcoal, width: 2)
+              : null,
+        ),
       ),
     );
   }

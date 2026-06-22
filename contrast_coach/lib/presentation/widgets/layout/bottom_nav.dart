@@ -52,7 +52,11 @@ class ContrastBottomNav extends StatelessWidget {
                 Expanded(
                   child: InkWell(
                     onTap: () => onTap(items[i].location),
-                    child: Column(
+                    child: Semantics(
+                      label: items[i].label,
+                      button: true,
+                      selected: i == _currentIndex,
+                      child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         AppIcon(
@@ -77,6 +81,7 @@ class ContrastBottomNav extends StatelessWidget {
                               ),
                         ),
                       ],
+                    ),
                     ),
                   ),
                 ),

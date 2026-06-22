@@ -16,6 +16,7 @@ import 'package:contrast_coach/presentation/widgets/atomic/app_card.dart';
 import 'package:contrast_coach/presentation/widgets/composite/recovery_score.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class SessionSummaryScreen extends StatefulWidget {
@@ -221,6 +222,14 @@ class _SummaryBody extends StatelessWidget {
             ),
           ],
         ),
+        const SizedBox(height: AppSpacing.md),
+        AppButton(
+          label: 'Share progress',
+          onPressed: () => _shareProgress(context),
+          variant: AppButtonVariant.text,
+          leadingIcon: LucideIcons.share2,
+          fullWidth: true,
+        ),
       ],
     );
   }
@@ -231,6 +240,18 @@ class _SummaryBody extends StatelessWidget {
     return '$pct% of planned rounds completed';
   }
 }
+
+void _shareProgress(BuildContext context) {
+    final score = _session?.recoveryScore;
+    final scoreText = score != null ? score.round().toString() : 'N/A';
+    final minutes = _session?.totalActualDuration?.inMinutes ?? 0;
+    Share.share(
+      'I just completed a contrast therapy session on ContrastCoach! '
+      'Recovery score: $scoreText/100, $minutes minutes. '
+      'Track heat. Track cold. See what works.',
+      subject: 'My ContrastCoach recovery score',
+    );
+  }
 
 class _Celebration extends StatelessWidget {
   @override

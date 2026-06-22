@@ -35,9 +35,13 @@ class ContrastAppBar extends StatelessWidget implements PreferredSizeWidget {
       backgroundColor: backgroundColor,
       surfaceTintColor: Colors.transparent,
       leading: showBackButton
-          ? IconButton(
-              icon: const AppIcon(LucideIcons.chevronLeft, size: 24),
-              onPressed: onBack ?? () => Navigator.of(context).maybePop(),
+          ? Semantics(
+              label: 'Back',
+              button: true,
+              child: IconButton(
+                icon: const AppIcon(LucideIcons.chevronLeft, size: 24),
+                onPressed: onBack ?? () => Navigator.of(context).maybePop(),
+              ),
             )
           : null,
       actions: actions,

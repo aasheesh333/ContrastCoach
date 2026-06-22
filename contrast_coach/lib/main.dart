@@ -18,12 +18,19 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EnvConfig.init();
   await AppPreferences.init();
-  await _initFirebaseSafely();
+
+  // Parallelize independent init steps for faster startup
+  await Future.wait([
+    _initFirebaseSafely(),
+    _initNotificationsSafely(),
+    _initCrashlyticsSafely(),
+  ]);
+
+  // These depend on Firebase being initialized
   await AnalyticsApi.syncCollectionEnabled();
-  await _initNotificationsSafely();
-  await _initCrashlyticsSafely();
   await SyncWorker.init();
   await RevenueCatBootstrap.init();
+
   unawaited(_restoreOnLaunch());
   runApp(const ContrastCoachApp());
 }

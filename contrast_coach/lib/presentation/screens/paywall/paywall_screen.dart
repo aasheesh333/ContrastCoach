@@ -185,32 +185,48 @@ class _PaywallScreenState extends State<PaywallScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Column(
                   children: [
-                    _PriceCard(
-                      label: 'Monthly',
-                      price: r'$5.99',
-                      sub: 'per month',
-                      isBest: false,
-                      selected: _selectedPeriod == 'monthly',
-                      onTap: () => setState(() => _selectedPeriod = 'monthly'),
-                    ),
-                    const SizedBox(height: 12),
-                    _PriceCard(
-                      label: 'Yearly',
-                      price: r'$39.99',
-                      sub: r'$3.33/mo · save 44%',
-                      isBest: true,
-                      selected: _selectedPeriod == 'yearly',
-                      onTap: () => setState(() => _selectedPeriod = 'yearly'),
-                    ),
-                    const SizedBox(height: 12),
-                    _PriceCard(
-                      label: 'Lifetime',
-                      price: r'$89.99',
-                      sub: 'one-time',
-                      isBest: false,
-                      selected: _selectedPeriod == 'lifetime',
-                      onTap: () => setState(() => _selectedPeriod = 'lifetime'),
-                    ),
+                    if (_packages.isEmpty && !_loading) ...[
+                      // Fallback to hardcoded prices if RevenueCat not configured
+                      _PriceCard(
+                        label: 'Monthly',
+                        price: r'$5.99',
+                        sub: 'per month',
+                        isBest: false,
+                        selected: _selectedPeriod == 'monthly',
+                        onTap: () => setState(() => _selectedPeriod = 'monthly'),
+                      ),
+                      const SizedBox(height: 12),
+                      _PriceCard(
+                        label: 'Yearly',
+                        price: r'$39.99',
+                        sub: r'$3.33/mo · save 44%',
+                        isBest: true,
+                        selected: _selectedPeriod == 'yearly',
+                        onTap: () => setState(() => _selectedPeriod = 'yearly'),
+                      ),
+                      const SizedBox(height: 12),
+                      _PriceCard(
+                        label: 'Lifetime',
+                        price: r'$89.99',
+                        sub: 'one-time',
+                        isBest: false,
+                        selected: _selectedPeriod == 'lifetime',
+                        onTap: () => setState(() => _selectedPeriod = 'lifetime'),
+                      ),
+                    ] else
+                      for (final pkg in _packages) ...[
+                        _PriceCard(
+                          label: _packageLabel(pkg),
+                          price: _packagePrice(pkg),
+                          sub: _packageSub(pkg),
+                          isBest: _packageIdentifier(pkg).contains('year') ||
+                              _packageIdentifier(pkg).contains('annual'),
+                          selected: _selectedPeriod == _packageIdentifier(pkg),
+                          onTap: () =>
+                              setState(() => _selectedPeriod = _packageIdentifier(pkg)),
+                        ),
+                        const SizedBox(height: 12),
+                      ],
                   ],
                 ),
               ),
@@ -223,10 +239,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
                     // Find matching package from RevenueCat
                     Package? match;
                     for (final p in _packages) {
-                      final id = p.identifier.toLowerCase();
-                      if ((_selectedPeriod == 'monthly' && id.contains('month')) ||
-                          (_selectedPeriod == 'yearly' && (id.contains('year') || id.contains('annual'))) ||
-                          (_selectedPeriod == 'lifetime' && id.contains('lifetime'))) {
+                      if (_packageIdentifier(p) == _selectedPeriod) {
                         match = p;
                         break;
                       }
@@ -322,6 +335,39 @@ class _PaywallScreenState extends State<PaywallScreen> {
   }
 
   String _capitalize(String s) => s[0].toUpperCase() + s.substring(1);
+
+  String _packageIdentifier(Package pkg) {
+    final id = pkg.identifier.toLowerCase();
+    if (id.contains('month')) return 'monthly';
+    if (id.contains('year') || id.contains('annual')) return 'yearly';
+    if (id.contains('lifetime')) return 'lifetime';
+    return id;
+  }
+
+  String _packageLabel(Package pkg) {
+    final id = _packageIdentifier(pkg);
+    return switch (id) {
+      'monthly' => 'Monthly',
+      'yearly' => 'Yearly',
+      'lifetime' => 'Lifetime',
+      _ => pkg.storeProduct.title,
+    };
+  }
+
+  String _packagePrice(Package pkg) {
+    final price = pkg.storeProduct.priceString;
+    return price;
+  }
+
+  String _packageSub(Package pkg) {
+    final id = _packageIdentifier(pkg);
+    return switch (id) {
+      'monthly' => 'per month',
+      'yearly' => 'billed annually',
+      'lifetime' => 'one-time',
+      _ => '',
+    };
+  }
 }
 
 class _PriceCard extends StatelessWidget {
