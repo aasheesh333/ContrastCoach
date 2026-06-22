@@ -150,7 +150,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
     );
   }
-}
 
   Future<void> _signOut() async {
     final confirmed = await showDialog<bool>(

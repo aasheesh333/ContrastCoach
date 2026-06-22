@@ -358,7 +358,7 @@ class _ActiveSessionScreenState extends State<ActiveSessionScreen>
   void _skipPhase() {
     if (_sessionComplete || _protocol == null) return;
     HapticFeedback.mediumImpact();
-    _nextPhase();
+    _advanceToNextPhase(Duration.zero);
   }
 
   void _addTime() {

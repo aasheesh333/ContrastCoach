@@ -134,7 +134,7 @@ class _Stat extends StatelessWidget {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   value,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: 'PlusJakartaSans',
                     fontSize: 28,
                     fontWeight: FontWeight.w800,

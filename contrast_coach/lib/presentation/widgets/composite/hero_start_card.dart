@@ -265,7 +265,7 @@ class _GoalTile extends StatelessWidget {
             ),
             Text(
               entry.subtitle,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: 'PlusJakartaSans',
                 fontSize: 12,
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
