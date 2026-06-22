@@ -59,7 +59,7 @@ class AppPreferences {
   static Future<void> setNotificationsEnabled(bool v) async => _setBool(_notificationsEnabledKey, v);
 
   static const _themeModeKey = 'theme_mode';
-  static String _themeMode = 'system'; // system, light, dark
+  static String _themeMode = 'light'; // system, light, dark
 
   static String get themeMode => _themeMode;
   static ThemeMode get themeModeValue => switch (_themeMode) {

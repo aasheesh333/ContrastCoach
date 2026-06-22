@@ -62,7 +62,7 @@ class _ContrastCoachAppState extends State<ContrastCoachApp> {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
-      themeMode: AppPreferences.themeModeValue,
+      themeMode: ThemeMode.light,
       routerConfig: AppRouter.build(isOnboarded: _isOnboarded, isAuthed: _isAuthed),
     );
   }
