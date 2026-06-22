@@ -83,7 +83,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: release-aab
-          path: build/app/outputs/bundle/**/app-*-release.aab
+          path: contrast_coach/build/app/outputs/bundle/**/app-*-release.aab
           retention-days: 30
           if-no-files-found: error
 
@@ -91,7 +91,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: release-apk
-          path: build/app/outputs/flutter-apk/app-*-release.apk
+          path: contrast_coach/build/app/outputs/flutter-apk/app-*-release.apk
           retention-days: 30
           if-no-files-found: error
 
@@ -103,5 +103,5 @@ jobs:
         with:
           serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT }}
           packageName: com.dhanuk.contrastcoach
-          releaseFiles: build/app/outputs/bundle/prodRelease/app-prod-release.aab
+          releaseFiles: contrast_coach/build/app/outputs/bundle/prodRelease/app-prod-release.aab
           track: internal
