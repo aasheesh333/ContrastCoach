@@ -6,7 +6,7 @@ import 'package:contrast_coach/core/preferences/app_preferences.dart';
 import 'package:contrast_coach/core/utils/score_calculator.dart';
 import 'package:contrast_coach/data/audio/audio_cue_service.dart';
 import 'package:contrast_coach/data/local/database/app_database.dart';
-import 'package:contrast_coach/data/local/encryption/sqlcipher_key_provider.dart';
+import 'package:contrast_coach/data/local/database/database_provider.dart';
 import 'package:contrast_coach/data/local/health/health_connect_client.dart';
 import 'package:contrast_coach/data/remote/firebase/analytics_api.dart';
 import 'package:contrast_coach/data/repositories/protocol_repository.dart';
@@ -28,7 +28,6 @@ import 'package:contrast_coach/presentation/widgets/composite/session_timer.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
 
@@ -332,9 +331,7 @@ class _ActiveSessionScreenState extends State<ActiveSessionScreen>
   }
 
   Future<void> _saveSession(Session session) async {
-    final keyProvider = SqlcipherKeyProvider(storage: const FlutterSecureStorage());
-    final key = await keyProvider.getOrCreateKey();
-    final db = AppDatabase(key);
+    final db = await DatabaseProvider.instance();
     final repo = SessionRepositoryImpl(db);
     await repo.save(session);
   }

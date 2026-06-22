@@ -4,14 +4,13 @@ import 'package:contrast_coach/core/constants/app_colors.dart';
 import 'package:contrast_coach/core/errors/app_exception.dart';
 import 'package:contrast_coach/core/errors/result.dart';
 import 'package:contrast_coach/data/local/database/app_database.dart';
-import 'package:contrast_coach/data/local/encryption/sqlcipher_key_provider.dart';
+import 'package:contrast_coach/data/local/database/database_provider.dart';
 import 'package:contrast_coach/data/repositories/session_repository.dart';
 import 'package:contrast_coach/domain/entities/session.dart';
 import 'package:contrast_coach/domain/usecases/export_user_data.dart';
 import 'package:contrast_coach/presentation/widgets/atomic/app_button.dart';
 import 'package:contrast_coach/presentation/widgets/atomic/app_icon.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -30,9 +29,7 @@ class _DataExportScreenState extends State<DataExportScreen> {
   Future<void> _export(BuildContext context) async {
     setState(() => _exporting = true);
     try {
-      final keyProvider = SqlcipherKeyProvider(storage: const FlutterSecureStorage());
-      final key = await keyProvider.getOrCreateKey();
-      final db = AppDatabase(key);
+      final db = await DatabaseProvider.instance();
       final repo = SessionRepositoryImpl(db);
 
       final sessionsResult = await repo.getAll();

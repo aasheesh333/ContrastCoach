@@ -7,7 +7,7 @@ import 'package:contrast_coach/data/repositories/auth_repository.dart';
 import 'package:contrast_coach/data/repositories/user_profile_service.dart';
 import 'package:contrast_coach/data/repositories/session_repository.dart';
 import 'package:contrast_coach/data/local/database/app_database.dart';
-import 'package:contrast_coach/data/local/encryption/sqlcipher_key_provider.dart';
+import 'package:contrast_coach/data/local/database/database_provider.dart';
 import 'package:contrast_coach/domain/entities/session.dart';
 import 'package:contrast_coach/domain/repositories/auth_repository.dart' as domain;
 import 'package:contrast_coach/domain/usecases/session_stats.dart';
@@ -20,7 +20,6 @@ import 'package:contrast_coach/presentation/widgets/layout/app_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -63,9 +62,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ? profileResult.value
         : _profile;
 
-    final keyProvider = SqlcipherKeyProvider(storage: const FlutterSecureStorage());
-    final key = await keyProvider.getOrCreateKey();
-    final db = AppDatabase(key);
+    final db = await DatabaseProvider.instance();
     final repo = SessionRepositoryImpl(db);
     final sessionsResult = await repo.getAll();
     final sessions = sessionsResult is Ok<List<Session>, AppException>

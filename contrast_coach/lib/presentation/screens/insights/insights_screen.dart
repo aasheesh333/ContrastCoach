@@ -4,7 +4,7 @@ import 'package:contrast_coach/core/errors/app_exception.dart';
 import 'package:contrast_coach/core/errors/result.dart';
 import 'package:contrast_coach/core/feature_gating.dart';
 import 'package:contrast_coach/data/local/database/app_database.dart';
-import 'package:contrast_coach/data/local/encryption/sqlcipher_key_provider.dart';
+import 'package:contrast_coach/data/local/database/database_provider.dart';
 import 'package:contrast_coach/data/repositories/protocol_repository.dart';
 import 'package:contrast_coach/data/repositories/session_repository.dart';
 import 'package:contrast_coach/data/repositories/subscription_repository.dart';
@@ -21,7 +21,6 @@ import 'package:contrast_coach/presentation/widgets/atomic/app_chip.dart';
 import 'package:contrast_coach/presentation/widgets/composite/insight_block.dart';
 import 'package:contrast_coach/presentation/widgets/layout/app_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -68,9 +67,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
       return;
     }
 
-    final keyProvider = SqlcipherKeyProvider(storage: const FlutterSecureStorage());
-    final key = await keyProvider.getOrCreateKey();
-    final db = AppDatabase(key);
+    final db = await DatabaseProvider.instance();
     final repo = SessionRepositoryImpl(db);
 
     final sessionsResult = await repo.getAll();
