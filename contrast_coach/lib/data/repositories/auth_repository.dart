@@ -39,8 +39,17 @@ class AuthRepositoryImpl implements AuthRepository {
       }
       return Ok(user);
     } on FirebaseAuthException catch (e) {
-      return Err(AuthException(e.message ?? 'Sign-in failed.', cause: e));
+      final friendly = _friendlyAuthMessage(e);
+      return Err(AuthException(friendly, cause: e));
     } catch (e) {
+      final msg = e.toString();
+      if (msg.contains('API key') || msg.contains('api_key')) {
+        return Err(AuthException(
+          'Firebase API key mismatch. Make sure --dart-define=FIREBASE_API_KEY '
+          'matches the key in google-services.json.',
+          cause: e is Exception ? e : Exception(msg),
+        ));
+      }
       return Err(AuthException('Sign-in failed.', cause: e));
     }
   }
@@ -66,9 +75,34 @@ class AuthRepositoryImpl implements AuthRepository {
       });
       return Ok(user);
     } on FirebaseAuthException catch (e) {
-      return Err(AuthException(e.message ?? 'Sign-up failed.', cause: e));
+      final friendly = _friendlyAuthMessage(e);
+      return Err(AuthException(friendly, cause: e));
     } catch (e) {
       return Err(AuthException('Sign-up failed.', cause: e));
+    }
+  }
+
+  String _friendlyAuthMessage(FirebaseAuthException e) {
+    switch (e.code) {
+      case 'invalid-api-key':
+      case 'INVALID_API_KEY':
+        return 'Firebase API key is invalid. Check your google-services.json '
+            'and --dart-define=FIREBASE_API_KEY.';
+      case 'invalid-credential':
+      case 'wrong-password':
+        return 'Wrong email or password. Please try again.';
+      case 'user-not-found':
+        return 'No account found with this email.';
+      case 'email-already-in-use':
+        return 'An account with this email already exists.';
+      case 'weak-password':
+        return 'Password is too weak. Use at least 6 characters.';
+      case 'too-many-requests':
+        return 'Too many attempts. Please wait a moment and try again.';
+      case 'network-request-failed':
+        return 'Network error. Check your connection and try again.';
+      default:
+        return e.message ?? 'Authentication failed.';
     }
   }
 
@@ -100,8 +134,31 @@ class AuthRepositoryImpl implements AuthRepository {
         SetOptions(merge: true),
       );
       return Ok(user);
+    } on FirebaseAuthException catch (e) {
+      return Err(AuthException(
+        e.message ?? 'Google sign-in failed.',
+        cause: e,
+      ));
     } catch (e) {
-      return Err(AuthException('Google sign-in failed.', cause: e));
+      final msg = e.toString();
+      if (msg.contains('API key') || msg.contains('api_key')) {
+        return Err(AuthException(
+          'Firebase API key mismatch. Make sure --dart-define=FIREBASE_API_KEY '
+          'matches the key in google-services.json.',
+          cause: e is Exception ? e : Exception(e.toString()),
+        ));
+      }
+      if (msg.contains('network') || msg.contains('NETWORK_ERROR')) {
+        return Err(AuthException(
+          'Network error. Check your internet connection and try again.',
+          cause: e is Exception ? e : Exception(e.toString()),
+        ));
+      }
+      return Err(AuthException(
+        'Google sign-in failed. If this is a new install, make sure your '
+        'device SHA-1 is registered in the Firebase console.',
+        cause: e is Exception ? e : Exception(e.toString()),
+      ));
     }
   }
 
