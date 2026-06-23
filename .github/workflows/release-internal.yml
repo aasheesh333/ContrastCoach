@@ -135,14 +135,3 @@ jobs:
           path: contrast_coach/build/app/outputs/flutter-apk/app-*-release.apk
           retention-days: 30
           if-no-files-found: error
-
-      - name: Upload to Play Store (internal track)
-        if: ${{ secrets.PLAY_SERVICE_ACCOUNT != '' }}
-        env:
-          PLAY_SERVICE_ACCOUNT: ${{ secrets.PLAY_SERVICE_ACCOUNT }}
-        uses: r0adkll/upload-google-play@v1
-        with:
-          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT }}
-          packageName: com.dhanuk.contrastcoach
-          releaseFiles: contrast_coach/build/app/outputs/bundle/prodRelease/app-prod-release.aab
-          track: internal
