@@ -1,3 +1,4 @@
+import 'package:contrast_coach/core/animations/animation_utils.dart';
 import 'package:contrast_coach/core/constants/app_colors.dart';
 import 'package:contrast_coach/core/constants/app_spacing.dart';
 import 'package:contrast_coach/core/errors/app_exception.dart';
@@ -105,24 +106,34 @@ class _SessionSummaryScreenState extends State<SessionSummaryScreen> {
     return Scaffold(
       backgroundColor: AppColors.warmBeige,
       body: SafeArea(
-        child: _loading
-            ? const Center(
-                child: CircularProgressIndicator(color: AppColors.brandWarm),
-              )
-            : _session == null
-                ? const Center(child: Text('Session not found'))
-                : _SummaryBody(
-                    session: _session!,
-                    score: _buildScore(_session!),
-                    formatDuration: _formatDuration,
-                    stats: _stats,
-                  ),
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          child: _loading
+              ? const Center(
+                  key: ValueKey('loading'),
+                  child: CircularProgressIndicator(color: AppColors.brandWarm),
+                )
+              : _session == null
+                  ? const Center(
+                      key: ValueKey('not-found'),
+                      child: Text('Session not found'),
+                    )
+                  : KeyedSubtree(
+                      key: const ValueKey('content'),
+                      child: _SummaryBody(
+                        session: _session!,
+                        score: _buildScore(_session!),
+                        formatDuration: _formatDuration,
+                        stats: _stats,
+                      ),
+                    ),
+        ),
       ),
     );
   }
 }
 
-class _SummaryBody extends StatelessWidget {
+class _SummaryBody extends StatefulWidget {
   const _SummaryBody({
     required this.session,
     required this.score,
@@ -135,96 +146,112 @@ class _SummaryBody extends StatelessWidget {
   final String Function(Duration) formatDuration;
   final SessionStats stats;
 
-  String _formatStreakBanner(int streak) {
-    if (streak <= 0) return 'No streak yet';
-    return '$streak day${streak == 1 ? '' : 's'} in a row';
-  }
+  @override
+  State<_SummaryBody> createState() => _SummaryBodyState();
+}
+
+class _SummaryBodyState extends State<_SummaryBody> {
+  bool _showCelebration = true;
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.pageHorizontal,
-        AppSpacing.huge,
-        AppSpacing.pageHorizontal,
-        AppSpacing.huge,
-      ),
+    return Stack(
       children: [
-        _Celebration(),
-        const SizedBox(height: AppSpacing.xxl),
-        Text(
-          'Session complete.',
-          textAlign: TextAlign.center,
-          style: const TextStyle(
-            fontFamily: 'PlusJakartaSans',
-            fontSize: 32,
-            fontWeight: FontWeight.w800,
-            color: AppColors.charcoal,
-            height: 1.1,
-            letterSpacing: -0.5,
+        ListView(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.pageHorizontal,
+            AppSpacing.huge,
+            AppSpacing.pageHorizontal,
+            AppSpacing.huge,
           ),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          '${formatDuration(session.totalActualDuration)} · ${session.roundsCompleted}/${session.protocolRounds} rounds',
-          textAlign: TextAlign.center,
-          style: const TextStyle(
-            fontFamily: 'PlusJakartaSans',
-            fontSize: 15,
-            color: AppColors.darkGray,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        const SizedBox(height: AppSpacing.huge),
-        RecoveryScoreCard(score: score),
-        const SizedBox(height: AppSpacing.huge),
-        _InsightRow(
-          icon: LucideIcons.check,
-          color: AppColors.brandWarm,
-          title: 'Plan adherence',
-          subtitle: _adherenceLine(session),
-        ),
-        const SizedBox(height: AppSpacing.md),
-        _InsightRow(
-          icon: LucideIcons.flame,
-          color: AppColors.brandCoral,
-          title: _formatStreakBanner(stats.streakDays),
-          subtitle: stats.streakDays > 0
-              ? 'You are ${stats.streakDays} day${stats.streakDays == 1 ? '' : 's'} into a new streak.'
-              : 'Finish one tomorrow to start a streak.',
-        ),
-        const SizedBox(height: AppSpacing.md),
-        _InsightRow(
-          icon: LucideIcons.timer,
-          color: AppColors.brandCool,
-          title: 'Total time tracked',
-          subtitle: '${stats.totalMinutes} minutes across ${stats.totalSessions} sessions',
-        ),
-        const SizedBox(height: AppSpacing.huge),
-        Row(
           children: [
-            Expanded(
-              child: AppButton(
-                label: 'Share',
-                onPressed: () => _shareProgress(context),
-                variant: AppButtonVariant.secondary,
-                leadingIcon: LucideIcons.share2,
-                fullWidth: true,
+            _Celebration(),
+            const SizedBox(height: AppSpacing.xxl),
+            Text(
+              'Session complete.',
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontFamily: 'PlusJakartaSans',
+                fontSize: 32,
+                fontWeight: FontWeight.w800,
+                color: AppColors.charcoal,
+                height: 1.1,
+                letterSpacing: -0.5,
               ),
             ),
-            const SizedBox(width: AppSpacing.md),
-            Expanded(
-              child: AppButton(
-                label: 'Done',
-                onPressed: () => context.go('/home'),
-                variant: AppButtonVariant.warm,
-                fullWidth: true,
+            const SizedBox(height: 6),
+            Text(
+              '${widget.formatDuration(widget.session.totalActualDuration)} · ${widget.session.roundsCompleted}/${widget.session.protocolRounds} rounds',
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontFamily: 'PlusJakartaSans',
+                fontSize: 15,
+                color: AppColors.darkGray,
+                fontWeight: FontWeight.w500,
               ),
+            ),
+            const SizedBox(height: AppSpacing.huge),
+            RecoveryScoreCard(score: widget.score),
+            const SizedBox(height: AppSpacing.huge),
+            _InsightRow(
+              icon: LucideIcons.check,
+              color: AppColors.brandWarm,
+              title: 'Plan adherence',
+              subtitle: _adherenceLine(widget.session),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            _InsightRow(
+              icon: LucideIcons.flame,
+              color: AppColors.brandCoral,
+              title: _formatStreakBanner(widget.stats.streakDays),
+              subtitle: widget.stats.streakDays > 0
+                  ? 'You are ${widget.stats.streakDays} day${widget.stats.streakDays == 1 ? '' : 's'} into a new streak.'
+                  : 'Finish one tomorrow to start a streak.',
+            ),
+            const SizedBox(height: AppSpacing.md),
+            _InsightRow(
+              icon: LucideIcons.timer,
+              color: AppColors.brandCool,
+              title: 'Total time tracked',
+              subtitle: '${widget.stats.totalMinutes} minutes across ${widget.stats.totalSessions} sessions',
+            ),
+            const SizedBox(height: AppSpacing.huge),
+            Row(
+              children: [
+                Expanded(
+                  child: AppButton(
+                    label: 'Share',
+                    onPressed: () => _shareProgress(context),
+                    variant: AppButtonVariant.secondary,
+                    leadingIcon: LucideIcons.share2,
+                    fullWidth: true,
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.md),
+                Expanded(
+                  child: AppButton(
+                    label: 'Done',
+                    onPressed: () => context.go('/home'),
+                    variant: AppButtonVariant.warm,
+                    fullWidth: true,
+                  ),
+                ),
+              ],
             ),
           ],
         ),
+        if (_showCelebration)
+          CelebrationOverlay(
+            duration: const Duration(seconds: 3),
+            onComplete: () => setState(() => _showCelebration = false),
+          ),
       ],
     );
+  }
+
+  String _formatStreakBanner(int streak) {
+    if (streak <= 0) return 'No streak yet';
+    return '$streak day${streak == 1 ? '' : 's'} in a row';
   }
 
   String _adherenceLine(Session s) {
@@ -234,9 +261,9 @@ class _SummaryBody extends StatelessWidget {
   }
 
   void _shareProgress(BuildContext context) {
-    final score = session.recoveryScore;
+    final score = widget.session.recoveryScore;
     final scoreText = score != null ? score.round().toString() : 'N/A';
-    final minutes = session.totalActualDuration?.inMinutes ?? 0;
+    final minutes = widget.session.totalActualDuration?.inMinutes ?? 0;
     Share.share(
       'I just completed a contrast therapy session on ContrastCoach! '
       'Recovery score: $scoreText/100, $minutes minutes. '

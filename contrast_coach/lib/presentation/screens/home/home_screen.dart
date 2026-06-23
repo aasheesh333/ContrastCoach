@@ -1,3 +1,4 @@
+import 'package:contrast_coach/core/animations/animation_utils.dart';
 import 'package:contrast_coach/core/constants/app_colors.dart';
 import 'package:contrast_coach/core/constants/app_spacing.dart';
 import 'package:contrast_coach/core/errors/app_exception.dart';
@@ -31,7 +32,8 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen>
+    with SingleTickerProviderStateMixin {
   SessionStats _stats = computeSessionStats(const []);
   UserProfile _profile = const UserProfile(
     uid: '',
@@ -45,11 +47,23 @@ class _HomeScreenState extends State<HomeScreen> {
   Protocol? _recommended;
   SubscriptionTier _tier = SubscriptionTier.free;
   bool _loading = true;
+  late final AnimationController _entranceController;
 
   @override
   void initState() {
     super.initState();
+    _entranceController = AnimationController(
+      vsync: this,
+      duration: AnimationUtils.standardDuration,
+    );
+    _entranceController.forward();
     _load();
+  }
+
+  @override
+  void dispose() {
+    _entranceController.dispose();
+    super.dispose();
   }
 
   Future<void> _load() async {
@@ -151,9 +165,7 @@ class _HomeScreenState extends State<HomeScreen> {
       body: SafeArea(
         bottom: false,
         child: _loading
-            ? const Center(
-                child: CircularProgressIndicator(color: AppColors.brandWarm),
-              )
+            ? const ShimmerLoading(isLoading: true, child: _HomeSkeleton())
             : RefreshIndicator(
                 color: AppColors.brandWarm,
                 onRefresh: _load,
@@ -165,50 +177,74 @@ class _HomeScreenState extends State<HomeScreen> {
                     AppSpacing.sectionGap,
                   ),
                   children: [
-                    _HomeHeader(profile: _profile, stats: _stats),
-                    const SizedBox(height: AppSpacing.lg),
-                    _TodayPanel(
-                      stats: _stats,
-                      recommended: _recommended,
-                      onStart: _onStartSession,
+                    AnimationUtils.staggeredListItem(
+                      animation: _entranceController,
+                      index: 0,
+                      child: _HomeHeader(profile: _profile, stats: _stats),
                     ),
                     const SizedBox(height: AppSpacing.lg),
-                    QuickStatsRow(
-                      streakDays: _stats.streakDays,
-                      avgDurationMin: _stats.avgDurationMin,
-                      lastScore: _stats.lastScore,
-                      bestScore: _stats.bestScore,
-                      totalMinutes: _stats.totalMinutes,
-                      weekDelta: _stats.weekDelta,
+                    AnimationUtils.staggeredListItem(
+                      animation: _entranceController,
+                      index: 1,
+                      child: _TodayPanel(
+                        stats: _stats,
+                        recommended: _recommended,
+                        onStart: _onStartSession,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.lg),
+                    AnimationUtils.staggeredListItem(
+                      animation: _entranceController,
+                      index: 2,
+                      child: QuickStatsRow(
+                        streakDays: _stats.streakDays,
+                        avgDurationMin: _stats.avgDurationMin,
+                        lastScore: _stats.lastScore,
+                        bestScore: _stats.bestScore,
+                        totalMinutes: _stats.totalMinutes,
+                        weekDelta: _stats.weekDelta,
+                      ),
                     ),
                     const SizedBox(height: AppSpacing.sectionGap),
-                    SectionHeader(
-                      label: 'Pick a goal',
-                      trailing: TextButton(
-                        onPressed: _openCustomProtocolBuilder,
-                        child: const Text(
-                          'Custom',
-                          style: TextStyle(
-                            color: AppColors.brandWarm,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 13,
+                    AnimationUtils.staggeredListItem(
+                      animation: _entranceController,
+                      index: 3,
+                      child: SectionHeader(
+                        label: 'Pick a goal',
+                        trailing: TextButton(
+                          onPressed: _openCustomProtocolBuilder,
+                          child: const Text(
+                            'Custom',
+                            style: TextStyle(
+                              color: AppColors.brandWarm,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 13,
+                            ),
                           ),
                         ),
                       ),
                     ),
                     const SizedBox(height: AppSpacing.sm),
-                    GoalCardsRow(onGoalTap: (g) {
-                      final id = switch (g.name) {
-                        'energy' => 'energy_morning',
-                        'sleep' => 'sleep_evening',
-                        'immunity' => 'immunity_weekly',
-                        _ => 'recovery_standard',
-                      };
-                      _openProtocol(id);
-                    }),
+                    AnimationUtils.staggeredListItem(
+                      animation: _entranceController,
+                      index: 4,
+                      child: GoalCardsRow(onGoalTap: (g) {
+                        final id = switch (g.name) {
+                          'energy' => 'energy_morning',
+                          'sleep' => 'sleep_evening',
+                          'immunity' => 'immunity_weekly',
+                          _ => 'recovery_standard',
+                        };
+                        _openProtocol(id);
+                      }),
+                    ),
                     const SizedBox(height: AppSpacing.lg),
                     if (_stats.lastSession != null)
-                      _RecentSessionCard(session: _stats.lastSession!),
+                      AnimationUtils.staggeredListItem(
+                        animation: _entranceController,
+                        index: 5,
+                        child: _RecentSessionCard(session: _stats.lastSession!),
+                      ),
                   ],
                 ),
               ),
@@ -520,3 +556,69 @@ String _goalLabel(String name) => switch (name) {
       'immunity' => 'Immune boost',
       _ => 'Standard recovery',
     };
+
+class _HomeSkeleton extends StatelessWidget {
+  const _HomeSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.pageHorizontal,
+        AppSpacing.pageTop,
+        AppSpacing.pageHorizontal,
+        AppSpacing.sectionGap,
+      ),
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(width: 80, height: 14, color: AppColors.lightGray),
+                  const SizedBox(height: 8),
+                  Container(width: 120, height: 24, color: AppColors.lightGray),
+                  const SizedBox(height: 6),
+                  Container(width: 200, height: 14, color: AppColors.lightGray),
+                ],
+              ),
+            ),
+            Container(width: 40, height: 40, decoration: const BoxDecoration(color: AppColors.lightGray, shape: BoxShape.circle)),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.lg),
+        Container(
+          height: 180,
+          decoration: BoxDecoration(color: AppColors.lightGray, borderRadius: BorderRadius.circular(28)),
+        ),
+        const SizedBox(height: AppSpacing.lg),
+        Row(
+          children: List.generate(4, (_) => const Expanded(child: Padding(padding: EdgeInsets.symmetric(horizontal: 4), child: _SkeletonBox(height: 64)))),
+        ),
+        const SizedBox(height: AppSpacing.sectionGap),
+        Container(width: 80, height: 16, color: AppColors.lightGray),
+        const SizedBox(height: AppSpacing.sm),
+        Row(
+          children: List.generate(3, (_) => const Expanded(child: Padding(padding: EdgeInsets.symmetric(horizontal: 6), child: _SkeletonBox(height: 100)))),
+        ),
+      ],
+    );
+  }
+}
+
+class _SkeletonBox extends StatelessWidget {
+  const _SkeletonBox({this.height = 48});
+  final double height;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: height,
+      decoration: BoxDecoration(
+        color: AppColors.lightGray,
+        borderRadius: BorderRadius.circular(16),
+      ),
+    );
+  }
+}

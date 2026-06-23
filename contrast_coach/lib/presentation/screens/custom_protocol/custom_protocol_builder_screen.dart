@@ -122,8 +122,6 @@ class _CustomProtocolBuilderScreenState extends State<CustomProtocolBuilderScree
         phasesJson: phasesJson,
       );
 
-      await db.close();
-
       if (result.isErr) {
         setState(() {
           _saving = false;

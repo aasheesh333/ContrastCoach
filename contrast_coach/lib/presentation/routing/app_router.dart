@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:contrast_coach/core/constants/app_colors.dart';
 import 'package:go_router/go_router.dart';
 import 'package:contrast_coach/presentation/routing/route_names.dart';
 import 'package:contrast_coach/presentation/screens/onboarding/onboarding_screen.dart';
@@ -30,20 +31,18 @@ class AppRouter {
       debugLogDiagnostics: false,
       redirect: (_, state) {
         final path = state.uri.path;
-        final authRoutes = {'/sign-in', '/sign-up'};
-        final onboardingRoute = path == '/onboarding';
-        final isAuthRoute = authRoutes.contains(path);
-        final isPublicRoute = onboardingRoute || isAuthRoute;
+        final publicRoutes = {'/sign-in', '/sign-up', '/onboarding', '/terms', '/privacy'};
+        final isPublicRoute = publicRoutes.contains(path);
 
         if (!isOnboarded) {
-          return onboardingRoute ? null : '/onboarding';
+          return path == '/onboarding' ? null : '/onboarding';
         }
 
         if (!isAuthed) {
           return isPublicRoute ? null : '/sign-in';
         }
 
-        if (isPublicRoute) {
+        if (isPublicRoute && path != '/terms' && path != '/privacy') {
           return '/home';
         }
 
@@ -64,6 +63,16 @@ class AppRouter {
           path: '/sign-up',
           name: RouteNames.signUp,
           builder: (_, __) => const SignUpScreen(),
+        ),
+        GoRoute(
+          path: '/terms',
+          name: RouteNames.terms,
+          builder: (_, __) => _LegalScreen(title: 'Terms of Service', body: _termsBody),
+        ),
+        GoRoute(
+          path: '/privacy',
+          name: RouteNames.privacyPolicy,
+          builder: (_, __) => _LegalScreen(title: 'Privacy Policy', body: _privacyBody),
         ),
         GoRoute(
           path: '/paywall',
@@ -154,3 +163,113 @@ class AppRouter {
     );
   }
 }
+
+class _LegalScreen extends StatelessWidget {
+  const _LegalScreen({required this.title, required this.body});
+  final String title;
+  final String body;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.offWhite,
+      appBar: AppBar(
+        backgroundColor: AppColors.offWhite,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: AppColors.charcoal),
+          onPressed: () => context.pop(),
+        ),
+        title: Text(title, style: const TextStyle(fontFamily: 'PlusJakartaSans', fontWeight: FontWeight.w700, color: AppColors.charcoal)),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: Text(body, style: const TextStyle(fontFamily: 'PlusJakartaSans', fontSize: 14, color: AppColors.darkGray, height: 1.7)),
+      ),
+    );
+  }
+}
+
+const String _termsBody = '''
+Terms of Service
+
+Last updated: 2024
+
+By using ContrastCoach, you agree to these terms.
+
+1. Acceptance of Terms
+By downloading and using ContrastCoach, you accept these Terms of Service and our Privacy Policy.
+
+2. Description of Service
+ContrastCoach provides guided contrast therapy session timers and wellness tracking tools. It is not a medical device and should not be used as a substitute for professional medical advice.
+
+3. User Accounts
+You may create an account to sync your data across devices. You are responsible for maintaining the confidentiality of your account credentials.
+
+4. Subscription Payments
+Pro features are available via monthly, yearly, or lifetime subscriptions. Payments are processed through the Google Play Store. Refunds are subject to Google Play's refund policy.
+
+5. Data & Privacy
+We collect minimal data necessary to provide the service. See our Privacy Policy for details.
+
+6. Disclaimer of Warranties
+ContrastCoach is provided "as is" without warranties of any kind. Always consult a healthcare professional before beginning any contrast therapy routine.
+
+7. Limitation of Liability
+ContrastCoach shall not be liable for any damages arising from your use of the app.
+
+8. Changes to Terms
+We may update these terms from time to time. Continued use constitutes acceptance of changes.
+
+9. Contact
+For questions, contact us at support@contrastcoach.app.
+''';
+
+const String _privacyBody = '''
+Privacy Policy
+
+Last updated: 2024
+
+ContrastCoach ("we", "us", "our") respects your privacy and is committed to protecting your personal data.
+
+1. Information We Collect
+- Account information: email address (for authentication)
+- Session data: contrast therapy session logs (stored locally and optionally synced to cloud)
+- Health data: heart rate, HRV, sleep (optional, via Health Connect, read-only)
+- Usage analytics: anonymized app usage events (if analytics not opted out)
+
+2. How We Use Your Information
+- To provide and improve the contrast therapy guidance service
+- To sync your session data across devices (Pro users)
+- To calculate recovery scores and insights
+- To send you session reminders (if notifications enabled)
+
+3. Data Storage
+- All session data is stored locally on your device using encrypted SQLCipher database
+- Cloud sync uses Firebase Firestore with encryption in transit and at rest
+- Health Connect data is read-only and never stored on our servers
+
+4. Data Sharing
+We do NOT sell, rent, or share your personal data with third parties for marketing purposes.
+
+5. Your Rights
+- You may export all your data at any time via Settings > Export Data
+- You may delete your account and all associated data via Settings > Delete Account
+- You may revoke Health Connect permissions at any time via Android settings
+
+6. Data Retention
+- Local data persists until you delete your account or uninstall the app
+- Cloud data is deleted within 30 days of account deletion
+
+7. Children's Privacy
+ContrastCoach is not intended for children under 13.
+
+8. Security
+We use industry-standard encryption (SQLCipher, TLS 1.3) to protect your data.
+
+9. Changes to This Policy
+We may update this policy from time to time. We will notify you of significant changes.
+
+10. Contact
+For privacy inquiries, contact us at privacy@contrastcoach.app.
+''';

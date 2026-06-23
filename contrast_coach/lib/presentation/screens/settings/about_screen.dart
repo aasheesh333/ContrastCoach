@@ -186,7 +186,7 @@ class _AboutScreenState extends State<AboutScreen> {
               Center(
                 child: AppButton(
                   label: 'Open privacy policy',
-                  onPressed: () {},
+                  onPressed: () => context.push('/privacy'),
                   variant: AppButtonVariant.text,
                 ),
               ),

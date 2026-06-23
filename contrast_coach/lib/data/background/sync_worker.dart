@@ -34,7 +34,6 @@ void syncCallback() {
           await repo.syncToRemote(uid);
         }
       }
-      await db.close();
       return true;
     } catch (_) {
       return false;

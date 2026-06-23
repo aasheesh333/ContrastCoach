@@ -1,3 +1,4 @@
+import 'package:contrast_coach/core/animations/animation_utils.dart';
 import 'package:contrast_coach/core/constants/app_colors.dart';
 import 'package:contrast_coach/core/constants/app_spacing.dart';
 import 'package:contrast_coach/core/errors/app_exception.dart';
@@ -138,9 +139,7 @@ class _StreakCalendarScreenState extends State<StreakCalendarScreen> {
       body: SafeArea(
         top: false,
         child: _loading
-            ? const Center(
-                child: CircularProgressIndicator(color: AppColors.brandWarm),
-              )
+            ? const ShimmerLoading(isLoading: true, child: _StreakSkeleton())
             : _stats.isEmpty
                 ? AppEmptyState(
                     icon: LucideIcons.flame,
@@ -472,6 +471,49 @@ class _Legend extends StatelessWidget {
             color: AppColors.midGray,
             fontWeight: FontWeight.w600,
           ),
+        ),
+      ],
+    );
+  }
+}
+
+class _StreakSkeleton extends StatelessWidget {
+  const _StreakSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.pageHorizontal,
+        AppSpacing.lg,
+        AppSpacing.pageHorizontal,
+        AppSpacing.huge,
+      ),
+      children: [
+        Container(width: 60, height: 48, color: AppColors.lightGray),
+        const SizedBox(height: 6),
+        Container(width: 200, height: 14, color: AppColors.lightGray),
+        const SizedBox(height: 16),
+        Container(width: 90, height: 24, decoration: BoxDecoration(color: AppColors.lightGray, borderRadius: BorderRadius.circular(999))),
+        const SizedBox(height: AppSpacing.lg),
+        Container(
+          height: 180,
+          decoration: BoxDecoration(color: AppColors.lightGray, borderRadius: BorderRadius.circular(16)),
+        ),
+        const SizedBox(height: AppSpacing.lg),
+        Container(
+          height: 28,
+          color: AppColors.lightGray,
+        ),
+        const SizedBox(height: AppSpacing.huge),
+        Container(
+          height: 100,
+          decoration: BoxDecoration(color: AppColors.lightGray, borderRadius: BorderRadius.circular(20)),
+        ),
+        const SizedBox(height: AppSpacing.lg),
+        Container(
+          height: 80,
+          decoration: BoxDecoration(color: AppColors.lightGray, borderRadius: BorderRadius.circular(20)),
         ),
       ],
     );

@@ -1,5 +1,6 @@
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class CrashlyticsClient {
   static final CrashlyticsClient _instance = CrashlyticsClient._();
@@ -14,7 +15,8 @@ class CrashlyticsClient {
       await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
       await FirebaseCrashlytics.instance.setUserIdentifier('');
       // Set custom keys for filtering without PII
-      await FirebaseCrashlytics.instance.setCustomKey('app_version', '1.0.0');
+      final info = await PackageInfo.fromPlatform();
+      await FirebaseCrashlytics.instance.setCustomKey('app_version', info.version);
       await FirebaseCrashlytics.instance.setCustomKey('platform', 'android');
       FlutterError.onError = (details) {
         // Sanitize error details before recording

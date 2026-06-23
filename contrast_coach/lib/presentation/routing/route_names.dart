@@ -19,4 +19,6 @@ class RouteNames {
   static const String signIn = 'signIn';
   static const String signUp = 'signUp';
   static const String customProtocol = 'customProtocol';
+  static const String terms = 'terms';
+  static const String privacyPolicy = 'privacyPolicy';
 }

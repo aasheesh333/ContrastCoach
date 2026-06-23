@@ -181,115 +181,122 @@ class _SettingsScreenState extends State<SettingsScreen> {
       appBar: const ContrastAppBar(title: 'Profile', showBackButton: true),
       body: SafeArea(
         top: false,
-        child: _loading
-            ? const Center(
-                child: CircularProgressIndicator(color: AppColors.brandWarm),
-              )
-            : ListView(
-                padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.pageHorizontal,
-                  AppSpacing.lg,
-                  AppSpacing.pageHorizontal,
-                  AppSpacing.huge,
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          child: _loading
+              ? const Center(
+                  key: ValueKey('loading'),
+                  child: CircularProgressIndicator(color: AppColors.brandWarm),
+                )
+              : KeyedSubtree(
+                  key: const ValueKey('content'),
+                  child: ListView(
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSpacing.pageHorizontal,
+                      AppSpacing.lg,
+                      AppSpacing.pageHorizontal,
+                      AppSpacing.huge,
+                    ),
+                    children: [
+                      _ProfileCard(
+                        profile: _profile,
+                        stats: _stats,
+                        onUpgrade: () => context.push('/paywall'),
+                      ),
+                      const SectionHeader(label: 'Appearance'),
+                      _SettingsRow(
+                        label: 'Theme',
+                        icon: LucideIcons.sun,
+                        iconColor: AppColors.brandWarm,
+                        trailing: _TrailingValue(
+                          label: _themeLabel,
+                          icon: LucideIcons.chevronRight,
+                        ),
+                        onTap: _showThemePicker,
+                      ),
+                      const AppDivider(),
+                      _SettingsRow(
+                        label: 'Accent color',
+                        icon: LucideIcons.droplet,
+                        iconColor: AppColors.brandCool,
+                        trailing: const _TrailingValue(
+                          label: 'Orange',
+                          icon: LucideIcons.chevronRight,
+                        ),
+                      ),
+                      const SectionHeader(label: 'Health'),
+                      _SettingsRow(
+                        label: 'Health Connect',
+                        icon: LucideIcons.heart,
+                        iconColor: AppColors.brandWarm,
+                        location: '/settings/health',
+                      ),
+                      const AppDivider(),
+                      _SettingsRow(
+                        label: 'Voice control',
+                        icon: LucideIcons.mic,
+                        iconColor: AppColors.brandCool,
+                        trailing: AppSwitch(
+                          value: _voice,
+                          onChanged: (value) => _setVoice(value),
+                        ),
+                      ),
+                      const AppDivider(),
+                      _SettingsRow(
+                        label: 'Notifications',
+                        icon: LucideIcons.bell,
+                        iconColor: AppColors.brandCoral,
+                        trailing: AppSwitch(
+                          value: _notifications,
+                          onChanged: (value) => _setNotifications(value),
+                        ),
+                      ),
+                      const SectionHeader(label: 'Privacy'),
+                      _SettingsRow(
+                        label: 'Privacy',
+                        icon: LucideIcons.shield,
+                        iconColor: AppColors.brandWarm,
+                        location: '/settings/privacy',
+                      ),
+                      const AppDivider(),
+                      _SettingsRow(
+                        label: 'Export data',
+                        icon: LucideIcons.download,
+                        iconColor: AppColors.brandCool,
+                        location: '/settings/export',
+                      ),
+                      const AppDivider(),
+                      _SettingsRow(
+                        label: 'Delete account',
+                        icon: LucideIcons.trash2,
+                        iconColor: AppColors.error,
+                        location: '/settings/delete',
+                      ),
+                      const SectionHeader(label: 'Subscription'),
+                      _SettingsRow(
+                        label: 'Manage subscription',
+                        icon: LucideIcons.creditCard,
+                        iconColor: AppColors.brandCoral,
+                        location: '/paywall',
+                      ),
+                      const SectionHeader(label: 'Help'),
+                      _SettingsRow(
+                        label: 'About',
+                        icon: LucideIcons.info,
+                        iconColor: AppColors.midGray,
+                        location: '/settings/about',
+                      ),
+                      const AppDivider(),
+                      _SettingsRow(
+                        label: 'Sign out',
+                        icon: LucideIcons.logOut,
+                        iconColor: AppColors.error,
+                        onTap: _signOut,
+                      ),
+                    ],
+                  ),
                 ),
-                children: [
-                  _ProfileCard(
-                    profile: _profile,
-                    stats: _stats,
-                    onUpgrade: () => context.push('/paywall'),
-                  ),
-                  const SectionHeader(label: 'Appearance'),
-                  _SettingsRow(
-                    label: 'Theme',
-                    icon: LucideIcons.sun,
-                    iconColor: AppColors.brandWarm,
-                    trailing: _TrailingValue(
-                      label: _themeLabel,
-                      icon: LucideIcons.chevronRight,
-                    ),
-                    onTap: _showThemePicker,
-                  ),
-                  const AppDivider(),
-                  _SettingsRow(
-                    label: 'Accent color',
-                    icon: LucideIcons.droplet,
-                    iconColor: AppColors.brandCool,
-                    trailing: const _TrailingValue(
-                      label: 'Orange',
-                      icon: LucideIcons.chevronRight,
-                    ),
-                  ),
-                  const SectionHeader(label: 'Health'),
-                  _SettingsRow(
-                    label: 'Health Connect',
-                    icon: LucideIcons.heart,
-                    iconColor: AppColors.brandWarm,
-                    location: '/settings/health',
-                  ),
-                  const AppDivider(),
-                  _SettingsRow(
-                    label: 'Voice control',
-                    icon: LucideIcons.mic,
-                    iconColor: AppColors.brandCool,
-                    trailing: AppSwitch(
-                      value: _voice,
-                      onChanged: (value) => _setVoice(value),
-                    ),
-                  ),
-                  const AppDivider(),
-                  _SettingsRow(
-                    label: 'Notifications',
-                    icon: LucideIcons.bell,
-                    iconColor: AppColors.brandCoral,
-                    trailing: AppSwitch(
-                      value: _notifications,
-                      onChanged: (value) => _setNotifications(value),
-                    ),
-                  ),
-                  const SectionHeader(label: 'Privacy'),
-                  _SettingsRow(
-                    label: 'Privacy',
-                    icon: LucideIcons.shield,
-                    iconColor: AppColors.brandWarm,
-                    location: '/settings/privacy',
-                  ),
-                  const AppDivider(),
-                  _SettingsRow(
-                    label: 'Export data',
-                    icon: LucideIcons.download,
-                    iconColor: AppColors.brandCool,
-                    location: '/settings/export',
-                  ),
-                  const AppDivider(),
-                  _SettingsRow(
-                    label: 'Delete account',
-                    icon: LucideIcons.trash2,
-                    iconColor: AppColors.error,
-                    location: '/settings/delete',
-                  ),
-                  const SectionHeader(label: 'Subscription'),
-                  _SettingsRow(
-                    label: 'Manage subscription',
-                    icon: LucideIcons.creditCard,
-                    iconColor: AppColors.brandCoral,
-                    location: '/paywall',
-                  ),
-                  const SectionHeader(label: 'Help'),
-                  _SettingsRow(
-                    label: 'About',
-                    icon: LucideIcons.info,
-                    iconColor: AppColors.midGray,
-                    location: '/settings/about',
-                  ),
-                  const AppDivider(),
-                  _SettingsRow(
-                    label: 'Sign out',
-                    icon: LucideIcons.logOut,
-                    iconColor: AppColors.error,
-                    onTap: _signOut,
-                  ),
-                ],
-              ),
+        ),
       ),
     );
   }

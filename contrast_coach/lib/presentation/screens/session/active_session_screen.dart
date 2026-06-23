@@ -1,3 +1,4 @@
+import 'package:contrast_coach/core/animations/animation_utils.dart';
 import 'package:contrast_coach/core/constants/app_colors.dart';
 import 'package:contrast_coach/core/errors/app_exception.dart';
 import 'package:contrast_coach/core/errors/result.dart';
@@ -489,15 +490,20 @@ class _ActiveSessionScreenState extends State<ActiveSessionScreen>
               ),
               // Center: timer
               Center(
-                child: SessionTimer(
-                  phaseType: phaseType,
-                  remaining: _remaining,
-                  plannedDuration: _currentPhaseDuration,
-                  currentRound: _currentRound + 1,
-                  totalRounds: _protocol!.rounds,
-                  targetTempC: _protocol!.phases[_currentPhaseIndex].targetTempC,
-                  onPause: _togglePause,
-                  onMic: _showVoiceStatus,
+                child: BreathingCircle(
+                  isActive: !_paused && !_sessionComplete && _protocol != null,
+                  color: phaseType == PhaseType.cold ? AppColors.brandCool : AppColors.brandWarm,
+                  size: 240,
+                  child: SessionTimer(
+                    phaseType: phaseType,
+                    remaining: _remaining,
+                    plannedDuration: _currentPhaseDuration,
+                    currentRound: _currentRound + 1,
+                    totalRounds: _protocol!.rounds,
+                    targetTempC: _protocol!.phases[_currentPhaseIndex].targetTempC,
+                    onPause: _togglePause,
+                    onMic: _showVoiceStatus,
+                  ),
                 ),
               ),
               // Bottom: controls

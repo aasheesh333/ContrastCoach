@@ -55,19 +55,16 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             AppSpacing.xxl,
             AppSpacing.xxl,
           ),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 0),
-            child: IntrinsicHeight(
-              child: Column(
+          child: Column(
                 children: [
                   const SizedBox(height: AppSpacing.md),
                   _PageDots(active: _step, total: 3),
-                  const Spacer(),
+                  const SizedBox(height: 24),
                   AnimatedSwitcher(
                     duration: const Duration(milliseconds: 240),
                     child: _StepContent(key: ValueKey(_step), step: _step),
                   ),
-                  const Spacer(),
+                  const SizedBox(height: 24),
                   const _Tagline(text: AppStrings.onboardingStep1Tagline),
                   const SizedBox(height: AppSpacing.lg),
                   AppButton(
@@ -88,8 +85,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   ],
                 ],
               ),
-            ),
-          ),
         ),
       ),
     );

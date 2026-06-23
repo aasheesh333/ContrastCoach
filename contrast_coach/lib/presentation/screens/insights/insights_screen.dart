@@ -1,3 +1,4 @@
+import 'package:contrast_coach/core/animations/animation_utils.dart';
 import 'package:contrast_coach/core/constants/app_colors.dart';
 import 'package:contrast_coach/core/constants/app_spacing.dart';
 import 'package:contrast_coach/core/errors/app_exception.dart';
@@ -104,9 +105,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
       body: SafeArea(
         top: false,
         child: _loading
-            ? const Center(
-                child: CircularProgressIndicator(color: AppColors.brandWarm),
-              )
+            ? const ShimmerLoading(isLoading: true, child: _InsightsSkeleton())
             : !FeatureGating.canUseInsights(_tier)
                 ? _paywallGate(context)
             : _stats.isEmpty
@@ -170,7 +169,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
                             : _range == _Range.month
                                 ? 'SESSIONS THIS MONTH'
                                 : 'SESSIONS THIS YEAR',
-                        value: _periodSessions(sessions: _allSessionsInRange()).toString(),
+                        value: _periodSessions().toString(),
                         delta: _stats.streakDays > 0
                             ? '${_stats.streakDays} day streak · ${_stats.avgDurationMin}m avg'
                             : 'No streak yet · start one today',
@@ -265,20 +264,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
     );
   }
 
-  List<Session> _allSessionsInRange() {
-    // We don't have a single source-of-truth session list here; reuse
-    // generate_insights output for the total count plus the period window.
-    final periodStart = DateTime.now().subtract(_period);
-    return _insights
-        .where((i) => i.periodStart.isAfter(periodStart))
-        .toList(growable: false)
-        .map((i) => null as Session?)
-        .whereType<Session>()
-        .toList();
-  }
-
-  int _periodSessions({required List<Session> sessions}) {
-    // Pull from insights heroMetric for the headline
+  int _periodSessions() {
     final total = _insights.firstWhere(
       (i) => i.category == InsightCategory.totalSessions,
       orElse: () => Insight(
@@ -572,6 +558,91 @@ class _BarRow extends StatelessWidget {
         const SizedBox(height: 6),
         ContrastBar(fraction: fraction, color: color),
       ],
+    );
+  }
+}
+
+class _InsightsSkeleton extends StatelessWidget {
+  const _InsightsSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.pageHorizontal,
+        AppSpacing.lg,
+        AppSpacing.pageHorizontal,
+        AppSpacing.sectionGap,
+      ),
+      children: [
+        Container(width: 80, height: 14, color: AppColors.lightGray),
+        const SizedBox(height: 4),
+        Container(width: 180, height: 24, color: AppColors.lightGray),
+        const SizedBox(height: AppSpacing.lg),
+        Row(
+          children: List.generate(3, (_) => const Padding(padding: EdgeInsets.only(right: 8), child: _SkeletonChip())),
+        ),
+        const SizedBox(height: AppSpacing.lg),
+        Container(
+          height: 120,
+          decoration: BoxDecoration(color: AppColors.lightGray, borderRadius: BorderRadius.circular(20)),
+        ),
+        const SizedBox(height: AppSpacing.lg),
+        Row(
+          children: const [
+            Expanded(child: _SkeletonCard(height: 100)),
+            SizedBox(width: AppSpacing.sm),
+            Expanded(child: _SkeletonCard(height: 100)),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        Row(
+          children: const [
+            Expanded(child: _SkeletonCard(height: 100)),
+            SizedBox(width: AppSpacing.sm),
+            Expanded(child: _SkeletonCard(height: 100)),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.lg),
+        const _SkeletonCard(height: 160),
+        const SizedBox(height: AppSpacing.lg),
+        Container(
+          height: 60,
+          decoration: BoxDecoration(color: AppColors.lightGray, borderRadius: BorderRadius.circular(16)),
+        ),
+      ],
+    );
+  }
+}
+
+class _SkeletonChip extends StatelessWidget {
+  const _SkeletonChip();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 64,
+      height: 32,
+      decoration: BoxDecoration(
+        color: AppColors.lightGray,
+        borderRadius: BorderRadius.circular(999),
+      ),
+    );
+  }
+}
+
+class _SkeletonCard extends StatelessWidget {
+  const _SkeletonCard({this.height = 48});
+  final double height;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: height,
+      decoration: BoxDecoration(
+        color: AppColors.lightGray,
+        borderRadius: BorderRadius.circular(20),
+      ),
     );
   }
 }

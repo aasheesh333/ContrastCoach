@@ -1,5 +1,4 @@
 import 'package:contrast_coach/core/constants/app_colors.dart';
-import 'package:contrast_coach/presentation/widgets/atomic/app_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -57,14 +56,32 @@ class ContrastBottomNav extends StatelessWidget {
                       button: true,
                       selected: i == _currentIndex,
                       child: Column(
+                      mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        AppIcon(
-                          items[i].icon,
-                          size: 22,
-                          color: i == _currentIndex
-                              ? AppColors.brandWarm
-                              : cs.onSurfaceVariant,
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          curve: Curves.easeOutCubic,
+                          child: Icon(
+                            items[i].icon,
+                            size: i == _currentIndex ? 26 : 24,
+                            color: i == _currentIndex
+                                ? AppColors.brandWarm
+                                : cs.onSurfaceVariant,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          curve: Curves.easeOutCubic,
+                          width: i == _currentIndex ? 20 : 0,
+                          height: 3,
+                          decoration: BoxDecoration(
+                            color: i == _currentIndex
+                                ? AppColors.brandWarm
+                                : Colors.transparent,
+                            borderRadius: BorderRadius.circular(2),
+                          ),
                         ),
                         const SizedBox(height: 4),
                         Text(

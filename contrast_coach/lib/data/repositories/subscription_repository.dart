@@ -102,9 +102,13 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
   }
 
   SubscriptionTier _toTier(CustomerInfo info) {
-    final isPro = info.entitlements.all.containsKey('pro') &&
-        (info.entitlements.all['pro']?.isActive ?? false);
-    return isPro ? SubscriptionTier.proYearly : SubscriptionTier.free;
+    final pro = info.entitlements.all['pro'];
+    if (pro == null || !pro.isActive) return SubscriptionTier.free;
+
+    final productId = pro.productIdentifier.toLowerCase();
+    if (productId.contains('lifetime')) return SubscriptionTier.lifetime;
+    if (productId.contains('monthly') || productId.contains('month')) return SubscriptionTier.proMonthly;
+    return SubscriptionTier.proYearly;
   }
 
   bool _isUserCancellation(PlatformException e) {

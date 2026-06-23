@@ -33,7 +33,7 @@ import 'package:contrast_coach/core/animations/animation_utils.dart';
       displayColor: AppColors.darkTextPrimary,
     ),
     scaffoldBackgroundColor: cs.surface,
-    splashFactory: NoSplash.splashFactory,
+    splashFactory: InkSplash.splashFactory,
     visualDensity: VisualDensity.standard,
     appBarTheme: const AppBarTheme(
       backgroundColor: AppColors.darkBackground,

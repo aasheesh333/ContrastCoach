@@ -68,12 +68,15 @@ class DeleteAccountScreen extends StatelessWidget {
       );
 
       // 4. Clear SQLCipher key from secure storage
-      await const FlutterSecureStorage().delete(key: 'sqlcipher_key');
+      await const FlutterSecureStorage().delete(key: 'drift_db_key_v1');
 
       // 5. Clear all SharedPreferences (onboarding, settings, analytics opt-out, etc.)
       await AppPreferences.clearAll();
 
-      // 6. Clear user profile data — handled by FirebaseAuth account deletion above
+      // 6. Dispose the database singleton so next app launch creates a fresh instance
+      await DatabaseProvider.dispose();
+
+      // 7. Clear user profile data — handled by FirebaseAuth account deletion above
 
       // 7. Dispose health client
       healthClient.dispose();

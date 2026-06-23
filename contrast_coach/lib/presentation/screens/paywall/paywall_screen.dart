@@ -288,7 +288,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
                           _purchase(match);
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Subscription not available in this build.')),
+                            const SnackBar(content: Text('Subscriptions will be available after app store review. Please try again later.')),
                           );
                         }
                       },
@@ -387,7 +387,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
     );
   }
 
-  String _capitalize(String s) => s[0].toUpperCase() + s.substring(1);
+  String _capitalize(String s) => s.isEmpty ? s : s[0].toUpperCase() + s.substring(1);
 
   String _packageIdentifier(Package pkg) {
     final id = pkg.identifier.toLowerCase();
