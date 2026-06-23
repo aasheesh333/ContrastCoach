@@ -137,7 +137,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload to Play Store (internal track)
-        if: ${{ env.PLAY_SERVICE_ACCOUNT != '' }}
+        if: ${{ secrets.PLAY_SERVICE_ACCOUNT != '' }}
         env:
           PLAY_SERVICE_ACCOUNT: ${{ secrets.PLAY_SERVICE_ACCOUNT }}
         uses: r0adkll/upload-google-play@v1
