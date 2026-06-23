@@ -45,7 +45,7 @@ import 'package:contrast_coach/core/animations/animation_utils.dart';
       centerTitle: false,
     ),
     cardColor: AppColors.white,
-    dividerGradient: AppColors.outline,
+    dividerColor: AppColors.outline,
     pageTransitionsTheme: PageTransitionsTheme(
       builders: {
         TargetPlatform.android: AnimationUtils.pageTransition,
