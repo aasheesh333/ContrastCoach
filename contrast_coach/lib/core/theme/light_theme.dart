@@ -1,9 +1,10 @@
-import 'package:contrast_coach/core/constants/app_colors.dart';
-import 'package:contrast_coach/core/constants/app_typography.dart';
-import 'package:flutter/material.dart';
-
-ThemeData buildLightTheme() {
-  const cs = ColorScheme.light(
+import 'package:contrast_coach/core/animations/animation_utils.dart';  
+ import 'package:contrast_coach/core/constants/app_colors.dart';  
+ import 'package:contrast_coach/core/constants/app_typography.dart';  
+ import 'package:flutter/material.dart';  
+   
+ ThemeData buildLightTheme() {  
+   const cs = ColorScheme.light(
     brightness: Brightness.light,
     primary: AppColors.brandWarm,
     onPrimary: AppColors.white,
@@ -44,6 +45,12 @@ ThemeData buildLightTheme() {
       centerTitle: false,
     ),
     cardColor: AppColors.white,
-    dividerColor: AppColors.outline,
+    dividerGradient: AppColors.outline,
+    pageTransitionsTheme: PageTransitionsTheme(
+      builders: {
+        TargetPlatform.android: AnimationUtils.pageTransition,
+        TargetPlatform.iOS: AnimationUtils.pageTransition,
+      },
+    ),
   );
 }

@@ -31,7 +31,7 @@ Future<void> main() async {
   await SyncWorker.init();
   await RevenueCatBootstrap.init();
 
-  unawaited(_restoreOnLaunch());
+  await _restoreOnLaunch();
   runApp(const ContrastCoachApp());
 }
 

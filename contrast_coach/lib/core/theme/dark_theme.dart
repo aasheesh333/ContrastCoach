@@ -1,9 +1,10 @@
-import 'package:contrast_coach/core/constants/app_colors.dart';
-import 'package:contrast_coach/core/constants/app_typography.dart';
-import 'package:flutter/material.dart';
-
-ThemeData buildDarkTheme() {
-  const cs = ColorScheme.dark(
+import 'package:contrast_coach/core/animations/animation_utils.dart';  
+ import 'package:contrast_coach/core/constants/app_colors.dart';  
+ import 'package:contrast_coach/core/constants/app_typography.dart';  
+ import 'package:flutter/material.dart';  
+   
+ ThemeData buildDarkTheme() {  
+   const cs = ColorScheme.dark(
     brightness: Brightness.dark,
     primary: AppColors.brandWarm,
     onPrimary: AppColors.white,
@@ -41,6 +42,12 @@ ThemeData buildDarkTheme() {
       scrolledUnderElevation: 0,
       surfaceTintColor: Colors.transparent,
       titleTextStyle: AppTypography.titleLarge,
+    ),
+    pageTransitionsTheme: PageTransitionsTheme(
+      builders: {
+        TargetPlatform.android: AnimationUtils.pageTransition,
+        TargetPlatform.iOS: AnimationUtils.pageTransition,
+      },
     ),
   );
 }

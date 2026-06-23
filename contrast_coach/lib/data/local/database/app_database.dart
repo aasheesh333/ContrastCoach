@@ -39,8 +39,9 @@ class AppDatabase extends _$AppDatabase {
       final file = File(p.join(dir.path, 'contrast_coach.db'));
       return NativeDatabase.createInBackground(
         file,
-        setup: (db) {
-          db.execute('PRAGMA foreign_keys = ON;');
+        setup: (raw) {
+          raw.execute("PRAGMA key = '$key';");
+          raw.execute('PRAGMA foreign_keys = ON;');
         },
       );
     });

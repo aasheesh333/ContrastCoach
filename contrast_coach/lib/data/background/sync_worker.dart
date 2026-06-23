@@ -1,11 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:workmanager/workmanager.dart';
 
 import 'package:contrast_coach/core/errors/result.dart';
-import 'package:contrast_coach/data/local/database/app_database.dart';
-import 'package:contrast_coach/data/local/encryption/sqlcipher_key_provider.dart';
+import 'package:contrast_coach/data/local/database/database_provider.dart';
 import 'package:contrast_coach/data/remote/firebase/firebase_config.dart';
 import 'package:contrast_coach/data/remote/firebase/firestore_api.dart';
 import 'package:contrast_coach/data/repositories/session_repository.dart';
@@ -19,10 +17,7 @@ void syncCallback() {
   Workmanager().executeTask((task, inputData) async {
     try {
       await Firebase.initializeApp(options: FirebaseConfig.currentPlatform);
-      final storage = const FlutterSecureStorage();
-      final keyProvider = SqlcipherKeyProvider(storage: storage);
-      final key = await keyProvider.getOrCreateKey();
-      final db = AppDatabase(key);
+      final db = await DatabaseProvider.instance();
       final firestore = FirestoreApi(FirebaseFirestore.instance);
       final repo = SessionRepositoryImpl(db, firestoreApi: firestore);
 

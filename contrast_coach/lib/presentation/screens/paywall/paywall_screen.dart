@@ -20,27 +20,31 @@ class PaywallScreen extends StatefulWidget {
 class _PaywallScreenState extends State<PaywallScreen> {
   final SubscriptionRepository _repo = SubscriptionRepositoryImpl();
   final AnalyticsApi? _analytics = AnalyticsApi.tryCreate();
-  List<Package> _packages = [];
-  bool _loading = true;
-  String? _selectedPeriod = 'yearly';
+  List<Package> _packages = [];  
+  bool _loading = true;  
+  String? _error;  
+  String? _selectedPeriod = 'yearly';  
 
-  @override
-  void initState() {
-    super.initState();
-    _analytics?.trackPaywallViewed();
-    _loadOfferings();
-  }
+  @override  
+  void initState() {  
+    super.initState();  
+    _analytics?.trackPaywallViewed();  
+    _loadOfferings();  
+  }  
 
-  Future<void> _loadOfferings() async {
-    final result = await _repo.getOfferings();
-    if (!mounted) return;
-    result.fold(
-      (_) => setState(() => _loading = false),
-      (packages) => setState(() {
-        _packages = packages;
-        _loading = false;
-      }),
-    );
+  Future<void> _loadOfferings() async {  
+    final result = await _repo.getOfferings();  
+    if (!mounted) return;  
+    result.fold(  
+      (err) => setState(() {  
+        _loading = false;  
+        _error = err.message;  
+      }),  
+      (packages) => setState(() {  
+        _packages = packages;  
+        _loading = false;  
+      }),  
+    );  
   }
 
   Future<void> _purchase(Package package) async {
@@ -184,15 +188,49 @@ class _PaywallScreenState extends State<PaywallScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Column(
                   children: [
-                    if (_packages.isEmpty && !_loading) ...[
-                      // Fallback to hardcoded prices if RevenueCat not configured
-                      _PriceCard(
-                        label: 'Monthly',
-                        price: r'$5.99',
-                        sub: 'per month',
-                        isBest: false,
-                        selected: _selectedPeriod == 'monthly',
-                        onTap: () => setState(() => _selectedPeriod = 'monthly'),
+                    if (_error != null) ...[  
+                      // Configuration or loading error  
+                      Container(  
+                        padding: const EdgeInsets.all(20),  
+                        decoration: BoxDecoration(  
+                          color: AppColors.white,  
+                          borderRadius: BorderRadius.circular(20),  
+                        ),  
+                        child: Column(  
+                          children: [  
+                            const Icon(LucideIcons.alertCircle, color: AppColors.brandWarm, size: 48),  
+                            const SizedBox(height: 12),  
+                            Text(  
+                              'Subscription unavailable in this build.',  
+                              style: const TextStyle(  
+                                fontFamily: 'PlusJakartaSans',  
+                                fontSize: 16,  
+                                fontWeight: FontWeight.w700,  
+                                color: AppColors.charcoal,  
+                              ),  
+                            ),  
+                            const SizedBox(height: 8),  
+                            Text(  
+                              _error!,  
+                              textAlign: TextAlign.center,  
+                              style: const TextStyle(  
+                                fontFamily: 'PlusJakartaSans',  
+                                fontSize: 12,  
+                                color: AppColors.midGray,  
+                              ),  
+                            ),  
+                          ],  
+                        ),  
+                      ),  
+                    ] else if (_packages.isEmpty && !_loading) ...[  
+                      // Fallback if packages are empty but no error  
+                      _PriceCard(  
+                        label: 'Monthly',  
+                        price: r'$5.99',  
+                        sub: 'per month',  
+                        isBest: false,  
+                        selected: _selectedPeriod == 'monthly',  
+                        onTap: () => setState(() => _selectedPeriod = 'monthly'),  
                       ),
                       const SizedBox(height: 12),
                       _PriceCard(
