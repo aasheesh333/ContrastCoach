@@ -161,7 +161,7 @@ class _HomeScreenState extends State<HomeScreen>
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return Scaffold(
-      backgroundColor: AppColors.warmBeige,
+      backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
       body: SafeArea(
         bottom: false,
         child: _loading
@@ -281,7 +281,7 @@ class _HomeHeader extends StatelessWidget {
                   style: TextStyle(
                     fontFamily: Theme.of(context).textTheme.bodyMedium?.fontFamily,
                     fontSize: 13,
-                    color: AppColors.midGray,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 0.4,
                   ),
@@ -294,7 +294,7 @@ class _HomeHeader extends StatelessWidget {
                     fontSize: 28,
                     height: 1.1,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.charcoal,
+                    color: Theme.of(context).colorScheme.onSurface,
                     letterSpacing: -0.5,
                   ),
                 ),
@@ -304,7 +304,7 @@ class _HomeHeader extends StatelessWidget {
                   style: const TextStyle(
                     fontFamily: 'PlusJakartaSans',
                     fontSize: 14,
-                    color: AppColors.darkGray,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     height: 1.35,
                   ),
                 ),
@@ -335,7 +335,7 @@ class _StreakPill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(999),
         boxShadow: AppShadows.cardSoft,
       ),
@@ -346,11 +346,11 @@ class _StreakPill extends StatelessWidget {
           const SizedBox(width: 4),
           Text(
             '$streak day${streak == 1 ? '' : 's'}',
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: 'PlusJakartaSans',
               fontSize: 12,
               fontWeight: FontWeight.w700,
-              color: AppColors.charcoal,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
         ],
@@ -404,7 +404,7 @@ class _NoSessionsCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             decoration: BoxDecoration(
-              color: AppColors.brandWarm.withOpacity(0.12),
+              color: AppColors.brandWarm.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(999),
             ),
             child: const Text(
@@ -419,13 +419,13 @@ class _NoSessionsCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AppSpacing.lg),
-          const Text(
+          Text(
             'Start your first\ncontrast session.',
             style: TextStyle(
               fontFamily: 'PlusJakartaSans',
               fontSize: 28,
               fontWeight: FontWeight.w800,
-              color: AppColors.charcoal,
+              color: Theme.of(context).colorScheme.onSurface,
               height: 1.1,
               letterSpacing: -0.5,
             ),
@@ -436,7 +436,7 @@ class _NoSessionsCard extends StatelessWidget {
             style: TextStyle(
               fontFamily: Theme.of(context).textTheme.bodyMedium?.fontFamily,
               fontSize: 14,
-              color: AppColors.darkGray,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
               height: 1.45,
             ),
           ),
@@ -444,32 +444,28 @@ class _NoSessionsCard extends StatelessWidget {
           Material(
             color: AppColors.brandWarm,
             borderRadius: BorderRadius.circular(999),
-            child: InkWell(
-              onTap: onStart,
-              borderRadius: BorderRadius.circular(999),
-              child: Container(
-                height: 56,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(999),
-                  boxShadow: AppShadows.pill,
-                ),
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      'Start first session',
-                      style: TextStyle(
-                        fontFamily: 'PlusJakartaSans',
-                        color: AppColors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                      ),
+            child: Container(
+              height: 56,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(999),
+                boxShadow: AppShadows.pill,
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Start first session',
+                    style: TextStyle(
+                      fontFamily: 'PlusJakartaSans',
+                      color: AppColors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
                     ),
-                    SizedBox(width: 10),
-                    Icon(LucideIcons.arrowRight, color: AppColors.white, size: 18),
-                  ],
-                ),
+                  ),
+                  SizedBox(width: 10),
+                  Icon(LucideIcons.arrowRight, color: AppColors.white, size: 18),
+                ],
               ),
             ),
           ),
@@ -505,20 +501,20 @@ class _RecentSessionCard extends StatelessWidget {
                   children: [
                     Text(
                       goalLabel,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: 'PlusJakartaSans',
                         fontSize: 20,
                         fontWeight: FontWeight.w800,
-                        color: AppColors.charcoal,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       '${session.roundsCompleted}/${session.protocolRounds} rounds · ${mins}m',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: 'PlusJakartaSans',
                         fontSize: 13,
-                        color: AppColors.darkGray,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -529,7 +525,7 @@ class _RecentSessionCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                   decoration: BoxDecoration(
-                    color: AppColors.brandWarm.withOpacity(0.12),
+                    color: AppColors.brandWarm.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(999),
                   ),
                   child: Text(

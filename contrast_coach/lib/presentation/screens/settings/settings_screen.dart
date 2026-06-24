@@ -221,7 +221,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         iconColor: AppColors.brandCool,
                         trailing: const _TrailingValue(
                           label: 'Orange',
-                          icon: LucideIcons.chevronRight,
                         ),
                       ),
                       const SectionHeader(label: 'Health'),
@@ -334,11 +333,11 @@ class _ProfileCard extends StatelessWidget {
               children: [
                 Text(
                   hasName ? profile.displayName : 'Guest user',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: 'PlusJakartaSans',
                     fontSize: 18,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.charcoal,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -349,7 +348,7 @@ class _ProfileCard extends StatelessWidget {
                   style: TextStyle(
                     fontFamily: Theme.of(context).textTheme.bodySmall?.fontFamily,
                     fontSize: 12,
-                    color: AppColors.darkGray,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -368,7 +367,7 @@ class _ProfileCard extends StatelessWidget {
                       style: const TextStyle(
                         fontFamily: 'PlusJakartaSans',
                         fontSize: 11,
-                        color: AppColors.midGray,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -395,16 +394,16 @@ class _TrailingValue extends StatelessWidget {
       children: [
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: 'PlusJakartaSans',
             fontSize: 14,
-            color: AppColors.midGray,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
             fontWeight: FontWeight.w500,
           ),
         ),
         if (icon != null) ...[
           const SizedBox(width: 4),
-          Icon(icon, size: 18, color: AppColors.midGray),
+          Icon(icon, size: 18, color: Theme.of(context).colorScheme.onSurfaceVariant),
         ],
       ],
     );
@@ -439,7 +438,6 @@ class _SettingsRow extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(
             vertical: 16,
-            horizontal: 2,
           ),
           child: Row(
             children: [
@@ -448,7 +446,7 @@ class _SettingsRow extends StatelessWidget {
                   width: 24,
                   height: 24,
                   decoration: BoxDecoration(
-                    color: (iconColor ?? AppColors.brandWarm).withOpacity(0.12),
+                    color: (iconColor ?? AppColors.brandWarm).withValues(alpha: 0.12),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(icon, color: iconColor ?? AppColors.brandWarm, size: 14),
@@ -456,21 +454,21 @@ class _SettingsRow extends StatelessWidget {
                 const SizedBox(width: 14),
               ],
               Expanded(
-                child: Text(
-                  label,
-                  style: const TextStyle(
-                    fontFamily: 'PlusJakartaSans',
-                    fontSize: 15,
-                    color: AppColors.charcoal,
-                    fontWeight: FontWeight.w600,
+                  child: Text(
+                    label,
+                    style: TextStyle(
+                      fontFamily: 'PlusJakartaSans',
+                      fontSize: 15,
+                      color: Theme.of(context).colorScheme.onSurface,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
-              ),
-              trailing ??
-                  const Icon(
+                trailing ??
+                  Icon(
                     LucideIcons.chevronRight,
                     size: 18,
-                    color: AppColors.midGray,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
             ],
           ),

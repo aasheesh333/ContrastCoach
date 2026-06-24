@@ -1,6 +1,7 @@
 import 'package:contrast_coach/core/constants/app_colors.dart';
 import 'package:contrast_coach/core/theme/gradients.dart';
 import 'package:contrast_coach/data/remote/firebase/analytics_api.dart';
+import 'package:contrast_coach/data/remote/subscription/revenue_cat_client.dart';
 import 'package:contrast_coach/data/repositories/subscription_repository.dart';
 import 'package:contrast_coach/domain/entities/subscription_tier.dart';
 import 'package:contrast_coach/domain/repositories/subscription_repository.dart';
@@ -20,31 +21,33 @@ class PaywallScreen extends StatefulWidget {
 class _PaywallScreenState extends State<PaywallScreen> {
   final SubscriptionRepository _repo = SubscriptionRepositoryImpl();
   final AnalyticsApi? _analytics = AnalyticsApi.tryCreate();
-  List<Package> _packages = [];  
-  bool _loading = true;  
-  String? _error;  
-  String? _selectedPeriod = 'yearly';  
+  List<Package> _packages = [];
+  bool _loading = true;
+  String? _error;
+  String? _selectedPeriod = 'yearly';
 
-  @override  
-  void initState() {  
-    super.initState();  
-    _analytics?.trackPaywallViewed();  
-    _loadOfferings();  
-  }  
+  bool get _isUnconfigured => !RevenueCatBootstrap.isConfigured && _error != null;
 
-  Future<void> _loadOfferings() async {  
-    final result = await _repo.getOfferings();  
-    if (!mounted) return;  
-    result.fold(  
-      (err) => setState(() {  
-        _loading = false;  
-        _error = err.message;  
-      }),  
-      (packages) => setState(() {  
-        _packages = packages;  
-        _loading = false;  
-      }),  
-    );  
+  @override
+  void initState() {
+    super.initState();
+    _analytics?.trackPaywallViewed();
+    _loadOfferings();
+  }
+
+  Future<void> _loadOfferings() async {
+    final result = await _repo.getOfferings();
+    if (!mounted) return;
+    result.fold(
+      (err) => setState(() {
+        _loading = false;
+        _error = err.message;
+      }),
+      (packages) => setState(() {
+        _packages = packages;
+        _loading = false;
+      }),
+    );
   }
 
   Future<void> _purchase(Package package) async {
@@ -94,293 +97,320 @@ class _PaywallScreenState extends State<PaywallScreen> {
       body: Container(
         decoration: const BoxDecoration(gradient: AppGradients.heat),
         child: SafeArea(
-          child: Column(
-            children: [
-              // Top bar
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Material(
-                      color: AppColors.white.withOpacity(0.2),
-                      shape: const CircleBorder(),
-                      child: InkWell(
-                        customBorder: const CircleBorder(),
-                        onTap: () => context.pop(),
-                        child: const SizedBox(
-                          width: 40,
-                          height: 40,
-                          child: Icon(LucideIcons.x, color: AppColors.white, size: 20),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 32),
-                child: Text(
-                  'UPGRADE',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontFamily: 'PlusJakartaSans',
-                    color: AppColors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 2.0,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              const Text(
-                'ContrastCoach Pro',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontFamily: 'PlusJakartaSans',
-                  color: AppColors.white,
-                  fontSize: 36,
-                  fontWeight: FontWeight.w800,
-                  height: 1.0,
-                  letterSpacing: -0.5,
-                ),
-              ),
-              const SizedBox(height: 28),
-              // Features
-              for (final f in const [
-                'All 10 protocols + custom builder',
-                'Health Connect & HRV tracking',
-                'Unlimited cloud sync',
-                'Voice control in any language',
-              ])
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 4),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 24,
-                        height: 24,
-                        decoration: BoxDecoration(
-                          color: AppColors.white,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(LucideIcons.check, color: AppColors.brandWarm, size: 16),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          f,
-                          style: const TextStyle(
-                            fontFamily: 'PlusJakartaSans',
-                            color: AppColors.white,
-                            fontSize: 15,
-                            fontWeight: FontWeight.w500,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return SingleChildScrollView(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                  child: IntrinsicHeight(
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Material(
+                                color: const Color(0x33FFFFFF),
+                                shape: const CircleBorder(),
+                                child: InkWell(
+                                  customBorder: const CircleBorder(),
+                                  onTap: () => context.pop(),
+                                  child: const SizedBox(
+                                    width: 40,
+                                    height: 40,
+                                    child: Icon(LucideIcons.x, color: AppColors.white, size: 20),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-              const SizedBox(height: 24),
-              // Pricing cards
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Column(
-                  children: [
-                    if (_error != null) ...[  
-                      // Configuration or loading error  
-                      Container(  
-                        padding: const EdgeInsets.all(20),  
-                        decoration: BoxDecoration(  
-                          color: AppColors.white,  
-                          borderRadius: BorderRadius.circular(20),  
-                        ),  
-                        child: Column(  
-                          children: [  
-                            const Icon(LucideIcons.alertCircle, color: AppColors.brandWarm, size: 48),  
-                            const SizedBox(height: 12),  
-                            Text(  
-                              'Subscription unavailable in this build.',  
-                              style: const TextStyle(  
-                                fontFamily: 'PlusJakartaSans',  
-                                fontSize: 16,  
-                                fontWeight: FontWeight.w700,  
-                                color: AppColors.charcoal,  
-                              ),  
-                            ),  
-                            const SizedBox(height: 8),  
-                            Text(  
-                              _error!,  
-                              textAlign: TextAlign.center,  
-                              style: const TextStyle(  
-                                fontFamily: 'PlusJakartaSans',  
-                                fontSize: 12,  
-                                color: AppColors.midGray,  
-                              ),  
-                            ),  
-                          ],  
-                        ),  
-                      ),  
-                    ] else if (_packages.isEmpty && !_loading) ...[  
-                      // Fallback if packages are empty but no error  
-                      _PriceCard(  
-                        label: 'Monthly',  
-                        price: r'$5.99',  
-                        sub: 'per month',  
-                        isBest: false,  
-                        selected: _selectedPeriod == 'monthly',  
-                        onTap: () => setState(() => _selectedPeriod = 'monthly'),  
-                      ),
-                      const SizedBox(height: 12),
-                      _PriceCard(
-                        label: 'Yearly',
-                        price: r'$39.99',
-                        sub: r'$3.33/mo · save 44%',
-                        isBest: true,
-                        selected: _selectedPeriod == 'yearly',
-                        onTap: () => setState(() => _selectedPeriod = 'yearly'),
-                      ),
-                      const SizedBox(height: 12),
-                      _PriceCard(
-                        label: 'Lifetime',
-                        price: r'$89.99',
-                        sub: 'one-time',
-                        isBest: false,
-                        selected: _selectedPeriod == 'lifetime',
-                        onTap: () => setState(() => _selectedPeriod = 'lifetime'),
-                      ),
-                    ] else
-                      for (final pkg in _packages) ...[
-                        _PriceCard(
-                          label: _packageLabel(pkg),
-                          price: _packagePrice(pkg),
-                          sub: _packageSub(pkg),
-                          isBest: _packageIdentifier(pkg).contains('year') ||
-                              _packageIdentifier(pkg).contains('annual'),
-                          selected: _selectedPeriod == _packageIdentifier(pkg),
-                          onTap: () =>
-                              setState(() => _selectedPeriod = _packageIdentifier(pkg)),
+                        const SizedBox(height: 16),
+                        const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 32),
+                          child: Text(
+                            'UPGRADE',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontFamily: 'PlusJakartaSans',
+                              color: AppColors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 2.0,
+                            ),
+                          ),
                         ),
                         const SizedBox(height: 12),
-                      ],
-                  ],
-                ),
-              ),
-              const Spacer(),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: Material(
-                    color: AppColors.white,
-                    borderRadius: BorderRadius.circular(999),
-                    child: InkWell(
-                      onTap: () {
-                        Package? match;
-                        for (final p in _packages) {
-                          if (_packageIdentifier(p) == _selectedPeriod) {
-                            match = p;
-                            break;
-                          }
-                        }
-                        if (match != null) {
-                          _purchase(match);
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Subscriptions will be available after app store review. Please try again later.')),
-                          );
-                        }
-                      },
-                      borderRadius: BorderRadius.circular(999),
-                      child: Container(
-                        height: 56,
-                        alignment: Alignment.center,
-                        child: Text(
-                          'Continue with ${_capitalize(_selectedPeriod ?? 'yearly')}',
-                          style: const TextStyle(
+                        const Text(
+                          'ContrastCoach Pro',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
                             fontFamily: 'PlusJakartaSans',
-                            color: AppColors.charcoal,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
+                            color: AppColors.white,
+                            fontSize: 36,
+                            fontWeight: FontWeight.w800,
+                            height: 1.0,
+                            letterSpacing: -0.5,
                           ),
                         ),
-                      ),
+                        const SizedBox(height: 28),
+                        for (final f in const [
+                          'All 10 protocols + custom builder',
+                          'Health Connect & HRV tracking',
+                          'Unlimited cloud sync',
+                          'Voice control in any language',
+                        ])
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 4),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 24,
+                                  height: 24,
+                                  decoration: const BoxDecoration(
+                                    color: AppColors.white,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(LucideIcons.check, color: AppColors.brandWarm, size: 16),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    f,
+                                    style: const TextStyle(
+                                      fontFamily: 'PlusJakartaSans',
+                                      color: AppColors.white,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        const SizedBox(height: 24),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24),
+                          child: Column(
+                            children: [
+                              if (_error != null) ...[
+                                Container(
+                                  padding: const EdgeInsets.all(20),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.white,
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      Icon(
+                                        _isUnconfigured
+                                            ? LucideIcons.cloudOff
+                                            : LucideIcons.alertCircle,
+                                        color: AppColors.brandWarm,
+                                        size: 48,
+                                      ),
+                                      const SizedBox(height: 12),
+                                      Text(
+                                        _isUnconfigured
+                                            ? 'Subscriptions will be available after app store review.'
+                                            : 'Could not load subscriptions.',
+                                        style: const TextStyle(
+                                          fontFamily: 'PlusJakartaSans',
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w700,
+                                          color: AppColors.charcoal,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        _isUnconfigured
+                                            ? 'Please try again later or download from the Play Store.'
+                                            : _error!,
+                                        textAlign: TextAlign.center,
+                                        style: const TextStyle(
+                                          fontFamily: 'PlusJakartaSans',
+                                          fontSize: 12,
+                                          color: AppColors.midGray,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ] else if (_packages.isEmpty && !_loading) ...[
+                                _PriceCard(
+                                  label: 'Monthly',
+                                  price: r'$5.99',
+                                  sub: 'per month',
+                                  isBest: false,
+                                  selected: _selectedPeriod == 'monthly',
+                                  onTap: () => setState(() => _selectedPeriod = 'monthly'),
+                                ),
+                                const SizedBox(height: 12),
+                                _PriceCard(
+                                  label: 'Yearly',
+                                  price: r'$39.99',
+                                  sub: r'$3.33/mo · save 44%',
+                                  isBest: true,
+                                  selected: _selectedPeriod == 'yearly',
+                                  onTap: () => setState(() => _selectedPeriod = 'yearly'),
+                                ),
+                                const SizedBox(height: 12),
+                                _PriceCard(
+                                  label: 'Lifetime',
+                                  price: r'$89.99',
+                                  sub: 'one-time',
+                                  isBest: false,
+                                  selected: _selectedPeriod == 'lifetime',
+                                  onTap: () => setState(() => _selectedPeriod = 'lifetime'),
+                                ),
+                              ] else
+                                for (final pkg in _packages) ...[
+                                  _PriceCard(
+                                    label: _packageLabel(pkg),
+                                    price: _packagePrice(pkg),
+                                    sub: _packageSub(pkg),
+                                    isBest: _packageIdentifier(pkg).contains('year') ||
+                                        _packageIdentifier(pkg).contains('annual'),
+                                    selected: _selectedPeriod == _packageIdentifier(pkg),
+                                    onTap: () =>
+                                        setState(() => _selectedPeriod = _packageIdentifier(pkg)),
+                                  ),
+                                  const SizedBox(height: 12),
+                                ],
+                            ],
+                          ),
+                        ),
+                        const Spacer(),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24),
+                          child: SizedBox(
+                            width: double.infinity,
+                            child: Material(
+                              color: AppColors.white,
+                              borderRadius: BorderRadius.circular(999),
+                              child: InkWell(
+                                onTap: _isUnconfigured
+                                    ? null
+                                    : () {
+                                        Package? match;
+                                        for (final p in _packages) {
+                                          if (_packageIdentifier(p) == _selectedPeriod) {
+                                            match = p;
+                                            break;
+                                          }
+                                        }
+                                        if (match != null) {
+                                          _purchase(match);
+                                        } else {
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            const SnackBar(content: Text('Subscriptions will be available after app store review. Please try again later.')),
+                                          );
+                                        }
+                                      },
+                                borderRadius: BorderRadius.circular(999),
+                                child: Container(
+                                  height: 56,
+                                  alignment: Alignment.center,
+                                  child: _loading
+                                      ? const SizedBox(
+                                          width: 24,
+                                          height: 24,
+                                          child: CircularProgressIndicator(
+                                            color: AppColors.brandWarm,
+                                            strokeWidth: 2.5,
+                                          ),
+                                        )
+                                      : Text(
+                                          'Continue with ${_capitalize(_selectedPeriod ?? 'yearly')}',
+                                          style: const TextStyle(
+                                            fontFamily: 'PlusJakartaSans',
+                                            color: AppColors.charcoal,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        GestureDetector(
+                          onTap: _isUnconfigured ? null : _restore,
+                          child: Text(
+                            'Restore purchases',
+                            style: TextStyle(
+                              fontFamily: 'PlusJakartaSans',
+                              color: _isUnconfigured ? AppColors.white.withValues(alpha: 0.4) : AppColors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              decoration: _isUnconfigured ? TextDecoration.none : TextDecoration.underline,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        GestureDetector(
+                          onTap: () => showDialog(
+                            context: context,
+                            builder: (_) => MedicalDisclaimerDialog(onAcknowledge: () => Navigator.of(context).pop()),
+                          ),
+                          child: const Text(
+                            'Cancel anytime. Not a medical device.',
+                            style: TextStyle(
+                              fontFamily: 'PlusJakartaSans',
+                              color: AppColors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            GestureDetector(
+                              onTap: () => context.push('/terms'),
+                              child: const Text(
+                                'Terms of Service',
+                                style: TextStyle(
+                                  fontFamily: 'PlusJakartaSans',
+                                  color: AppColors.white,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w500,
+                                  decoration: TextDecoration.underline,
+                                ),
+                              ),
+                            ),
+                            const Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 12),
+                              child: Text(
+                                '·',
+                                style: TextStyle(color: AppColors.white, fontSize: 11),
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () => context.push('/privacy'),
+                              child: const Text(
+                                'Privacy Policy',
+                                style: TextStyle(
+                                  fontFamily: 'PlusJakartaSans',
+                                  color: AppColors.white,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w500,
+                                  decoration: TextDecoration.underline,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                      ],
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 12),
-              GestureDetector(
-                onTap: _restore,
-                child: const Text(
-                  'Restore purchases',
-                  style: TextStyle(
-                    fontFamily: 'PlusJakartaSans',
-                    color: AppColors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    decoration: TextDecoration.underline,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 8),
-              GestureDetector(
-                onTap: () => showDialog(
-                  context: context,
-                  builder: (_) => MedicalDisclaimerDialog(onAcknowledge: () => Navigator.of(context).pop()),
-                ),
-                child: const Text(
-                  'Cancel anytime. Not a medical device.',
-                  style: TextStyle(
-                    fontFamily: 'PlusJakartaSans',
-                    color: AppColors.white,
-                    fontSize: 10,
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  GestureDetector(
-                    onTap: () => context.push('/terms'),
-                    child: const Text(
-                      'Terms of Service',
-                      style: TextStyle(
-                        fontFamily: 'PlusJakartaSans',
-                        color: AppColors.white,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w500,
-                        decoration: TextDecoration.underline,
-                      ),
-                    ),
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 12),
-                    child: Text(
-                      '·',
-                      style: TextStyle(color: AppColors.white, fontSize: 11),
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () => context.push('/privacy'),
-                    child: const Text(
-                      'Privacy Policy',
-                      style: TextStyle(
-                        fontFamily: 'PlusJakartaSans',
-                        color: AppColors.white,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w500,
-                        decoration: TextDecoration.underline,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-            ],
+              );
+            },
           ),
         ),
       ),

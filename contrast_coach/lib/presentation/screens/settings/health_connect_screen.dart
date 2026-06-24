@@ -42,36 +42,40 @@ class _HealthConnectScreenState extends State<HealthConnectScreen> {
     });
     try {
       final client = HealthConnectClient();
-      final result = await client.requestPermissions();
-      if (!mounted) return;
-      result.fold(
-        (err) => setState(() {
-          _error = err.message;
-          _loading = false;
-        }),
-        (granted) async {
-          if (granted) {
-            final snapResult = await client.readSnapshot();
-            if (!mounted) return;
-            snapResult.fold(
-              (err) => setState(() {
-                _error = err.message;
+      try {
+        final result = await client.requestPermissions();
+        if (!mounted) return;
+        result.fold(
+          (err) => setState(() {
+            _error = err.message;
+            _loading = false;
+          }),
+          (granted) async {
+            if (granted) {
+              final snapResult = await client.readSnapshot();
+              if (!mounted) return;
+              snapResult.fold(
+                (err) => setState(() {
+                  _error = err.message;
+                  _loading = false;
+                }),
+                (snapshot) => setState(() {
+                  _snapshot = snapshot;
+                  _granted = true;
+                  _loading = false;
+                }),
+              );
+            } else {
+              setState(() {
+                _granted = false;
                 _loading = false;
-              }),
-              (snapshot) => setState(() {
-                _snapshot = snapshot;
-                _granted = true;
-                _loading = false;
-              }),
-            );
-          } else {
-            setState(() {
-              _granted = false;
-              _loading = false;
-            });
-          }
-        },
-      );
+              });
+            }
+          },
+        );
+      } finally {
+        client.dispose();
+      }
     } catch (e) {
       if (mounted) {
         setState(() {
@@ -85,7 +89,7 @@ class _HealthConnectScreenState extends State<HealthConnectScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.offWhite,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),

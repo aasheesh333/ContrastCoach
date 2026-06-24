@@ -25,6 +25,7 @@ class AppColors {
   static const Color success = Color(0xFF4CAF50);
   static const Color successSoft = Color(0xFFD7E8D7);
   static const Color error = Color(0xFFE53935);
+  static const Color errorSoft = Color(0xFFFFCDD2);
 
   // Heatmap intensity (4 levels, light to deep orange)
   static const Color heatmap0 = Color(0xFFF0F0F0);
@@ -49,4 +50,6 @@ class AppColors {
   static const Color darkTextPrimary = Color(0xFFF5F5F5);
   static const Color darkTextSecondary = Color(0xFFA8A8A8);
   static const Color darkTextTertiary = Color(0xFF6E6E6E);
+  static const Color darkOutline = Color(0xFF2A2A2A);
+  static const Color darkCard = Color(0xFF1A1A1A);
 }

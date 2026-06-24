@@ -158,7 +158,7 @@ class AppTypography {
     displaySmall: displaySmall,
     headlineLarge: headlineLarge,
     headlineMedium: headlineMedium,
-    headlineSmall: headlineLarge,
+    headlineSmall: headlineMedium,
     titleLarge: titleLarge,
     titleMedium: titleMedium,
     titleSmall: titleSmall,

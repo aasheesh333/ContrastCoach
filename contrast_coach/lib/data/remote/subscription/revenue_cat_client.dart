@@ -1,60 +1,71 @@
-import 'package:contrast_coach/core/env/env_config.dart';  
-import 'package:contrast_coach/presentation/screens/home/firebase_auth_proxy.dart';  
-import 'package:firebase_auth/firebase_auth.dart';  
-import 'package:purchases_flutter/purchases_flutter.dart';  
+import 'package:contrast_coach/core/env/env_config.dart';
+import 'package:contrast_coach/presentation/screens/home/firebase_auth_proxy.dart';
+import 'package:flutter/foundation.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
 
-class RevenueCatBootstrap {  
-  static bool _initialized = false;  
+class RevenueCatBootstrap {
+  static bool _initialized = false;
+  static String? _initError;
 
-  static bool get isConfigured {  
-    if (_initialized) return true;  
-    final apiKey = EnvConfig.revenuecatApiKey;  
-    return apiKey != null && apiKey.isNotEmpty;  
-  }  
+  static bool get isConfigured {
+    if (_initialized) return true;
+    if (_initError != null) return false;
+    final apiKey = EnvConfig.revenuecatApiKey;
+    return apiKey != null && apiKey.isNotEmpty;
+  }
 
-  static Future<void> init() async {  
-    if (_initialized) return;  
+  static String? get initError => _initError;
 
-    final apiKey = EnvConfig.revenuecatApiKey;  
-    if (apiKey == null || apiKey.isEmpty) {  
-      throw MissingConfigurationException(  
-        'RevenueCat API key is missing. '
-        'Ensure REVENUECAT_API_KEY is set via --dart-define '
-        'or a platform-specific key (REVENUECAT_API_KEY_ANDROID / REVENUECAT_API_KEY_IOS).',  
-      );  
-    }  
+  static Future<void> init() async {
+    if (_initialized) return;
 
-    // Allow offline/initialization to proceed even if Firebase Auth is not yet ready  
-    String? appUserID;  
-    try {  
-      final auth = FirebaseAuthNullableProxy.tryGet();  
-      if (auth != null) {  
-        final user = auth.currentUser;  
-        if (user != null) {  
-          appUserID = user.uid;  
-        }  
-      }  
-    } catch (_) {  
-      // Firebase Auth not yet initialized, proceed with anonymous RevenueCat ID  
-    }  
+    final apiKey = EnvConfig.revenuecatApiKey;
+    if (apiKey == null || apiKey.isEmpty) {
+      _initError = 'RevenueCat API key is missing. '
+          'Ensure REVENUECAT_API_KEY is set via --dart-define '
+          'or a platform-specific key.';
+      throw MissingConfigurationException(_initError!);
+    }
 
-    final config = PurchasesConfiguration(apiKey);  
-    if (appUserID != null && appUserID.isNotEmpty) {  
-      config.appUserID = appUserID;  
-    }  
-    await Purchases.configure(config);  
-    _initialized = true;  
-  }  
+    if (kDebugMode) {
+      await Purchases.setLogLevel(LogLevel.debug);
+    }
 
-  static void reset() {  
-    _initialized = false;  
-  }  
-}  
+    String? appUserID;
+    try {
+      final auth = FirebaseAuthNullableProxy.tryGet();
+      if (auth != null) {
+        final user = auth.currentUser;
+        if (user != null) {
+          appUserID = user.uid;
+        }
+      }
+    } catch (_) {
+    }
 
-class MissingConfigurationException implements Exception {  
-  final String message;  
-  MissingConfigurationException(this.message);  
+    final config = PurchasesConfiguration(apiKey);
+    if (appUserID != null && appUserID.isNotEmpty) {
+      config.appUserID = appUserID;
+    }
+    try {
+      await Purchases.configure(config);
+      _initialized = true;
+    } catch (e) {
+      _initError = 'RevenueCat configuration failed: $e';
+      throw MissingConfigurationException(_initError!);
+    }
+  }
 
-  @override  
-  String toString() => 'MissingConfigurationException: $message';  
-}  
+  static void reset() {
+    _initialized = false;
+    _initError = null;
+  }
+}
+
+class MissingConfigurationException implements Exception {
+  final String message;
+  MissingConfigurationException(this.message);
+
+  @override
+  String toString() => 'MissingConfigurationException: $message';
+}

@@ -24,7 +24,7 @@ class AppPreferences {
     _analyticsEnabled = await _getBool(_analyticsEnabledKey, true);
     _voiceEnabled = await _getBool(_voiceEnabledKey, true);
     _notificationsEnabled = await _getBool(_notificationsEnabledKey, true);
-    _themeMode = await _getStr(_themeModeKey, 'system');
+    _themeMode = await _getStr(_themeModeKey, 'light');
     _initialized = true;
   }
 
@@ -81,7 +81,7 @@ class AppPreferences {
     _analyticsEnabled = true;
     _voiceEnabled = true;
     _notificationsEnabled = true;
-    _themeMode = 'system';
+    _themeMode = 'light';
     changes.value++;
   }
 }

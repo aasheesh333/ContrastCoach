@@ -10,6 +10,7 @@ import 'package:contrast_coach/data/remote/firebase/firebase_config.dart';
 import 'package:contrast_coach/data/remote/subscription/revenue_cat_client.dart';
 import 'package:contrast_coach/data/repositories/subscription_repository.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:contrast_coach/data/notifications/notification_service.dart';
@@ -19,14 +20,12 @@ Future<void> main() async {
   await EnvConfig.init();
   await AppPreferences.init();
 
-  // Parallelize independent init steps for faster startup
   await Future.wait([
     _initFirebaseSafely(),
     _initNotificationsSafely(),
     _initCrashlyticsSafely(),
   ]);
 
-  // These depend on Firebase being initialized
   await AnalyticsApi.syncCollectionEnabled();
   await _initSyncWorkerSafely();
   await _initRevenueCatSafely();
@@ -35,13 +34,28 @@ Future<void> main() async {
   runApp(const ContrastCoachApp());
 }
 
+void _logInitFailure(String service, Object error) {
+  if (kDebugMode) {
+    debugPrint('$service init failed: $error');
+  } else {
+    try {
+      FirebaseCrashlytics.instance.recordError(
+        error,
+        StackTrace.current,
+        reason: '$service init failed',
+        fatal: false,
+      );
+    } catch (_) {}
+  }
+}
+
 Future<void> _initFirebaseSafely() async {
   try {
     if (Firebase.apps.isEmpty) {
       await Firebase.initializeApp(options: FirebaseConfig.currentPlatform);
     }
   } catch (e) {
-    debugPrint('Firebase init failed: $e');
+    _logInitFailure('Firebase', e);
   }
 }
 
@@ -49,7 +63,7 @@ Future<void> _initNotificationsSafely() async {
   try {
     await NotificationService().init();
   } catch (e) {
-    debugPrint('Notification init failed: $e');
+    _logInitFailure('Notification', e);
   }
 }
 
@@ -57,7 +71,7 @@ Future<void> _initCrashlyticsSafely() async {
   try {
     await CrashlyticsClient().init();
   } catch (e) {
-    debugPrint('Crashlytics init failed: $e');
+    _logInitFailure('Crashlytics', e);
   }
 }
 
@@ -65,16 +79,14 @@ Future<void> _restoreOnLaunch() async {
   try {
     final repo = SubscriptionRepositoryImpl();
     await repo.restore();
-  } catch (_) {
-    // best-effort restore on launch
-  }
+  } catch (_) {}
 }
 
 Future<void> _initSyncWorkerSafely() async {
   try {
     await SyncWorker.init();
   } catch (e) {
-    debugPrint('SyncWorker init failed: $e');
+    _logInitFailure('SyncWorker', e);
   }
 }
 
@@ -82,6 +94,6 @@ Future<void> _initRevenueCatSafely() async {
   try {
     await RevenueCatBootstrap.init();
   } catch (e) {
-    debugPrint('RevenueCat init failed: $e');
+    _logInitFailure('RevenueCat', e);
   }
 }

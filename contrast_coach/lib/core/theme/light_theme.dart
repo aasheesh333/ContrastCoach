@@ -1,10 +1,10 @@
-import 'package:contrast_coach/core/animations/animation_utils.dart';  
- import 'package:contrast_coach/core/constants/app_colors.dart';  
- import 'package:contrast_coach/core/constants/app_typography.dart';  
- import 'package:flutter/material.dart';  
-   
- ThemeData buildLightTheme() {  
-   const cs = ColorScheme.light(
+import 'package:contrast_coach/core/animations/animation_utils.dart';
+import 'package:contrast_coach/core/constants/app_colors.dart';
+import 'package:contrast_coach/core/constants/app_typography.dart';
+import 'package:flutter/material.dart';
+
+ThemeData buildLightTheme() {
+  const cs = ColorScheme.light(
     brightness: Brightness.light,
     primary: AppColors.brandWarm,
     onPrimary: AppColors.white,

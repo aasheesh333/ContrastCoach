@@ -29,7 +29,9 @@ class CrashlyticsClient {
       };
       _initialized = true;
     } catch (e) {
-      debugPrint('Crashlytics init failed: $e');
+      if (kDebugMode) {
+        debugPrint('Crashlytics init failed: $e');
+      }
     }
   }
 

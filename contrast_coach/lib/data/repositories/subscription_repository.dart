@@ -119,7 +119,10 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
   }
 
   AppException _notConfiguredError() {
-    return SubscriptionException('RevenueCat is not configured. Please try again later.');
+    final detail = RevenueCatBootstrap.initError;
+    return SubscriptionException(
+      detail ?? 'Subscriptions are not available in this build.',
+    );
   }
 
   void _logError(String operation, Object? error, StackTrace stackTrace) {
