@@ -446,7 +446,7 @@ class _SettingsRow extends StatelessWidget {
                   width: 24,
                   height: 24,
                   decoration: BoxDecoration(
-                    color: (iconColor ?? AppColors.brandWarm).withValues(alpha: 0.12),
+                    color: (iconColor ?? AppColors.brandWarm).withOpacity(0.12),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(icon, color: iconColor ?? AppColors.brandWarm, size: 14),

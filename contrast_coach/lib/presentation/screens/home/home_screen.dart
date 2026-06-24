@@ -404,7 +404,7 @@ class _NoSessionsCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             decoration: BoxDecoration(
-              color: AppColors.brandWarm.withValues(alpha: 0.12),
+              color: AppColors.brandWarm.withOpacity(0.12),
               borderRadius: BorderRadius.circular(999),
             ),
             child: const Text(
@@ -525,7 +525,7 @@ class _RecentSessionCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                   decoration: BoxDecoration(
-                    color: AppColors.brandWarm.withValues(alpha: 0.12),
+                    color: AppColors.brandWarm.withOpacity(0.12),
                     borderRadius: BorderRadius.circular(999),
                   ),
                   child: Text(

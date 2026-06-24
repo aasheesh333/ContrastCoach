@@ -28,6 +28,7 @@ class _HealthConnectScreenState extends State<HealthConnectScreen> {
   Future<void> _checkAvailability() async {
     final client = HealthConnectClient();
     final result = await client.isAvailable();
+    client.dispose();
     if (!mounted) return;
     result.fold(
       (err) => setState(() => _error = err.message),
@@ -42,40 +43,44 @@ class _HealthConnectScreenState extends State<HealthConnectScreen> {
     });
     try {
       final client = HealthConnectClient();
-      try {
-        final result = await client.requestPermissions();
-        if (!mounted) return;
-        result.fold(
-          (err) => setState(() {
+      final result = await client.requestPermissions();
+      if (!mounted) {
+        client.dispose();
+        return;
+      }
+      result.fold(
+        (err) {
+          client.dispose();
+          setState(() {
             _error = err.message;
             _loading = false;
-          }),
-          (granted) async {
-            if (granted) {
-              final snapResult = await client.readSnapshot();
-              if (!mounted) return;
-              snapResult.fold(
-                (err) => setState(() {
-                  _error = err.message;
-                  _loading = false;
-                }),
-                (snapshot) => setState(() {
-                  _snapshot = snapshot;
-                  _granted = true;
-                  _loading = false;
-                }),
-              );
-            } else {
-              setState(() {
-                _granted = false;
+          });
+        },
+        (granted) async {
+          if (granted) {
+            final snapResult = await client.readSnapshot();
+            client.dispose();
+            if (!mounted) return;
+            snapResult.fold(
+              (err) => setState(() {
+                _error = err.message;
                 _loading = false;
-              });
-            }
-          },
-        );
-      } finally {
-        client.dispose();
-      }
+              }),
+              (snapshot) => setState(() {
+                _snapshot = snapshot;
+                _granted = true;
+                _loading = false;
+              }),
+            );
+          } else {
+            client.dispose();
+            setState(() {
+              _granted = false;
+              _loading = false;
+            });
+          }
+        },
+      );
     } catch (e) {
       if (mounted) {
         setState(() {

@@ -342,7 +342,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
                             'Restore purchases',
                             style: TextStyle(
                               fontFamily: 'PlusJakartaSans',
-                              color: _isUnconfigured ? AppColors.white.withValues(alpha: 0.4) : AppColors.white,
+                              color: _isUnconfigured ? AppColors.white.withOpacity(0.4) : AppColors.white,
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
                               decoration: _isUnconfigured ? TextDecoration.none : TextDecoration.underline,
