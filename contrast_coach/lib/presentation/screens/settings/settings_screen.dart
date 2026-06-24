@@ -364,7 +364,7 @@ class _ProfileCard extends StatelessWidget {
                       stats.isEmpty
                           ? 'No sessions yet'
                           : '${stats.totalSessions} sessions tracked',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: 'PlusJakartaSans',
                         fontSize: 11,
                         color: Theme.of(context).colorScheme.onSurfaceVariant,

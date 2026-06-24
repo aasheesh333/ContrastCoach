@@ -289,7 +289,7 @@ class _HomeHeader extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   hasName ? '${profile.firstName}.' : 'Welcome.',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: 'PlusJakartaSans',
                     fontSize: 28,
                     height: 1.1,
@@ -301,7 +301,7 @@ class _HomeHeader extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   line,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: 'PlusJakartaSans',
                     fontSize: 14,
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
