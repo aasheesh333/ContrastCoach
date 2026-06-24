@@ -28,8 +28,8 @@ Future<void> main() async {
 
   // These depend on Firebase being initialized
   await AnalyticsApi.syncCollectionEnabled();
-  await SyncWorker.init();
-  await RevenueCatBootstrap.init();
+  await _initSyncWorkerSafely();
+  await _initRevenueCatSafely();
 
   await _restoreOnLaunch();
   runApp(const ContrastCoachApp());
@@ -67,5 +67,21 @@ Future<void> _restoreOnLaunch() async {
     await repo.restore();
   } catch (_) {
     // best-effort restore on launch
+  }
+}
+
+Future<void> _initSyncWorkerSafely() async {
+  try {
+    await SyncWorker.init();
+  } catch (e) {
+    debugPrint('SyncWorker init failed: $e');
+  }
+}
+
+Future<void> _initRevenueCatSafely() async {
+  try {
+    await RevenueCatBootstrap.init();
+  } catch (e) {
+    debugPrint('RevenueCat init failed: $e');
   }
 }
