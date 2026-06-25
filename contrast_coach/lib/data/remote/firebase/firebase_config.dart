@@ -18,24 +18,27 @@ import 'package:flutter/foundation.dart';
 class FirebaseConfig {
   const FirebaseConfig._();
 
-  static FirebaseOptions get currentPlatform {
+  static FirebaseOptions? get currentPlatform {
     final apiKey = EnvConfig.firebaseApiKey;
-    if (apiKey == null && kDebugMode) {
-      debugPrint(
-        '⚠️  FIREBASE_API_KEY not set. On Android, google-services.json '
-        'provides the key natively, but the Dart plugin still needs it for '
-        'REST calls. Set --dart-define=FIREBASE_API_KEY=<key from '
-        'google-services.json>.',
-      );
+    if (apiKey == null) {
+      if (kDebugMode) {
+        debugPrint(
+          '⚠️  FIREBASE_API_KEY not set. On Android, google-services.json '
+          'provides the key natively, but the Dart plugin still needs it for '
+          'REST calls. Set --dart-define=FIREBASE_API_KEY=<key from '
+          'google-services.json>.',
+        );
+      }
+      return null;
     }
     return FirebaseOptions(
-      apiKey: apiKey ?? 'placeholder-api-key',
+      apiKey: apiKey,
       appId: EnvConfig.firebaseAppId ??
           '1:0000000000:android:0000000000000000',
       messagingSenderId:
           EnvConfig.firebaseMessagingSenderId ?? '0000000000',
       projectId: EnvConfig.firebaseProjectId ?? 'contrast-coach-dev',
-      storageBucket: EnvConfig.firebaseStorageBucket,
+      storageBucket: EnvConfig.firebaseStorageBucket ?? 'contrast-coach-dev.firebasestorage.app',
     );
   }
 }

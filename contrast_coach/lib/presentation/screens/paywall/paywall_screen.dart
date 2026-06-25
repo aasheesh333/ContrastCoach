@@ -1,4 +1,5 @@
 import 'package:contrast_coach/core/constants/app_colors.dart';
+import 'package:contrast_coach/core/env/env_config.dart';
 import 'package:contrast_coach/core/theme/gradients.dart';
 import 'package:contrast_coach/data/remote/firebase/analytics_api.dart';
 import 'package:contrast_coach/data/remote/subscription/revenue_cat_client.dart';
@@ -6,6 +7,7 @@ import 'package:contrast_coach/data/repositories/subscription_repository.dart';
 import 'package:contrast_coach/domain/entities/subscription_tier.dart';
 import 'package:contrast_coach/domain/repositories/subscription_repository.dart';
 import 'package:contrast_coach/presentation/widgets/dialogs/medical_disclaimer_dialog.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -28,6 +30,20 @@ class _PaywallScreenState extends State<PaywallScreen> {
   String? _selectedPeriod = 'yearly';
 
   bool get _isUnconfigured => !RevenueCatBootstrap.isConfigured && _error != null;
+
+  bool get _isDevMode => kDebugMode || EnvConfig.isDev;
+
+  String get _unconfiguredTitle => _isDevMode
+      ? 'RevenueCat not configured'
+      : 'Subscriptions will be available after app store review.';
+
+  String get _unconfiguredBody => _isDevMode
+      ? 'Set REVENUECAT_API_KEY via --dart-define to enable subscriptions in development.'
+      : 'Please try again later or download from the Play Store.';
+
+  String get _unconfiguredSnackBar => _isDevMode
+      ? 'RevenueCat not configured. Set the API key to enable subscriptions.'
+      : 'Subscriptions will be available after app store review. Please try again later.';
 
   @override
   void initState() {
@@ -214,7 +230,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
                                       const SizedBox(height: 12),
                                       Text(
                                         _isUnconfigured
-                                            ? 'Subscriptions will be available after app store review.'
+                                            ? _unconfiguredTitle
                                             : 'Could not load subscriptions.',
                                         style: const TextStyle(
                                           fontFamily: 'PlusJakartaSans',
@@ -226,7 +242,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
                                       const SizedBox(height: 8),
                                       Text(
                                         _isUnconfigured
-                                            ? 'Please try again later or download from the Play Store.'
+                                            ? _unconfiguredBody
                                             : _error!,
                                         textAlign: TextAlign.center,
                                         style: const TextStyle(
@@ -305,7 +321,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
                                           _purchase(match);
                                         } else {
                                           ScaffoldMessenger.of(context).showSnackBar(
-                                            const SnackBar(content: Text('Subscriptions will be available after app store review. Please try again later.')),
+                                            SnackBar(content: Text(_unconfiguredSnackBar)),
                                           );
                                         }
                                       },

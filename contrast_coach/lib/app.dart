@@ -5,6 +5,7 @@ import 'package:contrast_coach/core/theme/app_theme.dart';
 import 'package:contrast_coach/presentation/routing/app_router.dart';
 import 'package:contrast_coach/presentation/screens/home/firebase_auth_proxy.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class ContrastCoachApp extends StatefulWidget {
   const ContrastCoachApp({super.key});
@@ -17,19 +18,32 @@ class _ContrastCoachAppState extends State<ContrastCoachApp> {
   StreamSubscription<dynamic>? _authSubscription;
   late bool _isOnboarded;
   late bool _isAuthed;
+  late final GoRouterRefreshNotifier _refreshNotifier;
+  late final GoRouter _router;
 
   @override
   void initState() {
     super.initState();
     _isOnboarded = AppPreferences.isOnboardingComplete;
     _isAuthed = FirebaseAuthNullableProxy.tryGet()?.currentUser != null;
+    _refreshNotifier = GoRouterRefreshNotifier();
+    _refreshNotifier.notify();
+    _router = AppRouter.build(
+      isOnboarded: _isOnboarded,
+      isAuthed: _isAuthed,
+      refreshListenable: _refreshNotifier,
+    );
     AppPreferences.changes.addListener(_handlePreferenceChange);
     if (!AppPreferences.isInitialized) {
       unawaited(_loadPreferences());
     }
     _authSubscription = FirebaseAuthNullableProxy.tryGet()?.authStateChanges().listen((user) {
       if (!mounted) return;
-      setState(() => _isAuthed = user != null);
+      final newAuthed = user != null;
+      if (_isAuthed != newAuthed) {
+        _isAuthed = newAuthed;
+        _refreshNotifier.notify();
+      }
     });
   }
 
@@ -40,18 +54,27 @@ class _ContrastCoachAppState extends State<ContrastCoachApp> {
       return;
     }
     if (!mounted) return;
-    setState(() => _isOnboarded = AppPreferences.isOnboardingComplete);
+    final newOnboarded = AppPreferences.isOnboardingComplete;
+    if (_isOnboarded != newOnboarded) {
+      _isOnboarded = newOnboarded;
+      _refreshNotifier.notify();
+    }
   }
 
   void _handlePreferenceChange() {
     if (!mounted) return;
-    setState(() => _isOnboarded = AppPreferences.isOnboardingComplete);
+    final newOnboarded = AppPreferences.isOnboardingComplete;
+    if (_isOnboarded != newOnboarded) {
+      _isOnboarded = newOnboarded;
+      _refreshNotifier.notify();
+    }
   }
 
   @override
   void dispose() {
     AppPreferences.changes.removeListener(_handlePreferenceChange);
     _authSubscription?.cancel();
+    _refreshNotifier.dispose();
     super.dispose();
   }
 
@@ -63,7 +86,13 @@ class _ContrastCoachAppState extends State<ContrastCoachApp> {
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
       themeMode: AppPreferences.themeModeValue,
-      routerConfig: AppRouter.build(isOnboarded: _isOnboarded, isAuthed: _isAuthed),
+      routerConfig: _router,
     );
+  }
+}
+
+class GoRouterRefreshNotifier extends ChangeNotifier {
+  void notify() {
+    notifyListeners();
   }
 }

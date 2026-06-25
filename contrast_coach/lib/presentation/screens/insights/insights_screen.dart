@@ -206,7 +206,9 @@ class _InsightsScreenState extends State<InsightsScreen> {
                             child: InsightBlock(
                               heroMetric: i.heroMetric,
                               title: i.title,
-                              body: _decorateInsight(i),
+                              body: i.category == InsightCategory.recommendations
+                                  ? _formatRecommendations(i.body)
+                                  : _decorateInsight(i),
                             ),
                           ),
                         ],
@@ -298,11 +300,15 @@ class _InsightsScreenState extends State<InsightsScreen> {
 
   String _decorateInsight(Insight i) {
     if (i.category == InsightCategory.bestProtocol && _protocolsById[i.id] == null) {
-      // bestProtocol insight uses id == 'best-protocol' but the protocolId
-      // is buried in body; return as-is to avoid hardcoding names.
       return i.body;
     }
     return i.body;
+  }
+
+  String _formatRecommendations(String body) {
+    final parts = body.split(' ').join(' ').split('. ').where((s) => s.trim().isNotEmpty).toList();
+    if (parts.isEmpty) return body;
+    return parts.map((p) => p.trim().endsWith('.') ? p.trim() : '${p.trim()}.').join('\n');
   }
 
   void _setRange(_Range r) {

@@ -18,10 +18,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:contrast_coach/data/notifications/notification_service.dart';
 
+const _initTimeout = Duration(seconds: 8);
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await EnvConfig.init();
-  await AppPreferences.init();
+
+  await _initEnvSafely();
+  await _initPreferencesSafely();
 
   await Future.wait([
     _initFirebaseSafely(),
@@ -29,12 +32,16 @@ Future<void> main() async {
     _initCrashlyticsSafely(),
   ]);
 
-  await AnalyticsApi.syncCollectionEnabled();
+  await _safeTimeout(AnalyticsApi.syncCollectionEnabled());
   await _initSyncWorkerSafely();
   await _initRevenueCatSafely();
 
-  await _restoreOnLaunch();
+  await _restoreOnLaunch().timeout(_initTimeout, onTimeout: () {});
   runApp(const ContrastCoachApp());
+}
+
+Future<void> _safeTimeout(Future<void> future) {
+  return future.timeout(_initTimeout, onTimeout: () {});
 }
 
 void _logInitFailure(String service, Object error) {
@@ -52,10 +59,32 @@ void _logInitFailure(String service, Object error) {
   }
 }
 
+Future<void> _initEnvSafely() async {
+  try {
+    await EnvConfig.init().timeout(_initTimeout);
+  } catch (e) {
+    _logInitFailure('EnvConfig', e);
+  }
+}
+
+Future<void> _initPreferencesSafely() async {
+  try {
+    await AppPreferences.init().timeout(_initTimeout);
+  } catch (e) {
+    _logInitFailure('AppPreferences', e);
+  }
+}
+
 Future<void> _initFirebaseSafely() async {
   try {
     if (Firebase.apps.isEmpty) {
-      await Firebase.initializeApp(options: FirebaseConfig.currentPlatform);
+      final options = FirebaseConfig.currentPlatform;
+      if (options == null) {
+        _logInitFailure('Firebase', 'API key not configured -- skipping Firebase init');
+        return;
+      }
+      await Firebase.initializeApp(options: options)
+          .timeout(_initTimeout);
     }
   } catch (e) {
     _logInitFailure('Firebase', e);
@@ -64,7 +93,7 @@ Future<void> _initFirebaseSafely() async {
 
 Future<void> _initNotificationsSafely() async {
   try {
-    await NotificationService().init();
+    await NotificationService().init().timeout(_initTimeout);
   } catch (e) {
     _logInitFailure('Notification', e);
   }
@@ -72,7 +101,7 @@ Future<void> _initNotificationsSafely() async {
 
 Future<void> _initCrashlyticsSafely() async {
   try {
-    await CrashlyticsClient().init();
+    await CrashlyticsClient().init().timeout(_initTimeout);
   } catch (e) {
     _logInitFailure('Crashlytics', e);
   }
@@ -91,7 +120,7 @@ Future<void> _restoreOnLaunch() async {
 
 Future<void> _initSyncWorkerSafely() async {
   try {
-    await SyncWorker.init();
+    await SyncWorker.init().timeout(_initTimeout);
   } catch (e) {
     _logInitFailure('SyncWorker', e);
   }
@@ -99,7 +128,7 @@ Future<void> _initSyncWorkerSafely() async {
 
 Future<void> _initRevenueCatSafely() async {
   try {
-    await RevenueCatBootstrap.init();
+    await RevenueCatBootstrap.init().timeout(_initTimeout);
   } catch (e) {
     _logInitFailure('RevenueCat', e);
   }

@@ -6,7 +6,7 @@ class FeatureGating {
   static const Set<String> _freeProtocolIds = {
     'recovery_standard',
     'energy_morning',
-    'gentle_beginner',
+    'cold_only_deep',
   };
 
   static bool canAccessProtocol(String protocolId, SubscriptionTier tier) {
@@ -23,4 +23,10 @@ class FeatureGating {
   static bool canUseInsights(SubscriptionTier tier) => tier.isPro;
 
   static bool canUseCustomProtocols(SubscriptionTier tier) => tier.isPro;
+
+  static bool canUseFullStreakHistory(SubscriptionTier tier) => tier.isPro;
+
+  static int freeStreakHistoryDays = 7;
+
+  static bool canUseFullRecoveryScore(SubscriptionTier tier) => tier.isPro;
 }

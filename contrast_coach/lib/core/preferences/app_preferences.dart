@@ -8,14 +8,23 @@ class AppPreferences {
   static const _analyticsEnabledKey = 'analytics_enabled';
   static const _voiceEnabledKey = 'voice_enabled';
   static const _notificationsEnabledKey = 'notifications_enabled';
+  static const _notifsStreakKey = 'notif_streak';
+  static const _notifsTimingKey = 'notif_timing';
+  static const _notifsInsightKey = 'notif_insight';
+  static const _notifsSubscriptionKey = 'notif_subscription';
+  static const _notifsHealthKey = 'notif_health';
   static const _storage = FlutterSecureStorage();
   static final ValueNotifier<int> changes = ValueNotifier<int>(0);
 
-  // Cached values — set defaults, loaded from FSS on init()
   static bool _isOnboardingComplete = false;
   static bool _analyticsEnabled = true;
   static bool _voiceEnabled = true;
   static bool _notificationsEnabled = true;
+  static bool _notifsStreak = true;
+  static bool _notifsTiming = true;
+  static bool _notifsInsight = true;
+  static bool _notifsSubscription = true;
+  static bool _notifsHealth = true;
   static bool _initialized = false;
 
   static Future<void> init() async {
@@ -24,6 +33,11 @@ class AppPreferences {
     _analyticsEnabled = await _getBool(_analyticsEnabledKey, true);
     _voiceEnabled = await _getBool(_voiceEnabledKey, true);
     _notificationsEnabled = await _getBool(_notificationsEnabledKey, true);
+    _notifsStreak = await _getBool(_notifsStreakKey, true);
+    _notifsTiming = await _getBool(_notifsTimingKey, true);
+    _notifsInsight = await _getBool(_notifsInsightKey, true);
+    _notifsSubscription = await _getBool(_notifsSubscriptionKey, true);
+    _notifsHealth = await _getBool(_notifsHealthKey, true);
     _themeMode = await _getStr(_themeModeKey, 'light');
     _initialized = true;
   }
@@ -46,6 +60,11 @@ class AppPreferences {
     else if (key == _analyticsEnabledKey) _analyticsEnabled = v;
     else if (key == _voiceEnabledKey) _voiceEnabled = v;
     else if (key == _notificationsEnabledKey) _notificationsEnabled = v;
+    else if (key == _notifsStreakKey) _notifsStreak = v;
+    else if (key == _notifsTimingKey) _notifsTiming = v;
+    else if (key == _notifsInsightKey) _notifsInsight = v;
+    else if (key == _notifsSubscriptionKey) _notifsSubscription = v;
+    else if (key == _notifsHealthKey) _notifsHealth = v;
     changes.value++;
   }
 
@@ -58,8 +77,19 @@ class AppPreferences {
   static bool get notificationsEnabled => _notificationsEnabled;
   static Future<void> setNotificationsEnabled(bool v) async => _setBool(_notificationsEnabledKey, v);
 
+  static bool get notifsStreak => _notifsStreak;
+  static Future<void> setNotifsStreak(bool v) async => _setBool(_notifsStreakKey, v);
+  static bool get notifsTiming => _notifsTiming;
+  static Future<void> setNotifsTiming(bool v) async => _setBool(_notifsTimingKey, v);
+  static bool get notifsInsight => _notifsInsight;
+  static Future<void> setNotifsInsight(bool v) async => _setBool(_notifsInsightKey, v);
+  static bool get notifsSubscription => _notifsSubscription;
+  static Future<void> setNotifsSubscription(bool v) async => _setBool(_notifsSubscriptionKey, v);
+  static bool get notifsHealth => _notifsHealth;
+  static Future<void> setNotifsHealth(bool v) async => _setBool(_notifsHealthKey, v);
+
   static const _themeModeKey = 'theme_mode';
-  static String _themeMode = 'light'; // system, light, dark
+  static String _themeMode = 'light';
 
   static String get themeMode => _themeMode;
   static ThemeMode get themeModeValue => switch (_themeMode) {
@@ -81,6 +111,11 @@ class AppPreferences {
     _analyticsEnabled = true;
     _voiceEnabled = true;
     _notificationsEnabled = true;
+    _notifsStreak = true;
+    _notifsTiming = true;
+    _notifsInsight = true;
+    _notifsSubscription = true;
+    _notifsHealth = true;
     _themeMode = 'light';
     changes.value++;
   }

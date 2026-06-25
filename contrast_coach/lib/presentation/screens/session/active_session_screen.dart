@@ -63,6 +63,7 @@ class _ActiveSessionScreenState extends State<ActiveSessionScreen>
   final AnalyticsApi? _analytics = AnalyticsApi.tryCreate();
   SubscriptionTier _tier = SubscriptionTier.free;
   bool _voiceActive = false;
+  String? _lastLoggedTemp;
 
   int get _currentRound => _totalPhasesCompleted ~/ (_protocol?.phases.length ?? 1);
   int get _currentPhaseIndex => _totalPhasesCompleted % (_protocol?.phases.length ?? 1);
@@ -172,7 +173,29 @@ class _ActiveSessionScreenState extends State<ActiveSessionScreen>
             ),
           );
         }
-      default:
+      case VoiceCommandKind.start:
+        if (_paused) {
+          if (mounted) setState(() => _paused = false);
+          _ticker.start();
+        }
+      case VoiceCommandKind.repeat:
+        _audio.playPhaseTransition();
+        HapticFeedback.lightImpact();
+      case VoiceCommandKind.logCold:
+        if (mounted) {
+          _lastLoggedTemp = 'cold';
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Logged: feeling cold')),
+          );
+        }
+      case VoiceCommandKind.logHot:
+        if (mounted) {
+          _lastLoggedTemp = 'hot';
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Logged: feeling hot')),
+          );
+        }
+      case VoiceCommandKind.unknown:
         break;
     }
   }
@@ -312,7 +335,13 @@ class _ActiveSessionScreenState extends State<ActiveSessionScreen>
       phases: _completedPhases,
     );
 
-    final score = calculateRecoveryScore(session: session);
+    final sleepMinutes = healthSnapshot?['lastNightSleepMinutes'] as int?;
+    final hrvTrend = healthSnapshot?['hrvRmssdTrend7Day'] as double?;
+    final score = calculateRecoveryScore(
+      session: session,
+      lastNightSleepMinutes: sleepMinutes,
+      hrvRmssdTrend7Day: hrvTrend,
+    );
 
     return Session(
       id: session.id,

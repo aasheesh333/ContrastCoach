@@ -17,6 +17,7 @@ class HealthConnectScreen extends StatefulWidget {
 class _HealthConnectScreenState extends State<HealthConnectScreen> {
   bool _loading = false;
   bool _granted = false;
+  bool _healthConnectAvailable = true;
   HealthSnapshot? _snapshot;
   String? _error;
 
@@ -32,8 +33,29 @@ class _HealthConnectScreenState extends State<HealthConnectScreen> {
     client.dispose();
     if (!mounted) return;
     result.fold(
-      (err) => setState(() => _error = err.message),
-      (avail) => setState(() => _granted = avail),
+      (err) => setState(() {
+        _error = err.message;
+        _healthConnectAvailable = false;
+      }),
+      (avail) => setState(() {
+        _healthConnectAvailable = avail;
+        if (!avail) _error = null;
+      }),
+    );
+  }
+
+  Future<void> _installHealthConnect() async {
+    setState(() { _loading = true; _error = null; });
+    final client = HealthConnectClient();
+    final result = await client.installHealthConnect();
+    client.dispose();
+    if (!mounted) return;
+    result.fold(
+      (err) => setState(() { _error = err.message; _loading = false; }),
+      (_) {
+        setState(() => _loading = false);
+        _checkAvailability();
+      },
     );
   }
 
@@ -156,38 +178,56 @@ class _HealthConnectScreenState extends State<HealthConnectScreen> {
                 ),
               ),
               if (_snapshot != null) ...[
-                const SizedBox(height: 16),
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surfaceContainer,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Column(
-                    children: [
-                      _SnapshotRow(
-                        icon: LucideIcons.activity,
-                        color: AppColors.brandWarm,
-                        label: _snapshot!.hrvRmssd7DayAvg != null
-                            ? 'HRV 7-day avg'
-                            : 'HRV',
-                        value: _snapshot!.hrvRmssd7DayAvg != null
-                            ? '${_snapshot!.hrvRmssd7DayAvg!.toStringAsFixed(1)} ms'
-                            : 'not enough data yet',
-                      ),
-                      const SizedBox(height: 12),
-                      _SnapshotRow(
-                        icon: LucideIcons.moon,
-                        color: AppColors.brandCool,
-                        label: 'Sleep',
-                        value: _snapshot!.lastNightSleepMinutes != null
-                            ? '${(_snapshot!.lastNightSleepMinutes! / 60).toStringAsFixed(1)} h'
-                            : 'not recorded',
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+                 const SizedBox(height: 16),
+                 Container(
+                   padding: const EdgeInsets.all(20),
+                   decoration: BoxDecoration(
+                     color: Theme.of(context).colorScheme.surfaceContainer,
+                     borderRadius: BorderRadius.circular(20),
+                   ),
+                   child: Column(
+                     children: [
+                       _SnapshotRow(
+                         icon: LucideIcons.activity,
+                         color: AppColors.brandWarm,
+                         label: _snapshot!.hrvRmssd7DayAvg != null
+                             ? 'HRV 7-day avg'
+                             : 'HRV',
+                         value: _snapshot!.hrvRmssd7DayAvg != null
+                             ? '${_snapshot!.hrvRmssd7DayAvg!.toStringAsFixed(1)} ms'
+                             : 'not enough data yet',
+                       ),
+                       const SizedBox(height: 12),
+                       _SnapshotRow(
+                         icon: LucideIcons.moon,
+                         color: AppColors.brandCool,
+                         label: 'Sleep',
+                         value: _snapshot!.lastNightSleepMinutes != null
+                             ? '${(_snapshot!.lastNightSleepMinutes! / 60).toStringAsFixed(1)} h'
+                             : 'not recorded',
+                       ),
+                       if (_snapshot!.restingHr7DayAvg != null) ...[
+                         const SizedBox(height: 12),
+                         _SnapshotRow(
+                           icon: LucideIcons.heartPulse,
+                           color: AppColors.brandCoral,
+                           label: 'Resting HR 7-day',
+                           value: '${_snapshot!.restingHr7DayAvg!.toStringAsFixed(0)} bpm',
+                         ),
+                       ],
+                       if (_snapshot!.stepsYesterday != null) ...[
+                         const SizedBox(height: 12),
+                         _SnapshotRow(
+                           icon: LucideIcons.footprints,
+                           color: AppColors.brandWarm,
+                           label: 'Steps yesterday',
+                           value: '${_snapshot!.stepsYesterday}',
+                         ),
+                       ],
+                     ],
+                   ),
+                 ),
+               ],
               if (_error != null) ...[
                 const SizedBox(height: 16),
                 Container(
@@ -207,14 +247,24 @@ class _HealthConnectScreenState extends State<HealthConnectScreen> {
                 ),
               ],
               const SizedBox(height: 24),
-              AppButton(
-                label: _granted ? 'Reconnect' : 'Connect to Health Connect',
-                onPressed: _loading ? null : _connect,
-                variant: AppButtonVariant.warm,
-                fullWidth: true,
-                size: AppButtonSize.large,
-                isLoading: _loading,
-              ),
+              if (!_healthConnectAvailable)
+                AppButton(
+                  label: 'Install Health Connect',
+                  onPressed: _loading ? null : _installHealthConnect,
+                  variant: AppButtonVariant.warm,
+                  fullWidth: true,
+                  size: AppButtonSize.large,
+                  isLoading: _loading,
+                )
+              else
+                AppButton(
+                  label: _granted ? 'Reconnect' : 'Connect to Health Connect',
+                  onPressed: _loading ? null : _connect,
+                  variant: AppButtonVariant.warm,
+                  fullWidth: true,
+                  size: AppButtonSize.large,
+                  isLoading: _loading,
+                ),
             ],
           ),
         ),

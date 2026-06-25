@@ -3,11 +3,15 @@ import 'package:contrast_coach/core/constants/app_colors.dart';
 import 'package:contrast_coach/core/constants/app_spacing.dart';
 import 'package:contrast_coach/core/errors/app_exception.dart';
 import 'package:contrast_coach/core/errors/result.dart';
+import 'package:contrast_coach/core/feature_gating.dart';
 import 'package:contrast_coach/data/local/database/app_database.dart';
 import 'package:contrast_coach/data/local/database/database_provider.dart';
 import 'package:contrast_coach/data/repositories/session_repository.dart';
+import 'package:contrast_coach/data/repositories/subscription_repository.dart';
 import 'package:contrast_coach/domain/entities/session.dart';
+import 'package:contrast_coach/domain/entities/subscription_tier.dart';
 import 'package:contrast_coach/domain/usecases/session_stats.dart';
+import 'package:contrast_coach/presentation/widgets/atomic/app_button.dart';
 import 'package:contrast_coach/presentation/widgets/atomic/app_card.dart';
 import 'package:contrast_coach/presentation/widgets/atomic/identity.dart';
 import 'package:contrast_coach/presentation/widgets/composite/streak_calendar.dart';
@@ -27,23 +31,47 @@ class _StreakCalendarScreenState extends State<StreakCalendarScreen> {
   Map<DateTime, int> _intensity = {};
   SessionStats _stats = computeSessionStats(const []);
   bool _loading = true;
+  SubscriptionTier _tier = SubscriptionTier.free;
+  final SharedSubscriptionState _sharedState = SharedSubscriptionState.instance;
 
   @override
   void initState() {
     super.initState();
+    _sharedState.addListener(_onTierChanged);
+    _tier = _sharedState.tier.value;
     _load();
   }
 
-  Future<void> _load() async {
-    final db = await DatabaseProvider.instance();
-    final repo = SessionRepositoryImpl(db);
+  @override
+  void dispose() {
+    _sharedState.removeListener(_onTierChanged);
+    super.dispose();
+  }
 
-    final sessionsResult = await repo.getAll();
+  void _onTierChanged() {
+    if (!mounted) return;
+    setState(() => _tier = _sharedState.tier.value);
+  }
+
+  Future<void> _load() async {
+    final repo = SubscriptionRepositoryImpl()..bindSharedState(_sharedState);
+    await repo.currentTier();
+    final tier = _sharedState.tier.value;
+
+    final db = await DatabaseProvider.instance();
+    final sessionRepo = SessionRepositoryImpl(db);
+
+    final sessionsResult = await sessionRepo.getAll();
     if (sessionsResult is Ok<List<Session>, AppException>) {
       final sessions = sessionsResult.value;
+      final filteredSessions = FeatureGating.canUseFullStreakHistory(tier)
+          ? sessions
+          : sessions.where((s) => s.startedAt.isAfter(
+              DateTime.now().subtract(Duration(days: FeatureGating.freeStreakHistoryDays)),
+            )).toList();
       final dates = <DateTime>{};
       final counts = <DateTime, int>{};
-      for (final s in sessions) {
+      for (final s in filteredSessions) {
         final d = DateTime(s.startedAt.year, s.startedAt.month, s.startedAt.day);
         dates.add(d);
         counts[d] = (counts[d] ?? 0) + 1;
@@ -52,12 +80,16 @@ class _StreakCalendarScreenState extends State<StreakCalendarScreen> {
         setState(() {
           _daysWithSessions = dates;
           _intensity = counts;
-          _stats = computeSessionStats(sessions);
+          _stats = computeSessionStats(filteredSessions);
+          _tier = tier;
           _loading = false;
         });
       }
     } else if (mounted) {
-      setState(() => _loading = false);
+      setState(() {
+        _tier = tier;
+        _loading = false;
+      });
     }
   }
 
@@ -172,6 +204,10 @@ class _StreakCalendarScreenState extends State<StreakCalendarScreen> {
                       const SizedBox(height: AppSpacing.lg),
                       if (_stats.bestScore != null)
                         _BestScoreCard(score: _stats.bestScore!),
+                      if (!_tier.isPro) ...[
+                        const SizedBox(height: AppSpacing.lg),
+                        _ProStreakUpsell(onTap: () => context.push('/paywall')),
+                      ],
                     ],
                   ),
       ),
@@ -517,6 +553,74 @@ class _StreakSkeleton extends StatelessWidget {
           decoration: BoxDecoration(color: Theme.of(context).colorScheme.surfaceContainerHigh, borderRadius: BorderRadius.circular(20)),
         ),
       ],
+    );
+  }
+}
+
+class _ProStreakUpsell extends StatelessWidget {
+  const _ProStreakUpsell({required this.onTap});
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppCard(
+      padding: const EdgeInsets.all(AppSpacing.xl),
+      radius: 20,
+      elevation: AppCardElevation.soft,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: AppColors.brandWarm.withOpacity(0.12),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(LucideIcons.lock, color: AppColors.brandWarm, size: 16),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Unlock full streak history',
+                      style: TextStyle(
+                        fontFamily: 'PlusJakartaSans',
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Free accounts see the last ${FeatureGating.freeStreakHistoryDays} days. Pro unlocks unlimited.',
+                      style: TextStyle(
+                        fontFamily: 'PlusJakartaSans',
+                        fontSize: 12,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.md),
+          SizedBox(
+            width: double.infinity,
+            child: AppButton(
+              label: 'Upgrade to Pro',
+              onPressed: onTap,
+              variant: AppButtonVariant.warm,
+              fullWidth: true,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

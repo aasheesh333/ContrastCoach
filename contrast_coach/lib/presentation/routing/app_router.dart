@@ -25,10 +25,15 @@ import 'package:contrast_coach/presentation/screens/custom_protocol/custom_proto
 class AppRouter {
   const AppRouter._();
 
-  static GoRouter build({required bool isOnboarded, required bool isAuthed}) {
+  static GoRouter build({
+    required bool isOnboarded,
+    required bool isAuthed,
+    Listenable? refreshListenable,
+  }) {
     return GoRouter(
       initialLocation: isOnboarded ? (isAuthed ? '/home' : '/sign-in') : '/onboarding',
       debugLogDiagnostics: false,
+      refreshListenable: refreshListenable,
       redirect: (_, state) {
         final path = state.uri.path;
         final publicRoutes = {'/sign-in', '/sign-up', '/onboarding', '/terms', '/privacy'};

@@ -67,10 +67,10 @@ List<Insight> generateInsights({
   }
 
   // 4. Sleep correlation (uses healthDataSnapshot)
-  final withSleep = inPeriod.where((s) => s.healthDataSnapshot?['sleepMinutes'] != null).toList();
+  final withSleep = inPeriod.where((s) => s.healthDataSnapshot?['lastNightSleepMinutes'] != null).toList();
   if (withSleep.isNotEmpty) {
     final avgSleep = withSleep
-            .map((s) => (s.healthDataSnapshot!['sleepMinutes']! as num).toInt())
+            .map((s) => (s.healthDataSnapshot!['lastNightSleepMinutes']! as num).toInt())
             .reduce((a, b) => a + b) /
         withSleep.length;
     insights.add(Insight(
@@ -97,6 +97,43 @@ List<Insight> generateInsights({
       heroMetric: delta >= 0 ? '+${delta.round()}' : '${delta.round()}',
       title: 'Recovery trend',
       body: 'Score change from first to last session.',
+      periodStart: periodStart,
+      periodEnd: periodEnd,
+    ));
+  }
+
+  // 6. Recommendations
+  final recs = <String>[];
+  if (avgMin < 10) {
+    recs.add('Try extending sessions to 10+ minutes for better adaptation.');
+  }
+  if (inPeriod.length < 3) {
+    recs.add('Aim for at least 3 sessions per week for consistent results.');
+  }
+  if (bestProtocol != null && bestScore > 70) {
+    recs.add('Stick with $bestProtocol — your top performer.');
+  }
+  if (withSleep.isNotEmpty) {
+    final avgSleepHours = withSleep
+            .map((s) => (s.healthDataSnapshot!['lastNightSleepMinutes']! as num).toInt())
+            .reduce((a, b) => a + b) /
+        withSleep.length /
+        60;
+    if (avgSleepHours < 7) {
+      recs.add('Prioritize sleep (>7h) — it directly boosts recovery scores.');
+    }
+  }
+  final morningCount = inPeriod.where((s) => s.startedAt.hour >= 5 && s.startedAt.hour <= 9).length;
+  if (morningCount < inPeriod.length * 0.3) {
+    recs.add('Morning sessions (5-9am) score higher — try shifting your schedule.');
+  }
+  if (recs.isNotEmpty) {
+    insights.add(Insight(
+      id: 'recommendations',
+      category: InsightCategory.recommendations,
+      heroMetric: recs.length.toString(),
+      title: 'Recommendations',
+      body: recs.join(' '),
       periodStart: periodStart,
       periodEnd: periodEnd,
     ));

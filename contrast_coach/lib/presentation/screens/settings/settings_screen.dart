@@ -44,6 +44,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
   SessionStats _stats = computeSessionStats(const []);
   bool _voice = true;
   bool _notifications = true;
+  bool _notifsStreak = true;
+  bool _notifsTiming = true;
+  bool _notifsInsight = true;
+  bool _notifsSubscription = true;
+  bool _notifsHealth = true;
   bool _loading = true;
 
   @override
@@ -75,6 +80,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _stats = computeSessionStats(sessions);
         _voice = AppPreferences.voiceEnabled;
         _notifications = AppPreferences.notificationsEnabled;
+        _notifsStreak = AppPreferences.notifsStreak;
+        _notifsTiming = AppPreferences.notifsTiming;
+        _notifsInsight = AppPreferences.notifsInsight;
+        _notifsSubscription = AppPreferences.notifsSubscription;
+        _notifsHealth = AppPreferences.notifsHealth;
         _loading = false;
       });
     }
@@ -250,6 +260,55 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           onChanged: (value) => _setNotifications(value),
                         ),
                       ),
+                      if (_notifications) ...[
+                        Padding(
+                          padding: const EdgeInsets.only(left: 38, top: 4, bottom: 8),
+                          child: Column(
+                            children: [
+                              _NotifToggle(
+                                label: 'Streak reminders',
+                                value: _notifsStreak,
+                                onChanged: (v) async {
+                                  await AppPreferences.setNotifsStreak(v);
+                                  if (mounted) setState(() => _notifsStreak = v);
+                                },
+                              ),
+                              _NotifToggle(
+                                label: 'Optimal timing',
+                                value: _notifsTiming,
+                                onChanged: (v) async {
+                                  await AppPreferences.setNotifsTiming(v);
+                                  if (mounted) setState(() => _notifsTiming = v);
+                                },
+                              ),
+                              _NotifToggle(
+                                label: 'Sleep insights',
+                                value: _notifsInsight,
+                                onChanged: (v) async {
+                                  await AppPreferences.setNotifsInsight(v);
+                                  if (mounted) setState(() => _notifsInsight = v);
+                                },
+                              ),
+                              _NotifToggle(
+                                label: 'Subscription alerts',
+                                value: _notifsSubscription,
+                                onChanged: (v) async {
+                                  await AppPreferences.setNotifsSubscription(v);
+                                  if (mounted) setState(() => _notifsSubscription = v);
+                                },
+                              ),
+                              _NotifToggle(
+                                label: 'Health Connect status',
+                                value: _notifsHealth,
+                                onChanged: (v) async {
+                                  await AppPreferences.setNotifsHealth(v);
+                                  if (mounted) setState(() => _notifsHealth = v);
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                       const SectionHeader(label: 'Privacy'),
                       _SettingsRow(
                         label: 'Privacy',
@@ -473,6 +532,40 @@ class _SettingsRow extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _NotifToggle extends StatelessWidget {
+  const _NotifToggle({
+    required this.label,
+    required this.value,
+    required this.onChanged,
+  });
+  final String label;
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              label,
+              style: TextStyle(
+                fontFamily: 'PlusJakartaSans',
+                fontSize: 13,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          AppSwitch(value: value, onChanged: onChanged),
+        ],
       ),
     );
   }

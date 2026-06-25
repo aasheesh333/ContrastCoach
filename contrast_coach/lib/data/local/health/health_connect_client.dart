@@ -44,10 +44,19 @@ class HealthConnectClient implements HealthRepository {
   @override
   Future<Result<bool, AppException>> isAvailable() async {
     try {
-      final available = await _health.isHealthConnectAvailable();
-      return Ok(available);
+      return Ok(await _health.isHealthConnectAvailable());
     } catch (e) {
       return Err(HealthPermissionException('Health Connect availability check failed', cause: e));
+    }
+  }
+
+  @override
+  Future<Result<bool, AppException>> installHealthConnect() async {
+    try {
+      await _health.installHealthConnect();
+      return const Ok(true);
+    } catch (e) {
+      return Err(HealthPermissionException('Could not open Health Connect install page', cause: e));
     }
   }
 
@@ -83,6 +92,16 @@ class HealthConnectClient implements HealthRepository {
         startTime: yesterday,
         endTime: now,
       );
+      final rhrData = await _health.getHealthDataFromTypes(
+        types: const [HealthDataType.RESTING_HEART_RATE],
+        startTime: weekAgo,
+        endTime: now,
+      );
+      final stepsData = await _health.getHealthDataFromTypes(
+        types: const [HealthDataType.STEPS],
+        startTime: yesterday,
+        endTime: now,
+      );
 
       final hrvValues = hrvData
           .map((p) => (p.value as NumericHealthValue).numericValue.toDouble())
@@ -103,11 +122,27 @@ class HealthConnectClient implements HealthRepository {
               .map((p) => p.dateTo.difference(p.dateFrom).inMinutes)
               .reduce((a, b) => a + b);
 
+      final rhrValues = rhrData
+          .map((p) => (p.value as NumericHealthValue).numericValue.toDouble())
+          .toList();
+      final rhrAvg = rhrValues.isEmpty
+          ? null
+          : rhrValues.reduce((a, b) => a + b) / rhrValues.length;
+
+      final stepsValues = stepsData
+          .map((p) => (p.value as NumericHealthValue).numericValue.toInt())
+          .toList();
+      final stepsYesterday = stepsValues.isEmpty
+          ? null
+          : stepsValues.reduce((a, b) => a + b);
+
       return Ok(HealthSnapshot(
         capturedAt: now,
         lastNightSleepMinutes: lastNightSleep,
         hrvRmssd7DayAvg: hrvAvg,
         hrvRmssdTrend7Day: hrvTrend,
+        restingHr7DayAvg: rhrAvg,
+        stepsYesterday: stepsYesterday,
       ));
     });
   }
