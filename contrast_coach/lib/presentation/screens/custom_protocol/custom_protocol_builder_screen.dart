@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:contrast_coach/core/constants/app_colors.dart';
+import 'package:contrast_coach/core/constants/app_spacing.dart';
 import 'package:contrast_coach/core/constants/app_typography.dart';
 import 'package:contrast_coach/core/errors/app_exception.dart';
 import 'package:contrast_coach/core/errors/result.dart';
@@ -49,10 +50,10 @@ class _CustomProtocolBuilderScreenState extends State<CustomProtocolBuilderScree
   }
 
   Future<void> _loadAccess() async {
-    final tierResult = await SubscriptionRepositoryImpl().currentTier();
-    final tier = tierResult is Ok<SubscriptionTier, AppException>
-        ? tierResult.value
-        : SubscriptionTier.free;
+    final sharedState = SharedSubscriptionState.instance;
+    final repo = SubscriptionRepositoryImpl()..bindSharedState(sharedState);
+    await repo.currentTier();
+    final tier = sharedState.tier.value;
     if (!mounted) return;
     setState(() {
       _tier = tier;
@@ -153,8 +154,8 @@ class _CustomProtocolBuilderScreenState extends State<CustomProtocolBuilderScree
   @override
   Widget build(BuildContext context) {
     if (_checkingAccess) {
-      return const Scaffold(
-        backgroundColor: AppColors.offWhite,
+      return Scaffold(
+        backgroundColor: Theme.of(context).colorScheme.surface,
         body: Center(
           child: CircularProgressIndicator(color: AppColors.brandWarm),
         ),
@@ -163,7 +164,7 @@ class _CustomProtocolBuilderScreenState extends State<CustomProtocolBuilderScree
 
     if (!FeatureGating.canUseCustomProtocols(_tier)) {
       return Scaffold(
-        backgroundColor: AppColors.offWhite,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         body: SafeArea(
           child: Center(
             child: Padding(
@@ -175,24 +176,24 @@ class _CustomProtocolBuilderScreenState extends State<CustomProtocolBuilderScree
                   children: [
                     const Icon(LucideIcons.lock, color: AppColors.brandWarm, size: 32),
                     const SizedBox(height: 16),
-                    const Text(
+                    Text(
                       'Custom protocols are part of Pro.',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontFamily: 'PlusJakartaSans',
                         fontSize: 22,
                         fontWeight: FontWeight.w800,
-                        color: AppColors.charcoal,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                     const SizedBox(height: 8),
-                    const Text(
+                    Text(
                       'Upgrade to build your own sauna and plunge sequences, then save them for repeat sessions.',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontFamily: 'PlusJakartaSans',
                         fontSize: 14,
-                        color: AppColors.darkGray,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                         height: 1.5,
                       ),
                     ),
@@ -213,7 +214,7 @@ class _CustomProtocolBuilderScreenState extends State<CustomProtocolBuilderScree
     }
 
     return Scaffold(
-      backgroundColor: AppColors.offWhite,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
@@ -244,10 +245,10 @@ class _CustomProtocolBuilderScreenState extends State<CustomProtocolBuilderScree
                   const SizedBox(width: 8),
                   Text(
                     _rounds == 1 ? 'round' : 'rounds',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: 'PlusJakartaSans',
                       fontSize: 16,
-                      color: AppColors.darkGray,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -310,18 +311,18 @@ class _CustomProtocolBuilderScreenState extends State<CustomProtocolBuilderScree
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppColors.warmBeige,
+                  color: Theme.of(context).colorScheme.surfaceContainer,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Row(
                   children: [
-                    const AppIcon(LucideIcons.info, size: 16, color: AppColors.darkGray),
+                    AppIcon(LucideIcons.info, size: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         'Total: ${_buildProtocol().totalDuration.inMinutes}m. Cold 5-20°C. Sauna ≤30 min. ≤60 min total.',
                         style: AppTypography.monoSmall?.copyWith(
-                          color: AppColors.charcoal,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                     ),
@@ -367,11 +368,11 @@ class _CustomProtocolBuilderScreenState extends State<CustomProtocolBuilderScree
       padding: const EdgeInsets.only(bottom: 8, top: 4),
       child: Text(
         text,
-        style: const TextStyle(
+        style: TextStyle(
           fontFamily: 'PlusJakartaSans',
           fontSize: 11,
           fontWeight: FontWeight.w700,
-          color: AppColors.midGray,
+          color: Theme.of(context).colorScheme.outline,
           letterSpacing: 1.4,
         ),
       ),
@@ -410,15 +411,9 @@ class _PhaseEditor extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: Theme.of(context).colorScheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 12,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        boxShadow: AppShadows.cardSoftFor(context),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -428,16 +423,16 @@ class _PhaseEditor extends StatelessWidget {
             children: [
               Text(
                 'Phase ${index + 1}',
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: 'PlusJakartaSans',
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.charcoal,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
               if (onRemove != null)
                 IconButton(
-                  icon: const AppIcon(LucideIcons.x, size: 18, color: AppColors.midGray),
+                  icon: AppIcon(LucideIcons.x, size: 18, color: Theme.of(context).colorScheme.outline),
                   onPressed: onRemove,
                 ),
             ],
@@ -465,22 +460,22 @@ class _PhaseEditor extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 'Duration',
                 style: TextStyle(
                   fontFamily: 'PlusJakartaSans',
                   fontSize: 13,
-                  color: AppColors.darkGray,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                   fontWeight: FontWeight.w500,
                 ),
               ),
               Text(
                 '${(phase.durationSec / 60).round()}m',
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: 'PlusJakartaSans',
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.charcoal,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ],
@@ -496,22 +491,22 @@ class _PhaseEditor extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   'Temperature',
                   style: TextStyle(
                     fontFamily: 'PlusJakartaSans',
                     fontSize: 13,
-                    color: AppColors.darkGray,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
                 Text(
                   '${phase.tempC.toStringAsFixed(0)}°C',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: 'PlusJakartaSans',
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.charcoal,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
               ],

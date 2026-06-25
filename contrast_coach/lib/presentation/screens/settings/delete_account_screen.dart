@@ -1,4 +1,5 @@
 import 'package:contrast_coach/core/constants/app_colors.dart';
+import 'package:contrast_coach/core/constants/app_spacing.dart';
 import 'package:contrast_coach/core/preferences/app_preferences.dart';
 import 'package:contrast_coach/data/local/database/app_database.dart';
 import 'package:contrast_coach/data/local/database/database_provider.dart';
@@ -24,19 +25,19 @@ class DeleteAccountScreen extends StatelessWidget {
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Text('Delete account?'),
-        content: const Text(
+        content: Text(
           'This permanently removes all your local and cloud data. This cannot be undone.',
           style: TextStyle(
             fontFamily: 'PlusJakartaSans',
             fontSize: 14,
-            color: AppColors.darkGray,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
             height: 1.5,
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel', style: TextStyle(color: AppColors.darkGray)),
+            child: Text('Cancel', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
           ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
@@ -102,7 +103,7 @@ class DeleteAccountScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.offWhite,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
@@ -112,15 +113,9 @@ class DeleteAccountScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: AppColors.white,
+                  color: Theme.of(context).colorScheme.surfaceContainerLow,
                   borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.04),
-                      blurRadius: 16,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
+                  boxShadow: AppShadows.cardSoftFor(context),
                 ),
                 child: Column(
                   children: [
@@ -146,13 +141,13 @@ class DeleteAccountScreen extends StatelessWidget {
                           ),
                     ),
                     const SizedBox(height: 8),
-                    const Text(
+                    Text(
                       'This permanently removes all your local and cloud data. This cannot be undone.',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontFamily: 'PlusJakartaSans',
                         fontSize: 14,
-                        color: AppColors.darkGray,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                         height: 1.5,
                       ),
                     ),

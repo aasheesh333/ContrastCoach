@@ -20,7 +20,7 @@ class PlanBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: _isPro ? AppColors.brandWarm : AppColors.lightGray,
+      color: _isPro ? AppColors.brandWarm : Theme.of(context).colorScheme.surfaceContainerHigh,
       borderRadius: BorderRadius.circular(999),
       child: InkWell(
         onTap: onTap,
@@ -36,13 +36,13 @@ class PlanBadge extends StatelessWidget {
               Icon(
                 _isPro ? LucideIcons.crown : LucideIcons.sparkles,
                 size: 13,
-                color: _isPro ? AppColors.white : AppColors.darkGray,
+                color: _isPro ? AppColors.white : Theme.of(context).colorScheme.onSurfaceVariant,
               ),
               const SizedBox(width: 6),
               Text(
                 _isPro ? 'Pro' : 'Free',
                 style: AppTypography.labelMedium?.copyWith(
-                  color: _isPro ? AppColors.white : AppColors.darkGray,
+                  color: _isPro ? AppColors.white : Theme.of(context).colorScheme.onSurfaceVariant,
                   fontWeight: FontWeight.w700,
                 ),
               ),

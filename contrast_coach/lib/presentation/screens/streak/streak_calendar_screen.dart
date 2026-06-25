@@ -162,6 +162,7 @@ class _StreakCalendarScreenState extends State<StreakCalendarScreen> {
                       StreakCalendar(
                         daysWithSessions: _daysWithSessions,
                         intensity: _intensity,
+                        zeroColor: Theme.of(context).colorScheme.surfaceContainerHigh,
                         onDayTap: _showDayDetails,
                       ),
                       const SizedBox(height: AppSpacing.lg),
@@ -245,11 +246,11 @@ class _StreakHeader extends StatelessWidget {
             const SizedBox(width: 8),
             Text(
               stats.streakDays == 1 ? 'day streak' : 'days streak',
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: 'PlusJakartaSans',
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
-                color: AppColors.charcoal,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
           ],
@@ -259,10 +260,10 @@ class _StreakHeader extends StatelessWidget {
           stats.streakDays > 0
               ? 'You are on a roll. Keep it going.'
               : 'Start one today to begin a new streak.',
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: 'PlusJakartaSans',
             fontSize: 14,
-            color: AppColors.darkGray,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -346,11 +347,11 @@ class _InlineStat extends StatelessWidget {
       children: [
         Text(
           value,
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: 'PlusJakartaSans',
             fontSize: 22,
             fontWeight: FontWeight.w800,
-            color: AppColors.charcoal,
+            color: Theme.of(context).colorScheme.onSurface,
             height: 1.0,
             letterSpacing: -0.4,
           ),
@@ -358,10 +359,10 @@ class _InlineStat extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: 'PlusJakartaSans',
             fontSize: 11,
-            color: AppColors.midGray,
+            color: Theme.of(context).colorScheme.outline,
             fontWeight: FontWeight.w600,
             letterSpacing: 0.4,
           ),
@@ -399,12 +400,12 @@ class _BestScoreCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Personal best',
                   style: TextStyle(
                     fontFamily: 'PlusJakartaSans',
                     fontSize: 13,
-                    color: AppColors.midGray,
+                    color: Theme.of(context).colorScheme.outline,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 0.4,
                   ),
@@ -412,11 +413,11 @@ class _BestScoreCard extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   '${score.round()} recovery score',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: 'PlusJakartaSans',
                     fontSize: 20,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.charcoal,
+                    color: Theme.of(context).colorScheme.onSurface,
                     letterSpacing: -0.4,
                   ),
                 ),
@@ -436,18 +437,18 @@ class _Legend extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        const Text(
+        Text(
           'Less',
           style: TextStyle(
             fontFamily: 'PlusJakartaSans',
             fontSize: 11,
-            color: AppColors.midGray,
+            color: Theme.of(context).colorScheme.outline,
             fontWeight: FontWeight.w600,
           ),
         ),
         const SizedBox(width: 8),
-        for (final c in const [
-          AppColors.heatmap0,
+        for (final c in [
+          Theme.of(context).colorScheme.surfaceContainerHigh,
           AppColors.heatmap1,
           AppColors.heatmap2,
           AppColors.heatmap3,
@@ -463,12 +464,12 @@ class _Legend extends StatelessWidget {
             ),
           ),
         const SizedBox(width: 8),
-        const Text(
+        Text(
           'More',
           style: TextStyle(
             fontFamily: 'PlusJakartaSans',
             fontSize: 11,
-            color: AppColors.midGray,
+            color: Theme.of(context).colorScheme.outline,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -490,30 +491,30 @@ class _StreakSkeleton extends StatelessWidget {
         AppSpacing.huge,
       ),
       children: [
-        Container(width: 60, height: 48, color: AppColors.lightGray),
+        Container(width: 60, height: 48, color: Theme.of(context).colorScheme.surfaceContainerHigh),
         const SizedBox(height: 6),
-        Container(width: 200, height: 14, color: AppColors.lightGray),
+        Container(width: 200, height: 14, color: Theme.of(context).colorScheme.surfaceContainerHigh),
         const SizedBox(height: 16),
-        Container(width: 90, height: 24, decoration: BoxDecoration(color: AppColors.lightGray, borderRadius: BorderRadius.circular(999))),
+        Container(width: 90, height: 24, decoration: BoxDecoration(color: Theme.of(context).colorScheme.surfaceContainerHigh, borderRadius: BorderRadius.circular(999))),
         const SizedBox(height: AppSpacing.lg),
         Container(
           height: 180,
-          decoration: BoxDecoration(color: AppColors.lightGray, borderRadius: BorderRadius.circular(16)),
+          decoration: BoxDecoration(color: Theme.of(context).colorScheme.surfaceContainerHigh, borderRadius: BorderRadius.circular(16)),
         ),
         const SizedBox(height: AppSpacing.lg),
         Container(
           height: 28,
-          color: AppColors.lightGray,
+          color: Theme.of(context).colorScheme.surfaceContainerHigh,
         ),
         const SizedBox(height: AppSpacing.huge),
         Container(
           height: 100,
-          decoration: BoxDecoration(color: AppColors.lightGray, borderRadius: BorderRadius.circular(20)),
+          decoration: BoxDecoration(color: Theme.of(context).colorScheme.surfaceContainerHigh, borderRadius: BorderRadius.circular(20)),
         ),
         const SizedBox(height: AppSpacing.lg),
         Container(
           height: 80,
-          decoration: BoxDecoration(color: AppColors.lightGray, borderRadius: BorderRadius.circular(20)),
+          decoration: BoxDecoration(color: Theme.of(context).colorScheme.surfaceContainerHigh, borderRadius: BorderRadius.circular(20)),
         ),
       ],
     );

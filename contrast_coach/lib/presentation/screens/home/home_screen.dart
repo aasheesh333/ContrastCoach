@@ -9,8 +9,7 @@ import 'package:contrast_coach/data/local/database/database_provider.dart';
 import 'package:contrast_coach/data/repositories/protocol_repository.dart';
 import 'package:contrast_coach/data/repositories/session_repository.dart';
 import 'package:contrast_coach/data/repositories/subscription_repository.dart';
-import 'package:contrast_coach/data/repositories/user_profile_service.dart';
-import 'package:contrast_coach/domain/entities/protocol.dart';
+import 'package:contrast_coach/data/repositories/user_profile_service.dart';import 'package:contrast_coach/domain/entities/protocol.dart';
 import 'package:contrast_coach/domain/entities/session.dart';
 import 'package:contrast_coach/domain/entities/subscription_tier.dart';
 import 'package:contrast_coach/domain/usecases/session_stats.dart';
@@ -34,6 +33,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen>
     with SingleTickerProviderStateMixin {
+  final SharedSubscriptionState _sharedState = SharedSubscriptionState.instance;
   SessionStats _stats = computeSessionStats(const []);
   UserProfile _profile = const UserProfile(
     uid: '',
@@ -57,13 +57,21 @@ class _HomeScreenState extends State<HomeScreen>
       duration: AnimationUtils.standardDuration,
     );
     _entranceController.forward();
+    _sharedState.addListener(_onTierChanged);
+    _tier = _sharedState.tier.value;
     _load();
   }
 
   @override
   void dispose() {
+    _sharedState.removeListener(_onTierChanged);
     _entranceController.dispose();
     super.dispose();
+  }
+
+  void _onTierChanged() {
+    if (!mounted) return;
+    setState(() => _tier = _sharedState.tier.value);
   }
 
   Future<void> _load() async {
@@ -110,17 +118,18 @@ class _HomeScreenState extends State<HomeScreen>
     final profile = profileResult is Ok<UserProfile, AppException>
         ? profileResult.value
         : _profile;
-    final tierResult = await SubscriptionRepositoryImpl().currentTier();
-    final tier = tierResult is Ok<SubscriptionTier, AppException>
-        ? tierResult.value
-        : SubscriptionTier.free;
+    // Refresh tier from RevenueCat. The listener above keeps the home screen
+    // in sync for subsequent changes (e.g. after a successful purchase).
+    final repo2 = SubscriptionRepositoryImpl()
+      ..bindSharedState(SharedSubscriptionState.instance);
+    await repo2.currentTier();
 
     if (mounted) {
       setState(() {
         _stats = computeSessionStats(sessions);
         _recommended = pick;
         _profile = profile;
-        _tier = tier;
+        _tier = _sharedState.tier.value;
         _loading = false;
       });
     }
@@ -337,7 +346,7 @@ class _StreakPill extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(999),
-        boxShadow: AppShadows.cardSoft,
+        boxShadow: AppShadows.cardSoftFor(context),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -572,28 +581,28 @@ class _HomeSkeleton extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(width: 80, height: 14, color: AppColors.lightGray),
+                  Container(width: 80, height: 14, color: Theme.of(context).colorScheme.surfaceContainerHigh),
                   const SizedBox(height: 8),
-                  Container(width: 120, height: 24, color: AppColors.lightGray),
+                  Container(width: 120, height: 24, color: Theme.of(context).colorScheme.surfaceContainerHigh),
                   const SizedBox(height: 6),
-                  Container(width: 200, height: 14, color: AppColors.lightGray),
+                  Container(width: 200, height: 14, color: Theme.of(context).colorScheme.surfaceContainerHigh),
                 ],
               ),
             ),
-            Container(width: 40, height: 40, decoration: const BoxDecoration(color: AppColors.lightGray, shape: BoxShape.circle)),
+            Container(width: 40, height: 40, decoration: BoxDecoration(color: Theme.of(context).colorScheme.surfaceContainerHigh, shape: BoxShape.circle)),
           ],
         ),
         const SizedBox(height: AppSpacing.lg),
         Container(
           height: 180,
-          decoration: BoxDecoration(color: AppColors.lightGray, borderRadius: BorderRadius.circular(28)),
+          decoration: BoxDecoration(color: Theme.of(context).colorScheme.surfaceContainerHigh, borderRadius: BorderRadius.circular(28)),
         ),
         const SizedBox(height: AppSpacing.lg),
         Row(
           children: List.generate(4, (_) => const Expanded(child: Padding(padding: EdgeInsets.symmetric(horizontal: 4), child: _SkeletonBox(height: 64)))),
         ),
         const SizedBox(height: AppSpacing.sectionGap),
-        Container(width: 80, height: 16, color: AppColors.lightGray),
+        Container(width: 80, height: 16, color: Theme.of(context).colorScheme.surfaceContainerHigh),
         const SizedBox(height: AppSpacing.sm),
         Row(
           children: List.generate(3, (_) => const Expanded(child: Padding(padding: EdgeInsets.symmetric(horizontal: 6), child: _SkeletonBox(height: 100)))),
@@ -612,7 +621,7 @@ class _SkeletonBox extends StatelessWidget {
     return Container(
       height: height,
       decoration: BoxDecoration(
-        color: AppColors.lightGray,
+        color: Theme.of(context).colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(16),
       ),
     );

@@ -86,8 +86,10 @@ class _ActiveSessionScreenState extends State<ActiveSessionScreen>
   }
 
   Future<void> _bootstrap() async {
-    final tierResult = await SubscriptionRepositoryImpl().currentTier();
-    final tier = tierResult.fold((_) => SubscriptionTier.free, (value) => value);
+    final sharedState = SharedSubscriptionState.instance;
+    final repo = SubscriptionRepositoryImpl()..bindSharedState(sharedState);
+    await repo.currentTier();
+    final tier = sharedState.tier.value;
     if (!mounted) return;
     if (!FeatureGating.canAccessProtocol(widget.protocolId, tier)) {
       context.go('/paywall');
@@ -400,10 +402,10 @@ class _ActiveSessionScreenState extends State<ActiveSessionScreen>
     if (_voiceActive) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          backgroundColor: AppColors.white.withOpacity(0.9),
-          content: const Text(
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          content: Text(
             "Listening. Say 'next phase' to continue.",
-            style: TextStyle(color: AppColors.charcoal),
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
           ),
         ),
       );
@@ -417,10 +419,10 @@ class _ActiveSessionScreenState extends State<ActiveSessionScreen>
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        backgroundColor: AppColors.white.withOpacity(0.9),
-        content: const Text(
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        content: Text(
           'Voice control is off. Enable it in Settings to use the mic during sessions.',
-          style: TextStyle(color: AppColors.charcoal),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
         ),
       ),
     );

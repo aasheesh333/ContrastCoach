@@ -1,4 +1,5 @@
 import 'package:contrast_coach/core/constants/app_colors.dart';
+import 'package:contrast_coach/core/constants/app_spacing.dart';
 import 'package:contrast_coach/core/errors/result.dart';
 import 'package:contrast_coach/data/local/health/health_connect_client.dart';
 import 'package:contrast_coach/domain/entities/health_snapshot.dart';
@@ -104,15 +105,9 @@ class _HealthConnectScreenState extends State<HealthConnectScreen> {
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: AppColors.white,
+                  color: Theme.of(context).colorScheme.surfaceContainerLow,
                   borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.04),
-                      blurRadius: 16,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
+                  boxShadow: AppShadows.cardSoftFor(context),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -133,13 +128,13 @@ class _HealthConnectScreenState extends State<HealthConnectScreen> {
                           ),
                         ),
                         const SizedBox(width: 12),
-                        const Expanded(
-                          child: Text(
+                         Expanded(
+                           child: Text(
                             'Health data stays on your device. We never upload it.',
                             style: TextStyle(
                               fontFamily: 'PlusJakartaSans',
                               fontSize: 14,
-                              color: AppColors.charcoal,
+                              color: Theme.of(context).colorScheme.onSurface,
                               fontWeight: FontWeight.w500,
                               height: 1.4,
                             ),
@@ -153,7 +148,7 @@ class _HealthConnectScreenState extends State<HealthConnectScreen> {
                       style: TextStyle(
                         fontFamily: 'PlusJakartaSans',
                         fontSize: 13,
-                        color: AppColors.darkGray,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                         height: 1.4,
                       ),
                     ),
@@ -165,7 +160,7 @@ class _HealthConnectScreenState extends State<HealthConnectScreen> {
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: AppColors.warmBeige,
+                    color: Theme.of(context).colorScheme.surfaceContainer,
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Column(
@@ -257,20 +252,20 @@ class _SnapshotRow extends StatelessWidget {
         Expanded(
           child: Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: 'PlusJakartaSans',
               fontSize: 13,
-              color: AppColors.darkGray,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
               fontWeight: FontWeight.w500,
             ),
           ),
         ),
         Text(
           value,
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: 'PlusJakartaSans',
             fontSize: 14,
-            color: AppColors.charcoal,
+            color: Theme.of(context).colorScheme.onSurface,
             fontWeight: FontWeight.w700,
           ),
         ),

@@ -1,4 +1,5 @@
 import 'package:contrast_coach/core/constants/app_colors.dart';
+import 'package:contrast_coach/core/constants/app_spacing.dart';
 import 'package:contrast_coach/presentation/widgets/atomic/app_button.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -10,7 +11,7 @@ class VoicePermissionRationaleScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.offWhite,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
@@ -42,10 +43,10 @@ class VoicePermissionRationaleScreen extends StatelessWidget {
                     Text(
                       "Voice commands let you control sessions hands-free (\"Hey Coach, next phase\"). No audio is recorded or transmitted. All processing is on-device.",
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: 'PlusJakartaSans',
                         fontSize: 15,
-                        color: AppColors.darkGray,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                         height: 1.5,
                       ),
                     ),
@@ -55,15 +56,9 @@ class VoicePermissionRationaleScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppColors.white,
+                  color: Theme.of(context).colorScheme.surfaceContainerLow,
                   borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.04),
-                      blurRadius: 12,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
+                  boxShadow: AppShadows.cardSoftFor(context),
                 ),
                 child: Row(
                   children: [
@@ -77,13 +72,13 @@ class VoicePermissionRationaleScreen extends StatelessWidget {
                       child: const Icon(LucideIcons.shield, color: AppColors.brandCool, size: 20),
                     ),
                     const SizedBox(width: 14),
-                    const Expanded(
+                    Expanded(
                       child: Text(
                         'No audio is recorded or sent to any server. Everything happens on your device.',
                         style: TextStyle(
                           fontFamily: 'PlusJakartaSans',
                           fontSize: 13,
-                          color: AppColors.darkGray,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                           height: 1.4,
                         ),
                       ),

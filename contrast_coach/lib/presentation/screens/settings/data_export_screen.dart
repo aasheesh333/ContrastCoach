@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:contrast_coach/core/constants/app_colors.dart';
+import 'package:contrast_coach/core/constants/app_spacing.dart';
 import 'package:contrast_coach/core/errors/app_exception.dart';
 import 'package:contrast_coach/core/errors/result.dart';
 import 'package:contrast_coach/data/local/database/app_database.dart';
@@ -61,7 +62,7 @@ class _DataExportScreenState extends State<DataExportScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.offWhite,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
@@ -71,15 +72,9 @@ class _DataExportScreenState extends State<DataExportScreen> {
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: AppColors.white,
+                  color: Theme.of(context).colorScheme.surfaceContainerLow,
                   borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.04),
-                      blurRadius: 16,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
+                  boxShadow: AppShadows.cardSoftFor(context),
                 ),
                 child: Column(
                   children: [
@@ -105,13 +100,13 @@ class _DataExportScreenState extends State<DataExportScreen> {
                           ),
                     ),
                     const SizedBox(height: 8),
-                    const Text(
+                    Text(
                       'Download all your sessions as a JSON file.',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontFamily: 'PlusJakartaSans',
                         fontSize: 14,
-                        color: AppColors.darkGray,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
                     if (_filePath != null) ...[
@@ -129,10 +124,10 @@ class _DataExportScreenState extends State<DataExportScreen> {
                             Expanded(
                               child: Text(
                                 'Saved to: $_filePath',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontFamily: 'PlusJakartaSans',
                                   fontSize: 11,
-                                  color: AppColors.charcoal,
+                                  color: Theme.of(context).colorScheme.onSurface,
                                 ),
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,

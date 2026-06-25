@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:contrast_coach/core/constants/app_colors.dart';
 
 class SheetContainer extends StatelessWidget {
   const SheetContainer({super.key, required this.child, this.onClose});
@@ -15,7 +14,9 @@ class SheetContainer extends StatelessWidget {
         borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Theme.of(context).brightness == Brightness.dark
+                ? Colors.black.withOpacity(0.30)
+                : Colors.black.withOpacity(0.08),
             blurRadius: 30,
             offset: const Offset(0, -4),
           ),
@@ -31,7 +32,7 @@ class SheetContainer extends StatelessWidget {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: AppColors.midGray.withOpacity(0.4),
+                color: Theme.of(context).colorScheme.outline.withOpacity(0.4),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),

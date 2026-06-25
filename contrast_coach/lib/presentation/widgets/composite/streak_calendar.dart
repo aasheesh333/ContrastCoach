@@ -11,6 +11,7 @@ class StreakCalendar extends StatelessWidget {
     this.intensity,
     this.weeks = 12,
     this.onDayTap,
+    this.zeroColor,
   });
 
   /// Set of dates that have sessions.
@@ -24,6 +25,9 @@ class StreakCalendar extends StatelessWidget {
   /// Called when a day cell is tapped.
   final void Function(DateTime date, int sessionCount)? onDayTap;
 
+  /// Color for zero-intensity (empty) cells. Defaults to [AppColors.heatmap0].
+  final Color? zeroColor;
+
   int _sessionCount(DateTime date) {
     if (intensity != null) {
       return intensity![DateTime(date.year, date.month, date.day)] ?? 0;
@@ -32,7 +36,7 @@ class StreakCalendar extends StatelessWidget {
   }
 
   Color _intensityColor(int count) {
-    if (count <= 0) return AppColors.heatmap0;
+    if (count <= 0) return zeroColor ?? AppColors.heatmap0;
     if (count == 1) return AppColors.heatmap1;
     if (count == 2) return AppColors.heatmap2;
     if (count == 3) return AppColors.heatmap3;
@@ -121,7 +125,7 @@ class _Cell extends StatelessWidget {
           color: color,
           borderRadius: BorderRadius.circular(AppShapes.heatmapRadius),
           border: isToday
-              ? Border.all(color: AppColors.charcoal, width: 2)
+              ? Border.all(color: Theme.of(context).colorScheme.onSurface, width: 2)
               : null,
         ),
       ),

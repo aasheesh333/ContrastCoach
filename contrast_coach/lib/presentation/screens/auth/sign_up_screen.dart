@@ -72,7 +72,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.offWhite,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
@@ -102,12 +102,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     ),
               ),
               const SizedBox(height: 8),
-              const Text(
+              Text(
                 'Create an account to sync across devices.',
                 style: TextStyle(
                   fontFamily: 'PlusJakartaSans',
                   fontSize: 15,
-                  color: AppColors.darkGray,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
               const SizedBox(height: 32),
@@ -149,20 +149,20 @@ class _SignUpScreenState extends State<SignUpScreen> {
               const SizedBox(height: 12),
               Row(
                 children: [
-                  const Expanded(child: Divider(color: AppColors.lightGray)),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    child: Text(
-                      'or',
-                      style: TextStyle(
-                        fontFamily: 'PlusJakartaSans',
-                        fontSize: 12,
-                        color: AppColors.midGray,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                  const Expanded(child: Divider(color: AppColors.lightGray)),
+                   Expanded(child: Divider(color: Theme.of(context).colorScheme.outline)),
+                   Padding(
+                     padding: const EdgeInsets.symmetric(horizontal: 12),
+                     child: Text(
+                       'or',
+                       style: TextStyle(
+                         fontFamily: 'PlusJakartaSans',
+                         fontSize: 12,
+                         color: Theme.of(context).colorScheme.outline,
+                         fontWeight: FontWeight.w500,
+                       ),
+                     ),
+                   ),
+                   Expanded(child: Divider(color: Theme.of(context).colorScheme.outline)),
                 ],
               ),
               const SizedBox(height: 12),
@@ -177,11 +177,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text(
+                  Text(
                     'Already have an account?',
                     style: TextStyle(
                       fontFamily: 'PlusJakartaSans',
-                      color: AppColors.darkGray,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                       fontSize: 14,
                     ),
                   ),

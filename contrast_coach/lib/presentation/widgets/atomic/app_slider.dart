@@ -29,7 +29,7 @@ class AppSlider extends StatelessWidget {
         inactiveTrackColor: active.withOpacity(0.18),
         thumbColor: active,
         overlayColor: active.withOpacity(0.12),
-        valueIndicatorColor: AppColors.charcoal,
+        valueIndicatorColor: Theme.of(context).colorScheme.onSurface,
         valueIndicatorTextStyle: const TextStyle(color: AppColors.white),
         showValueIndicator: ShowValueIndicator.never,
         thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 12),

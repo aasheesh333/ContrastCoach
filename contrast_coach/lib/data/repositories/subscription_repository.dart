@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:contrast_coach/core/errors/app_exception.dart';
 import 'package:contrast_coach/core/errors/result.dart';
 import 'package:contrast_coach/data/remote/subscription/revenue_cat_client.dart';
@@ -12,6 +14,15 @@ import 'dart:developer' as developer;
 class SubscriptionRepositoryImpl implements SubscriptionRepository {
   static const String _tag = 'SubscriptionRepository';
 
+  SharedSubscriptionState? _sharedState;
+
+  /// Wires this repository to a shared [SharedSubscriptionState] so any
+  /// change to RevenueCat's CustomerInfo (e.g. purchases, restores, expirations)
+  /// propagates to every screen reading tier via that notifier.
+  void bindSharedState(SharedSubscriptionState state) {
+    _sharedState = state;
+  }
+
   @override
   Future<Result<SubscriptionTier, AppException>> currentTier() async {
     if (!RevenueCatBootstrap.isConfigured) {
@@ -19,7 +30,9 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
     }
     try {
       final info = await Purchases.getCustomerInfo();
-      return Ok(_toTier(info));
+      final tier = _toTier(info);
+      _sharedState?.notify(tier);
+      return Ok(tier);
     } on PlatformException catch (e, s) {
       _logError('currentTier', e, s);
       return Err(SubscriptionException('Failed to retrieve subscription tier: ${e.message}'));
@@ -57,7 +70,9 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
     }
     try {
       final info = await Purchases.purchasePackage(package);
-      return Ok(_toTier(info));
+      final tier = _toTier(info);
+      _sharedState?.notify(tier);
+      return Ok(tier);
     } on PlatformException catch (e, s) {
       if (_isUserCancellation(e)) {
         return Err(SubscriptionException('Purchase cancelled by user.'));
@@ -77,7 +92,9 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
     }
     try {
       final info = await Purchases.restorePurchases();
-      return Ok(_toTier(info));
+      final tier = _toTier(info);
+      _sharedState?.notify(tier);
+      return Ok(tier);
     } on PlatformException catch (e, s) {
       _logError('restore', e, s);
       return Err(SubscriptionException('Failed to restore purchases: ${e.message}'));
@@ -111,6 +128,12 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
     return SubscriptionTier.proYearly;
   }
 
+  /// Public mapping used by [RevenueCatBootstrap]'s CustomerInfo listener.
+  /// Kept identical to [_toTier] so listener-driven updates match repository
+  /// reads.
+  @visibleForTesting
+  SubscriptionTier toTier(CustomerInfo info) => _toTier(info);
+
   bool _isUserCancellation(PlatformException e) {
     final code = e.code.toUpperCase();
     return code.contains('USER_CANCELLED') ||
@@ -136,6 +159,34 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
         fatal: false,
       );
     }
+  }
+}
+
+/// Process-wide subscription tier notifier.
+///
+/// Replaces the previous pattern of every screen instantiating its own
+/// `SubscriptionRepositoryImpl().currentTier()`. One repository is
+/// bound to this notifier at app start; it pushes tier updates whenever
+/// a purchase, restore, or expiration occurs. Screens that need tier
+/// state should listen to [tier] (`tier.addListener(...)`) rather than
+/// calling `currentTier()`.
+class SharedSubscriptionState {
+  SharedSubscriptionState._();
+
+  static final SharedSubscriptionState instance = SharedSubscriptionState._();
+
+  final ValueNotifier<SubscriptionTier> tier =
+      ValueNotifier<SubscriptionTier>(SubscriptionTier.free);
+
+  /// Convenience alias so screens can write `_sharedState.addListener(...)`.
+  void addListener(VoidCallback listener) => tier.addListener(listener);
+
+  /// Convenience alias so screens can write `_sharedState.removeListener(...)`.
+  void removeListener(VoidCallback listener) => tier.removeListener(listener);
+
+  void notify(SubscriptionTier newTier) {
+    if (tier.value == newTier) return;
+    tier.value = newTier;
   }
 }
 

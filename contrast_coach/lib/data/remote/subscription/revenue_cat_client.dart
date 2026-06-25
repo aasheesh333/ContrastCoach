@@ -1,4 +1,5 @@
 import 'package:contrast_coach/core/env/env_config.dart';
+import 'package:contrast_coach/data/repositories/subscription_repository.dart';
 import 'package:contrast_coach/presentation/screens/home/firebase_auth_proxy.dart';
 import 'package:flutter/foundation.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
@@ -6,6 +7,7 @@ import 'package:purchases_flutter/purchases_flutter.dart';
 class RevenueCatBootstrap {
   static bool _initialized = false;
   static String? _initError;
+  static bool _listenerRegistered = false;
 
   static bool get isConfigured {
     if (_initialized) return true;
@@ -50,15 +52,27 @@ class RevenueCatBootstrap {
     try {
       await Purchases.configure(config);
       _initialized = true;
+      _registerCustomerInfoListener();
     } catch (e) {
       _initError = 'RevenueCat configuration failed: $e';
       throw MissingConfigurationException(_initError!);
     }
   }
 
+  static void _registerCustomerInfoListener() {
+    if (_listenerRegistered) return;
+    Purchases.addCustomerInfoUpdateListener((info) {
+      final repo = SubscriptionRepositoryImpl();
+      repo.bindSharedState(SharedSubscriptionState.instance);
+      SharedSubscriptionState.instance.notify(repo.toTier(info));
+    });
+    _listenerRegistered = true;
+  }
+
   static void reset() {
     _initialized = false;
     _initError = null;
+    _listenerRegistered = false;
   }
 }
 

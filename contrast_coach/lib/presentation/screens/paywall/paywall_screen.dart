@@ -19,7 +19,8 @@ class PaywallScreen extends StatefulWidget {
 }
 
 class _PaywallScreenState extends State<PaywallScreen> {
-  final SubscriptionRepository _repo = SubscriptionRepositoryImpl();
+  final SubscriptionRepository _repo = SubscriptionRepositoryImpl()
+    ..bindSharedState(SharedSubscriptionState.instance);
   final AnalyticsApi? _analytics = AnalyticsApi.tryCreate();
   List<Package> _packages = [];
   bool _loading = true;

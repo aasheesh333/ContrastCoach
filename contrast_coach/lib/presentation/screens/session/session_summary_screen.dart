@@ -104,7 +104,7 @@ class _SessionSummaryScreenState extends State<SessionSummaryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.warmBeige,
+      backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
       body: SafeArea(
         child: AnimatedSwitcher(
           duration: const Duration(milliseconds: 300),
@@ -170,11 +170,11 @@ class _SummaryBodyState extends State<_SummaryBody> {
             Text(
               'Session complete.',
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: 'PlusJakartaSans',
                 fontSize: 32,
                 fontWeight: FontWeight.w800,
-                color: AppColors.charcoal,
+                color: Theme.of(context).colorScheme.onSurface,
                 height: 1.1,
                 letterSpacing: -0.5,
               ),
@@ -183,10 +183,10 @@ class _SummaryBodyState extends State<_SummaryBody> {
             Text(
               '${widget.formatDuration(widget.session.totalActualDuration)} · ${widget.session.roundsCompleted}/${widget.session.protocolRounds} rounds',
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: 'PlusJakartaSans',
                 fontSize: 15,
-                color: AppColors.darkGray,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -283,7 +283,7 @@ class _Celebration extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.successSoft,
           shape: BoxShape.circle,
-          boxShadow: AppShadows.cardSoft,
+          boxShadow: AppShadows.cardSoftFor(context),
         ),
         child: const Center(
           child: Icon(LucideIcons.check, color: AppColors.charcoal, size: 40),
@@ -329,20 +329,20 @@ class _InsightRow extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: 'PlusJakartaSans',
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.charcoal,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   subtitle,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: 'PlusJakartaSans',
                     fontSize: 13,
-                    color: AppColors.darkGray,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     fontWeight: FontWeight.w500,
                     height: 1.35,
                   ),

@@ -35,7 +35,9 @@ class ContrastBottomNav extends StatelessWidget {
         color: cs.surface,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Theme.of(context).brightness == Brightness.dark
+                ? Colors.black.withOpacity(0.25)
+                : Colors.black.withOpacity(0.04),
             blurRadius: 20,
             offset: const Offset(0, -2),
           ),

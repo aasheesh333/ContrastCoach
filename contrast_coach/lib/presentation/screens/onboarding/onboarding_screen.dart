@@ -108,7 +108,7 @@ class _PageDots extends StatelessWidget {
           width: isActive ? 24 : 8,
           height: 8,
           decoration: BoxDecoration(
-            color: isActive ? AppColors.brandWarm : AppColors.lightGray,
+            color: isActive ? AppColors.brandWarm : Theme.of(context).colorScheme.surfaceContainerHigh,
             borderRadius: BorderRadius.circular(4),
           ),
         );
@@ -162,11 +162,11 @@ class _StepHero extends StatelessWidget {
         Text(
           title,
           textAlign: TextAlign.center,
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: 'PlusJakartaSans',
             fontSize: 56,
             fontWeight: FontWeight.w800,
-            color: AppColors.charcoal,
+            color: Theme.of(context).colorScheme.onSurface,
             height: 1.05,
             letterSpacing: -1.5,
           ),
@@ -175,11 +175,11 @@ class _StepHero extends StatelessWidget {
         Text(
           body,
           textAlign: TextAlign.center,
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: 'PlusJakartaSans',
             fontSize: 18,
             fontWeight: FontWeight.w500,
-            color: AppColors.darkGray,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
             height: 1.5,
           ),
         ),
@@ -206,14 +206,14 @@ class _StepPrivacy extends StatelessWidget {
           child: const Icon(LucideIcons.shieldCheck, color: AppColors.brandWarm, size: 36),
         ),
         const SizedBox(height: AppSpacing.xxl),
-        const Text(
+        Text(
           'Private by default.',
           textAlign: TextAlign.center,
           style: TextStyle(
             fontFamily: 'PlusJakartaSans',
             fontSize: 32,
             fontWeight: FontWeight.w800,
-            color: AppColors.charcoal,
+            color: Theme.of(context).colorScheme.onSurface,
             height: 1.1,
             letterSpacing: -0.5,
           ),
@@ -280,21 +280,21 @@ class _PrivacyRow extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: 'PlusJakartaSans',
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.charcoal,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   subtitle,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: 'PlusJakartaSans',
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
-                    color: AppColors.darkGray,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     height: 1.35,
                   ),
                 ),
@@ -316,11 +316,11 @@ class _Tagline extends StatelessWidget {
     return Text(
       text,
       textAlign: TextAlign.center,
-      style: const TextStyle(
+      style: TextStyle(
         fontFamily: 'PlusJakartaSans',
         fontSize: 11,
         fontWeight: FontWeight.w700,
-        color: AppColors.midGray,
+        color: Theme.of(context).colorScheme.outline,
         letterSpacing: 1.4,
       ),
     );
@@ -389,9 +389,9 @@ class _Pill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: Theme.of(context).colorScheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(999),
-        boxShadow: AppShadows.cardSoft,
+        boxShadow: AppShadows.cardSoftFor(context),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -400,11 +400,11 @@ class _Pill extends StatelessWidget {
           const SizedBox(width: 6),
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: 'PlusJakartaSans',
               fontSize: 11,
               fontWeight: FontWeight.w700,
-              color: AppColors.charcoal,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
         ],

@@ -128,12 +128,12 @@ class _SignInScreenState extends State<SignInScreen> {
                     ),
               ),
               const SizedBox(height: 8),
-              const Text(
+              Text(
                 'Sign in to keep your streak going.',
                 style: TextStyle(
                   fontFamily: 'PlusJakartaSans',
                   fontSize: 15,
-                  color: AppColors.darkGray,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
               const SizedBox(height: 32),
@@ -154,7 +154,7 @@ class _SignInScreenState extends State<SignInScreen> {
                 suffix: IconButton(
                   icon: Icon(
                     _obscurePassword ? LucideIcons.eyeOff : LucideIcons.eye,
-                    color: AppColors.midGray,
+                    color: Theme.of(context).colorScheme.outline,
                     size: 20,
                   ),
                   onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
@@ -198,20 +198,20 @@ class _SignInScreenState extends State<SignInScreen> {
               const SizedBox(height: 12),
               Row(
                 children: [
-                  const Expanded(child: Divider(color: AppColors.lightGray)),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    child: Text(
-                      'or',
-                      style: TextStyle(
-                        fontFamily: 'PlusJakartaSans',
-                        fontSize: 12,
-                        color: AppColors.midGray,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                  const Expanded(child: Divider(color: AppColors.lightGray)),
+                   Expanded(child: Divider(color: Theme.of(context).colorScheme.outline)),
+                   Padding(
+                     padding: const EdgeInsets.symmetric(horizontal: 12),
+                     child: Text(
+                       'or',
+                       style: TextStyle(
+                         fontFamily: 'PlusJakartaSans',
+                         fontSize: 12,
+                         color: Theme.of(context).colorScheme.outline,
+                         fontWeight: FontWeight.w500,
+                       ),
+                     ),
+                   ),
+                   Expanded(child: Divider(color: Theme.of(context).colorScheme.outline)),
                 ],
               ),
               const SizedBox(height: 12),
@@ -226,11 +226,11 @@ class _SignInScreenState extends State<SignInScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text(
+                  Text(
                     'New here?',
                     style: TextStyle(
                       fontFamily: 'PlusJakartaSans',
-                      color: AppColors.darkGray,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                       fontSize: 14,
                     ),
                   ),
@@ -251,9 +251,9 @@ class _SignInScreenState extends State<SignInScreen> {
                 child: Text(
                   AppStrings.medicalDisclaimer.split('.').first + '.',
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: 'PlusJakartaSans',
-                    color: AppColors.midGray,
+                    color: Theme.of(context).colorScheme.outline,
                     fontSize: 11,
                   ),
                 ),

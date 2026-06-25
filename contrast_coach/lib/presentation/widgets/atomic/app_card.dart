@@ -33,9 +33,9 @@ class AppCard extends StatelessWidget {
 
     final shadows = switch (elevation) {
       AppCardElevation.flat => <BoxShadow>[],
-      AppCardElevation.soft => AppShadows.cardSoft,
-      AppCardElevation.medium => AppShadows.cardMedium,
-      AppCardElevation.strong => AppShadows.cardStrong,
+      AppCardElevation.soft => AppShadows.cardSoftFor(context),
+      AppCardElevation.medium => AppShadows.cardMediumFor(context),
+      AppCardElevation.strong => AppShadows.cardStrongFor(context),
     };
 
     final card = AnimatedContainer(

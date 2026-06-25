@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:contrast_coach/app.dart';
 import 'package:contrast_coach/core/env/env_config.dart';
+import 'package:contrast_coach/core/errors/app_exception.dart';
+import 'package:contrast_coach/core/errors/result.dart';
 import 'package:contrast_coach/core/preferences/app_preferences.dart';
 import 'package:contrast_coach/data/background/sync_worker.dart';
 import 'package:contrast_coach/data/remote/crash/crashlytics_client.dart';
@@ -9,6 +11,7 @@ import 'package:contrast_coach/data/remote/firebase/analytics_api.dart';
 import 'package:contrast_coach/data/remote/firebase/firebase_config.dart';
 import 'package:contrast_coach/data/remote/subscription/revenue_cat_client.dart';
 import 'package:contrast_coach/data/repositories/subscription_repository.dart';
+import 'package:contrast_coach/domain/entities/subscription_tier.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
@@ -77,8 +80,12 @@ Future<void> _initCrashlyticsSafely() async {
 
 Future<void> _restoreOnLaunch() async {
   try {
-    final repo = SubscriptionRepositoryImpl();
-    await repo.restore();
+    final repo = SubscriptionRepositoryImpl()
+      ..bindSharedState(SharedSubscriptionState.instance);
+    final result = await repo.currentTier();
+    if (result is Ok<SubscriptionTier, AppException>) {
+      SharedSubscriptionState.instance.notify(result.value);
+    }
   } catch (_) {}
 }
 

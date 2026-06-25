@@ -34,6 +34,7 @@ class InsightsScreen extends StatefulWidget {
 }
 
 class _InsightsScreenState extends State<InsightsScreen> {
+  final SharedSubscriptionState _sharedState = SharedSubscriptionState.instance;
   List<Insight> _insights = const [];
   SessionStats _stats = computeSessionStats(const []);
   Map<String, Protocol> _protocolsById = {};
@@ -50,14 +51,29 @@ class _InsightsScreenState extends State<InsightsScreen> {
   @override
   void initState() {
     super.initState();
+    _sharedState.addListener(_onTierChanged);
+    _tier = _sharedState.tier.value;
     _load();
   }
 
+  @override
+  void dispose() {
+    _sharedState.removeListener(_onTierChanged);
+    super.dispose();
+  }
+
+  void _onTierChanged() {
+    if (!mounted) return;
+    setState(() => _tier = _sharedState.tier.value);
+  }
+
   Future<void> _load() async {
-    final tierResult = await SubscriptionRepositoryImpl().currentTier();
-    final tier = tierResult is Ok<SubscriptionTier, AppException>
-        ? tierResult.value
-        : SubscriptionTier.free;
+    // Refresh the tier from RevenueCat each load; the listener keeps the UI
+    // in sync for subsequent changes (e.g. after returning from the paywall).
+    final repo = SubscriptionRepositoryImpl()
+      ..bindSharedState(_sharedState);
+    await repo.currentTier();
+    final tier = _sharedState.tier.value;
     if (!FeatureGating.canUseInsights(tier)) {
       if (mounted) {
         setState(() {
@@ -69,9 +85,9 @@ class _InsightsScreenState extends State<InsightsScreen> {
     }
 
     final db = await DatabaseProvider.instance();
-    final repo = SessionRepositoryImpl(db);
+    final repoSessions = SessionRepositoryImpl(db);
 
-    final sessionsResult = await repo.getAll();
+    final sessionsResult = await repoSessions.getAll();
     final sessions = sessionsResult is Ok<List<Session>, AppException>
         ? sessionsResult.value
         : <Session>[];
@@ -120,10 +136,10 @@ class _InsightsScreenState extends State<InsightsScreen> {
                     children: [
                       Text(
                         _rangeLabel(_range),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: 'PlusJakartaSans',
                           fontSize: 13,
-                          color: AppColors.midGray,
+                          color: Theme.of(context).colorScheme.outline,
                           fontWeight: FontWeight.w600,
                           letterSpacing: 0.4,
                         ),
@@ -131,11 +147,11 @@ class _InsightsScreenState extends State<InsightsScreen> {
                       const SizedBox(height: 4),
                       Text(
                         _headlineForRange(_range, _stats),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: 'PlusJakartaSans',
                           fontSize: 24,
                           fontWeight: FontWeight.w800,
-                          color: AppColors.charcoal,
+                          color: Theme.of(context).colorScheme.onSurface,
                           height: 1.2,
                           letterSpacing: -0.4,
                         ),
@@ -199,15 +215,15 @@ class _InsightsScreenState extends State<InsightsScreen> {
                       Container(
                         padding: const EdgeInsets.all(AppSpacing.lg),
                         decoration: BoxDecoration(
-                          color: AppColors.warmBeige,
+                          color: Theme.of(context).colorScheme.surfaceContainer,
                           borderRadius: BorderRadius.circular(16),
                         ),
-                        child: const Text(
+                        child: Text(
                           'Not medical advice. For informational purposes only.',
                           style: TextStyle(
                             fontFamily: 'PlusJakartaSans',
                             fontSize: 12,
-                            color: AppColors.midGray,
+                            color: Theme.of(context).colorScheme.outline,
                             fontStyle: FontStyle.italic,
                           ),
                         ),
@@ -229,24 +245,24 @@ class _InsightsScreenState extends State<InsightsScreen> {
             children: [
               const Icon(LucideIcons.sparkles, color: AppColors.brandWarm, size: 32),
               const SizedBox(height: AppSpacing.md),
-              const Text(
+              Text(
                 'Insights are part of Pro.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontFamily: 'PlusJakartaSans',
                   fontSize: 22,
                   fontWeight: FontWeight.w800,
-                  color: AppColors.charcoal,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
               const SizedBox(height: AppSpacing.sm),
-              const Text(
+              Text(
                 'Unlock trend analysis, streak patterns, and recovery guidance with ContrastCoach Pro.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontFamily: 'PlusJakartaSans',
                   fontSize: 14,
-                  color: AppColors.darkGray,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                   height: 1.5,
                 ),
               ),
@@ -418,10 +434,10 @@ class _GridStat extends StatelessWidget {
               const SizedBox(width: 6),
               Text(
                 label,
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: 'PlusJakartaSans',
                   fontSize: 10,
-                  color: AppColors.midGray,
+                  color: Theme.of(context).colorScheme.outline,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 1.2,
                 ),
@@ -436,11 +452,11 @@ class _GridStat extends StatelessWidget {
               Flexible(
                 child: Text(
                   value,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: 'PlusJakartaSans',
                     fontSize: 28,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.charcoal,
+                    color: Theme.of(context).colorScheme.onSurface,
                     height: 1.0,
                     letterSpacing: -0.5,
                   ),
@@ -451,10 +467,10 @@ class _GridStat extends StatelessWidget {
                 const SizedBox(width: 4),
                 Text(
                   suffix!,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: 'PlusJakartaSans',
                     fontSize: 12,
-                    color: AppColors.midGray,
+                    color: Theme.of(context).colorScheme.outline,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -537,19 +553,19 @@ class _BarRow extends StatelessWidget {
           children: [
             Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: 'PlusJakartaSans',
                 fontSize: 13,
-                color: AppColors.charcoal,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontWeight: FontWeight.w600,
               ),
             ),
             Text(
               '$value · $count',
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: 'PlusJakartaSans',
                 fontSize: 12,
-                color: AppColors.midGray,
+                color: Theme.of(context).colorScheme.outline,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -575,9 +591,9 @@ class _InsightsSkeleton extends StatelessWidget {
         AppSpacing.sectionGap,
       ),
       children: [
-        Container(width: 80, height: 14, color: AppColors.lightGray),
+        Container(width: 80, height: 14, color: Theme.of(context).colorScheme.surfaceContainerHigh),
         const SizedBox(height: 4),
-        Container(width: 180, height: 24, color: AppColors.lightGray),
+        Container(width: 180, height: 24, color: Theme.of(context).colorScheme.surfaceContainerHigh),
         const SizedBox(height: AppSpacing.lg),
         Row(
           children: List.generate(3, (_) => const Padding(padding: EdgeInsets.only(right: 8), child: _SkeletonChip())),
@@ -585,7 +601,7 @@ class _InsightsSkeleton extends StatelessWidget {
         const SizedBox(height: AppSpacing.lg),
         Container(
           height: 120,
-          decoration: BoxDecoration(color: AppColors.lightGray, borderRadius: BorderRadius.circular(20)),
+          decoration: BoxDecoration(color: Theme.of(context).colorScheme.surfaceContainerHigh, borderRadius: BorderRadius.circular(20)),
         ),
         const SizedBox(height: AppSpacing.lg),
         Row(
@@ -608,7 +624,7 @@ class _InsightsSkeleton extends StatelessWidget {
         const SizedBox(height: AppSpacing.lg),
         Container(
           height: 60,
-          decoration: BoxDecoration(color: AppColors.lightGray, borderRadius: BorderRadius.circular(16)),
+          decoration: BoxDecoration(color: Theme.of(context).colorScheme.surfaceContainerHigh, borderRadius: BorderRadius.circular(16)),
         ),
       ],
     );
@@ -624,7 +640,7 @@ class _SkeletonChip extends StatelessWidget {
       width: 64,
       height: 32,
       decoration: BoxDecoration(
-        color: AppColors.lightGray,
+        color: Theme.of(context).colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(999),
       ),
     );
@@ -640,7 +656,7 @@ class _SkeletonCard extends StatelessWidget {
     return Container(
       height: height,
       decoration: BoxDecoration(
-        color: AppColors.lightGray,
+        color: Theme.of(context).colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(20),
       ),
     );

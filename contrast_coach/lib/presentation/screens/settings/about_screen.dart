@@ -1,4 +1,5 @@
 import 'package:contrast_coach/core/constants/app_colors.dart';
+import 'package:contrast_coach/core/constants/app_spacing.dart';
 import 'package:contrast_coach/core/constants/app_strings.dart';
 import 'package:contrast_coach/presentation/widgets/atomic/app_button.dart';
 import 'package:contrast_coach/presentation/widgets/atomic/app_icon.dart';
@@ -31,7 +32,7 @@ class _AboutScreenState extends State<AboutScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.offWhite,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(24, 8, 24, 32),
@@ -71,20 +72,20 @@ class _AboutScreenState extends State<AboutScreen> {
                     Text(
                       AppStrings.appTagline,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: 'PlusJakartaSans',
                         fontSize: 15,
-                        color: AppColors.darkGray,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
                     if (_appVersion.isNotEmpty) ...[
                       const SizedBox(height: 4),
                       Text(
                         'Version $_appVersion',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: 'PlusJakartaSans',
                           fontSize: 12,
-                          color: AppColors.midGray,
+                          color: Theme.of(context).colorScheme.outline,
                         ),
                       ),
                     ],
@@ -95,15 +96,9 @@ class _AboutScreenState extends State<AboutScreen> {
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: AppColors.white,
+                  color: Theme.of(context).colorScheme.surfaceContainerLow,
                   borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.04),
-                      blurRadius: 16,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
+                  boxShadow: AppShadows.cardSoftFor(context),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -124,25 +119,25 @@ class _AboutScreenState extends State<AboutScreen> {
                           ),
                         ),
                         const SizedBox(width: 12),
-                        const Text(
-                          'MEDICAL DISCLAIMER',
-                          style: TextStyle(
-                            fontFamily: 'PlusJakartaSans',
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.midGray,
-                            letterSpacing: 1.2,
-                          ),
-                        ),
+                         Text(
+                           'MEDICAL DISCLAIMER',
+                           style: TextStyle(
+                             fontFamily: 'PlusJakartaSans',
+                             fontSize: 11,
+                             fontWeight: FontWeight.w700,
+                             color: Theme.of(context).colorScheme.outline,
+                             letterSpacing: 1.2,
+                           ),
+                         ),
                       ],
                     ),
                     const SizedBox(height: 12),
                     Text(
                       AppStrings.medicalDisclaimer,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: 'PlusJakartaSans',
                         fontSize: 13,
-                        color: AppColors.darkGray,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                         height: 1.5,
                       ),
                     ),
@@ -153,32 +148,32 @@ class _AboutScreenState extends State<AboutScreen> {
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: AppColors.warmBeige,
+                  color: Theme.of(context).colorScheme.surfaceContainer,
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'PRIVACY',
-                      style: TextStyle(
-                        fontFamily: 'PlusJakartaSans',
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.midGray,
-                        letterSpacing: 1.2,
-                      ),
-                    ),
+                     Text(
+                       'PRIVACY',
+                       style: TextStyle(
+                         fontFamily: 'PlusJakartaSans',
+                         fontSize: 11,
+                         fontWeight: FontWeight.w700,
+                         color: Theme.of(context).colorScheme.outline,
+                         letterSpacing: 1.2,
+                       ),
+                     ),
                     const SizedBox(height: 8),
-                    const Text(
-                      'Your health data stays on your device. Disconnect Health Connect anytime to erase everything.',
-                      style: TextStyle(
-                        fontFamily: 'PlusJakartaSans',
-                        fontSize: 13,
-                        color: AppColors.charcoal,
-                        height: 1.5,
-                      ),
-                    ),
+                     Text(
+                       'Your health data stays on your device. Disconnect Health Connect anytime to erase everything.',
+                       style: TextStyle(
+                         fontFamily: 'PlusJakartaSans',
+                         fontSize: 13,
+                         color: Theme.of(context).colorScheme.onSurface,
+                         height: 1.5,
+                       ),
+                     ),
                   ],
                 ),
               ),

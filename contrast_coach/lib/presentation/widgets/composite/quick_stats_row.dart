@@ -96,7 +96,7 @@ class _Stat extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
             color: Theme.of(context).colorScheme.surface,
-            boxShadow: AppShadows.cardSoft,
+            boxShadow: AppShadows.cardSoftFor(context),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -116,11 +116,11 @@ class _Stat extends StatelessWidget {
                   Expanded(
                     child: Text(
                       label,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: 'PlusJakartaSans',
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.midGray,
+                        color: Theme.of(context).colorScheme.outline,
                         letterSpacing: 1.2,
                       ),
                       overflow: TextOverflow.ellipsis,
@@ -149,10 +149,10 @@ class _Stat extends StatelessWidget {
                 children: [
                   Text(
                     suffix,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: 'PlusJakartaSans',
                       fontSize: 11,
-                      color: AppColors.midGray,
+                      color: Theme.of(context).colorScheme.outline,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -200,7 +200,7 @@ class GradientProgressBar extends StatelessWidget {
       borderRadius: BorderRadius.circular(999),
       child: Container(
         height: height,
-        color: AppColors.lightGray,
+        color: Theme.of(context).colorScheme.surfaceContainerHigh,
         child: FractionallySizedBox(
           alignment: Alignment.centerLeft,
           widthFactor: fraction.clamp(0.0, 1.0),
