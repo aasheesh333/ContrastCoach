@@ -28,6 +28,7 @@ class AppRouter {
   static GoRouter build({
     required bool isOnboarded,
     required bool isAuthed,
+    required bool firebaseAvailable,
     Listenable? refreshListenable,
   }) {
     return GoRouter(
@@ -41,6 +42,11 @@ class AppRouter {
 
         if (!isOnboarded) {
           return path == '/onboarding' ? null : '/onboarding';
+        }
+
+        if (!firebaseAvailable) {
+          if (path == '/sign-in' || path == '/sign-up') return '/home';
+          return null;
         }
 
         if (!isAuthed) {

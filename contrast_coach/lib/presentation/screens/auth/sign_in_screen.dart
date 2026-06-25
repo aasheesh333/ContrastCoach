@@ -5,6 +5,7 @@ import 'package:contrast_coach/core/errors/app_exception.dart';
 import 'package:contrast_coach/core/errors/result.dart';
 import 'package:contrast_coach/data/repositories/auth_repository.dart';
 import 'package:contrast_coach/domain/repositories/auth_repository.dart';
+import 'package:contrast_coach/presentation/screens/home/firebase_auth_proxy.dart';
 import 'package:contrast_coach/presentation/widgets/atomic/app_button.dart';
 import 'package:contrast_coach/presentation/widgets/atomic/app_text_field.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -26,15 +27,21 @@ class _SignInScreenState extends State<SignInScreen> {
   bool _loading = false;
   bool _obscurePassword = true;
   String? _error;
-  late final AuthRepository _auth = AuthRepositoryImpl(
-    auth: FirebaseAuth.instance,
-    firestore: FirebaseFirestore.instance,
-    googleSignIn: GoogleSignIn(
-      serverClientId: EnvConfig.googleWebClientId,
-    ),
-  );
+
+  bool get _firebaseAvailable => FirebaseAuthNullableProxy.tryGet() != null;
+
+  @override
+  void initState() {
+    super.initState();
+    if (!_firebaseAvailable) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) context.go('/home');
+      });
+    }
+  }
 
   Future<void> _signInEmail() async {
+    if (!_firebaseAvailable) return;
     if (_email.text.trim().isEmpty || _password.text.isEmpty) {
       setState(() => _error = 'Email and password are required');
       return;
@@ -43,7 +50,14 @@ class _SignInScreenState extends State<SignInScreen> {
       _loading = true;
       _error = null;
     });
-    final result = await _auth.signInWithEmail(_email.text.trim(), _password.text);
+    final auth = FirebaseAuthNullableProxy.auth;
+    final result = await AuthRepositoryImpl(
+      auth: auth,
+      firestore: FirebaseFirestore.instance,
+      googleSignIn: GoogleSignIn(
+        serverClientId: EnvConfig.googleWebClientId,
+      ),
+    ).signInWithEmail(_email.text.trim(), _password.text);
     if (!mounted) return;
     result.fold(
       (err) => setState(() {
@@ -55,11 +69,19 @@ class _SignInScreenState extends State<SignInScreen> {
   }
 
   Future<void> _signInGoogle() async {
+    if (!_firebaseAvailable) return;
     setState(() {
       _loading = true;
       _error = null;
     });
-    final result = await _auth.signInWithGoogle();
+    final auth = FirebaseAuthNullableProxy.auth;
+    final result = await AuthRepositoryImpl(
+      auth: auth,
+      firestore: FirebaseFirestore.instance,
+      googleSignIn: GoogleSignIn(
+        serverClientId: EnvConfig.googleWebClientId,
+      ),
+    ).signInWithGoogle();
     if (!mounted) return;
     result.fold(
       (err) => setState(() {
@@ -71,6 +93,7 @@ class _SignInScreenState extends State<SignInScreen> {
   }
 
   Future<void> _sendPasswordResetEmail(BuildContext context) async {
+    if (!_firebaseAvailable) return;
     if (_email.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Enter your email first')),
@@ -78,7 +101,7 @@ class _SignInScreenState extends State<SignInScreen> {
       return;
     }
     try {
-      await FirebaseAuth.instance.sendPasswordResetEmail(email: _email.text.trim());
+      await FirebaseAuthNullableProxy.auth.sendPasswordResetEmail(email: _email.text.trim());
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Password reset email sent')),

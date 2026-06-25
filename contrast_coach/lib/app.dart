@@ -25,26 +25,33 @@ class _ContrastCoachAppState extends State<ContrastCoachApp> {
   void initState() {
     super.initState();
     _isOnboarded = AppPreferences.isOnboardingComplete;
-    _isAuthed = FirebaseAuthNullableProxy.tryGet()?.currentUser != null;
+    final firebaseAuth = FirebaseAuthNullableProxy.tryGet();
+    final firebaseAvailable = firebaseAuth != null;
+    _isAuthed = firebaseAvailable
+        ? firebaseAuth.currentUser != null
+        : true;
     _refreshNotifier = GoRouterRefreshNotifier();
     _refreshNotifier.notify();
     _router = AppRouter.build(
       isOnboarded: _isOnboarded,
       isAuthed: _isAuthed,
+      firebaseAvailable: firebaseAvailable,
       refreshListenable: _refreshNotifier,
     );
     AppPreferences.changes.addListener(_handlePreferenceChange);
     if (!AppPreferences.isInitialized) {
       unawaited(_loadPreferences());
     }
-    _authSubscription = FirebaseAuthNullableProxy.tryGet()?.authStateChanges().listen((user) {
-      if (!mounted) return;
-      final newAuthed = user != null;
-      if (_isAuthed != newAuthed) {
-        _isAuthed = newAuthed;
-        _refreshNotifier.notify();
-      }
-    });
+    if (firebaseAvailable) {
+      _authSubscription = firebaseAuth.authStateChanges().listen((user) {
+        if (!mounted) return;
+        final newAuthed = user != null;
+        if (_isAuthed != newAuthed) {
+          _isAuthed = newAuthed;
+          _refreshNotifier.notify();
+        }
+      });
+    }
   }
 
   Future<void> _loadPreferences() async {

@@ -29,16 +29,16 @@ class AppPreferences {
 
   static Future<void> init() async {
     if (_initialized) return;
-    _isOnboardingComplete = await _getBool(_onboardingKey, false);
-    _analyticsEnabled = await _getBool(_analyticsEnabledKey, true);
-    _voiceEnabled = await _getBool(_voiceEnabledKey, true);
-    _notificationsEnabled = await _getBool(_notificationsEnabledKey, true);
-    _notifsStreak = await _getBool(_notifsStreakKey, true);
-    _notifsTiming = await _getBool(_notifsTimingKey, true);
-    _notifsInsight = await _getBool(_notifsInsightKey, true);
-    _notifsSubscription = await _getBool(_notifsSubscriptionKey, true);
-    _notifsHealth = await _getBool(_notifsHealthKey, true);
-    _themeMode = await _getStr(_themeModeKey, 'light');
+    _isOnboardingComplete = await _getBoolSafe(_onboardingKey, false);
+    _analyticsEnabled = await _getBoolSafe(_analyticsEnabledKey, true);
+    _voiceEnabled = await _getBoolSafe(_voiceEnabledKey, true);
+    _notificationsEnabled = await _getBoolSafe(_notificationsEnabledKey, true);
+    _notifsStreak = await _getBoolSafe(_notifsStreakKey, true);
+    _notifsTiming = await _getBoolSafe(_notifsTimingKey, true);
+    _notifsInsight = await _getBoolSafe(_notifsInsightKey, true);
+    _notifsSubscription = await _getBoolSafe(_notifsSubscriptionKey, true);
+    _notifsHealth = await _getBoolSafe(_notifsHealthKey, true);
+    _themeMode = await _getStrSafe(_themeModeKey, 'light');
     _initialized = true;
   }
 
@@ -54,8 +54,28 @@ class AppPreferences {
     return v == null ? d : v == 'true';
   }
 
-  static Future<void> _setBool(String key, bool v) async {
-    await _storage.write(key: key, value: v.toString());
+  static Future<bool> _getBoolSafe(String key, bool d) async {
+    try {
+      return await _getBool(key, d);
+    } catch (_) {
+      return d;
+    }
+  }
+
+  static Future<String> _getStrSafe(String key, String d) async {
+    try {
+      return await _getStr(key, d);
+    } catch (_) {
+      return d;
+    }
+  }
+
+  static Future<bool> _setBool(String key, bool v) async {
+    try {
+      await _storage.write(key: key, value: v.toString());
+    } catch (_) {
+      return false;
+    }
     if (key == _onboardingKey) _isOnboardingComplete = v;
     else if (key == _analyticsEnabledKey) _analyticsEnabled = v;
     else if (key == _voiceEnabledKey) _voiceEnabled = v;
@@ -66,27 +86,28 @@ class AppPreferences {
     else if (key == _notifsSubscriptionKey) _notifsSubscription = v;
     else if (key == _notifsHealthKey) _notifsHealth = v;
     changes.value++;
+    return true;
   }
 
   static bool get isOnboardingComplete => _isOnboardingComplete;
-  static Future<void> setOnboardingComplete(bool v) async => _setBool(_onboardingKey, v);
+  static Future<bool> setOnboardingComplete(bool v) async => _setBool(_onboardingKey, v);
   static bool get analyticsEnabled => _analyticsEnabled;
-  static Future<void> setAnalyticsEnabled(bool v) async => _setBool(_analyticsEnabledKey, v);
+  static Future<bool> setAnalyticsEnabled(bool v) async => _setBool(_analyticsEnabledKey, v);
   static bool get voiceEnabled => _voiceEnabled;
-  static Future<void> setVoiceEnabled(bool v) async => _setBool(_voiceEnabledKey, v);
+  static Future<bool> setVoiceEnabled(bool v) async => _setBool(_voiceEnabledKey, v);
   static bool get notificationsEnabled => _notificationsEnabled;
-  static Future<void> setNotificationsEnabled(bool v) async => _setBool(_notificationsEnabledKey, v);
+  static Future<bool> setNotificationsEnabled(bool v) async => _setBool(_notificationsEnabledKey, v);
 
   static bool get notifsStreak => _notifsStreak;
-  static Future<void> setNotifsStreak(bool v) async => _setBool(_notifsStreakKey, v);
+  static Future<bool> setNotifsStreak(bool v) async => _setBool(_notifsStreakKey, v);
   static bool get notifsTiming => _notifsTiming;
-  static Future<void> setNotifsTiming(bool v) async => _setBool(_notifsTimingKey, v);
+  static Future<bool> setNotifsTiming(bool v) async => _setBool(_notifsTimingKey, v);
   static bool get notifsInsight => _notifsInsight;
-  static Future<void> setNotifsInsight(bool v) async => _setBool(_notifsInsightKey, v);
+  static Future<bool> setNotifsInsight(bool v) async => _setBool(_notifsInsightKey, v);
   static bool get notifsSubscription => _notifsSubscription;
-  static Future<void> setNotifsSubscription(bool v) async => _setBool(_notifsSubscriptionKey, v);
+  static Future<bool> setNotifsSubscription(bool v) async => _setBool(_notifsSubscriptionKey, v);
   static bool get notifsHealth => _notifsHealth;
-  static Future<void> setNotifsHealth(bool v) async => _setBool(_notifsHealthKey, v);
+  static Future<bool> setNotifsHealth(bool v) async => _setBool(_notifsHealthKey, v);
 
   static const _themeModeKey = 'theme_mode';
   static String _themeMode = 'light';
@@ -97,16 +118,23 @@ class AppPreferences {
         'dark' => ThemeMode.dark,
         _ => ThemeMode.system,
       };
-  static Future<void> setThemeMode(String v) async => _setStr(_themeModeKey, v);
+  static Future<bool> setThemeMode(String v) async => _setStrSafe(_themeModeKey, v);
 
-  static Future<void> _setStr(String key, String v) async {
-    await _storage.write(key: key, value: v);
+  static Future<bool> _setStrSafe(String key, String v) async {
+    try {
+      await _storage.write(key: key, value: v);
+    } catch (_) {
+      return false;
+    }
     if (key == _themeModeKey) _themeMode = v;
     changes.value++;
+    return true;
   }
 
   static Future<void> clearAll() async {
-    await _storage.deleteAll();
+    try {
+      await _storage.deleteAll();
+    } catch (_) {}
     _isOnboardingComplete = false;
     _analyticsEnabled = true;
     _voiceEnabled = true;

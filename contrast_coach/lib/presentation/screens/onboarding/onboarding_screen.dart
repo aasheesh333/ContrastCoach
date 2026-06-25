@@ -19,8 +19,10 @@ class OnboardingScreen extends StatefulWidget {
 class _OnboardingScreenState extends State<OnboardingScreen> {
   int _step = 0;
   bool _disclaimerAcknowledged = false;
+  bool _saving = false;
 
   Future<void> _next() async {
+    if (_saving) return;
     if (_step == 2 && !_disclaimerAcknowledged) {
       showDialog<void>(
         context: context,
@@ -37,8 +39,16 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     if (_step < 2) {
       setState(() => _step++);
     } else {
-      await AppPreferences.setOnboardingComplete(true);
+      setState(() => _saving = true);
+      final ok = await AppPreferences.setOnboardingComplete(true);
       if (!mounted) return;
+      if (!ok) {
+        setState(() => _saving = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to save. Please try again.')),
+        );
+        return;
+      }
       context.go('/sign-in');
     }
   }
@@ -68,11 +78,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   const _Tagline(text: AppStrings.onboardingStep1Tagline),
                   const SizedBox(height: AppSpacing.lg),
                   AppButton(
-                    label: _step == 2 ? 'Get started' : 'Continue',
-                    onPressed: () => _next(),
+                    label: _saving
+                        ? 'Saving…'
+                        : (_step == 2 ? 'Get started' : 'Continue'),
+                    onPressed: _saving ? null : () => _next(),
                     variant: AppButtonVariant.warm,
                     fullWidth: true,
                     size: AppButtonSize.large,
+                    isLoading: _saving,
                   ),
                   if (_step > 0) ...[
                     const SizedBox(height: AppSpacing.sm),
