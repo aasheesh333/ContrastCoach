@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   testWidgets('initial route is onboarding when not onboarded', (tester) async {
-    final router = AppRouter.build(isOnboarded: false, isAuthed: false);
+    final router = AppRouter.build(isOnboarded: false, isAuthed: false, firebaseAvailable: true);
     await tester.pumpWidget(
       MaterialApp.router(
         theme: AppTheme.light(),
@@ -17,7 +17,7 @@ void main() {
   });
 
   testWidgets('initial route is sign-in when onboarded but not authed', (tester) async {
-    final router = AppRouter.build(isOnboarded: true, isAuthed: false);
+    final router = AppRouter.build(isOnboarded: true, isAuthed: false, firebaseAvailable: true);
     await tester.pumpWidget(
       MaterialApp.router(
         theme: AppTheme.light(),
@@ -29,7 +29,31 @@ void main() {
   });
 
   testWidgets('initial route is home when onboarded and authed', (tester) async {
-    final router = AppRouter.build(isOnboarded: true, isAuthed: true);
+    final router = AppRouter.build(isOnboarded: true, isAuthed: true, firebaseAvailable: true);
+    await tester.pumpWidget(
+      MaterialApp.router(
+        theme: AppTheme.light(),
+        routerConfig: router,
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(router.routerDelegate.currentConfiguration.uri.path, '/home');
+  });
+
+  testWidgets('initial route is home when Firebase unavailable', (tester) async {
+    final router = AppRouter.build(isOnboarded: true, isAuthed: true, firebaseAvailable: false);
+    await tester.pumpWidget(
+      MaterialApp.router(
+        theme: AppTheme.light(),
+        routerConfig: router,
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(router.routerDelegate.currentConfiguration.uri.path, '/home');
+  });
+
+  testWidgets('sign-in redirects to home when Firebase unavailable', (tester) async {
+    final router = AppRouter.build(isOnboarded: true, isAuthed: false, firebaseAvailable: false);
     await tester.pumpWidget(
       MaterialApp.router(
         theme: AppTheme.light(),
