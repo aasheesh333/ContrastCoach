@@ -1,13 +1,38 @@
+import 'dart:async';
+
 import 'package:contrast_coach/core/constants/app_colors.dart';
 import 'package:contrast_coach/core/constants/app_spacing.dart';
 import 'package:contrast_coach/core/constants/app_strings.dart';
 import 'package:contrast_coach/core/preferences/app_preferences.dart';
+import 'package:contrast_coach/data/local/database/database_provider.dart';
+import 'package:contrast_coach/data/local/database/app_database.dart';
 import 'package:contrast_coach/presentation/widgets/atomic/app_button.dart';
 import 'package:contrast_coach/presentation/widgets/atomic/app_card.dart';
 import 'package:contrast_coach/presentation/widgets/dialogs/medical_disclaimer_dialog.dart';
+import 'package:drift/drift.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+
+/// Drift settings key for the timestamp at which the user acknowledged the
+/// medical disclaimer during onboarding. Runbook §3.2.
+const String kDisclaimerAcceptedAtKey = 'disclaimer_accepted_at';
+
+Future<void> _persistDisclaimerAccepted() async {
+  try {
+    final db = await DatabaseProvider.instance();
+    final now = DateTime.now().toUtc();
+    await db.into(db.settings).insertOnConflictUpdate(
+          SettingsCompanion.insert(
+            keyField: kDisclaimerAcceptedAtKey,
+            value: now.toIso8601String(),
+            updatedAt: now,
+          ),
+        );
+  } catch (_) {
+    // Non-fatal: onboarding must not block on local storage errors.
+  }
+}
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -30,6 +55,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           onAcknowledge: () {
             Navigator.of(context).pop();
             setState(() => _disclaimerAcknowledged = true);
+            unawaited(_persistDisclaimerAccepted());
             _next();
           },
         ),
@@ -52,6 +78,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       context.go('/sign-in');
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
