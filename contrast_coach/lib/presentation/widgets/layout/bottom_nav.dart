@@ -1,4 +1,5 @@
 import 'package:contrast_coach/core/constants/app_colors.dart';
+import 'package:contrast_coach/core/theme/gradients.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -29,81 +30,92 @@ class ContrastBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Container(
-      decoration: BoxDecoration(
-        color: cs.surface,
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).brightness == Brightness.dark
-                ? Colors.black.withOpacity(0.25)
-                : Colors.black.withOpacity(0.04),
-            blurRadius: 20,
-            offset: const Offset(0, -2),
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    return SafeArea(
+      top: false,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(18, 0, 18, 14),
+        child: Container(
+          height: 72,
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: dark ? AppColors.darkSurface.withOpacity(0.92) : AppColors.white.withOpacity(0.88),
+            borderRadius: BorderRadius.circular(26),
+            border: Border.all(
+              color: dark ? AppColors.darkOutline : AppColors.white.withOpacity(0.75),
+            ),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x240C0C0E),
+                blurRadius: 30,
+                offset: Offset(0, 14),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: SafeArea(
-        top: false,
-        child: SizedBox(
-          height: 64,
           child: Row(
             children: [
               for (var i = 0; i < items.length; i++)
                 Expanded(
-                  child: InkWell(
+                  child: _NavButton(
+                    item: items[i],
+                    selected: i == _currentIndex,
                     onTap: () => onTap(items[i].location),
-                    child: Semantics(
-                      label: items[i].label,
-                      button: true,
-                      selected: i == _currentIndex,
-                      child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          curve: Curves.easeOutCubic,
-                          child: Icon(
-                            items[i].icon,
-                            size: i == _currentIndex ? 26 : 24,
-                            color: i == _currentIndex
-                                ? AppColors.brandWarm
-                                : cs.onSurfaceVariant,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          curve: Curves.easeOutCubic,
-                          width: i == _currentIndex ? 20 : 0,
-                          height: 3,
-                          decoration: BoxDecoration(
-                            color: i == _currentIndex
-                                ? AppColors.brandWarm
-                                : Colors.transparent,
-                            borderRadius: BorderRadius.circular(2),
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          items[i].label,
-                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                fontSize: 11,
-                                color: i == _currentIndex
-                                    ? AppColors.brandWarm
-                                    : cs.onSurfaceVariant,
-                                fontWeight: i == _currentIndex
-                                    ? FontWeight.w700
-                                    : FontWeight.w500,
-                                letterSpacing: 0.4,
-                              ),
-                        ),
-                      ],
-                    ),
-                    ),
                   ),
                 ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _NavButton extends StatelessWidget {
+  const _NavButton({required this.item, required this.selected, required this.onTap});
+
+  final BottomNavItem item;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Semantics(
+      label: item.label,
+      button: true,
+      selected: selected,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(20),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 240),
+          curve: Curves.easeOutCubic,
+          height: 56,
+          decoration: BoxDecoration(
+            gradient: selected ? AppGradients.heatButton : null,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                item.icon,
+                size: 22,
+                color: selected ? AppColors.white : cs.onSurfaceVariant,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                item.label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
+                  fontSize: 10,
+                  height: 1,
+                  fontWeight: FontWeight.w900,
+                  color: selected ? AppColors.white : cs.onSurfaceVariant,
+                ),
+              ),
             ],
           ),
         ),

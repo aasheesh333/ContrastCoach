@@ -1,3 +1,4 @@
+import 'package:contrast_coach/core/constants/app_colors.dart';
 import 'package:flutter/material.dart';
 
 class SheetContainer extends StatelessWidget {
@@ -10,8 +11,11 @@ class SheetContainer extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     return Container(
       decoration: BoxDecoration(
-        color: cs.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+        color: Theme.of(context).brightness == Brightness.dark
+            ? cs.surfaceContainerLow
+            : AppColors.white.withOpacity(0.94),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
+        border: Border(top: BorderSide(color: cs.outline.withOpacity(0.35))),
         boxShadow: [
           BoxShadow(
             color: Theme.of(context).brightness == Brightness.dark
@@ -32,7 +36,7 @@ class SheetContainer extends StatelessWidget {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.outline.withOpacity(0.4),
+                color: AppColors.brandWarm.withOpacity(0.55),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
