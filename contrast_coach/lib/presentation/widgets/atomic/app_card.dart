@@ -1,5 +1,6 @@
 import 'package:contrast_coach/core/constants/app_colors.dart';
 import 'package:contrast_coach/core/constants/app_spacing.dart';
+import 'package:contrast_coach/core/theme/gradients.dart';
 import 'package:flutter/material.dart';
 
 enum AppCardElevation { flat, soft, medium, strong }
@@ -29,7 +30,8 @@ class AppCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final bg = color ?? cs.surface;
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final bg = color ?? (dark ? cs.surfaceContainerLow : AppColors.white.withOpacity(0.88));
 
     final shadows = switch (elevation) {
       AppCardElevation.flat => <BoxShadow>[],
@@ -43,7 +45,7 @@ class AppCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: bg,
         borderRadius: BorderRadius.circular(radius),
-        border: borderColor != null ? Border.all(color: borderColor!) : null,
+        border: Border.all(color: borderColor ?? cs.outline.withOpacity(dark ? 0.32 : 0.55)),
         boxShadow: shadows,
       ),
       child: Material(
@@ -127,20 +129,20 @@ class AppEmptyState extends StatelessWidget {
               width: 72,
               height: 72,
               decoration: BoxDecoration(
-                color: AppColors.brandWarm.withOpacity(0.10),
-                borderRadius: BorderRadius.circular(20),
+                gradient: AppGradients.heatButton,
+                borderRadius: BorderRadius.circular(18),
               ),
-              child: Icon(icon, color: AppColors.brandWarm, size: 32),
+              child: Icon(icon, color: AppColors.white, size: 32),
             ),
             const SizedBox(height: 20),
             Text(
               title,
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: 'PlusJakartaSans',
                 fontSize: 20,
                 fontWeight: FontWeight.w700,
-                color: AppColors.charcoal,
+                color: Theme.of(context).colorScheme.onSurface,
                 height: 1.2,
               ),
             ),
@@ -148,10 +150,10 @@ class AppEmptyState extends StatelessWidget {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: 'PlusJakartaSans',
                 fontSize: 14,
-                color: AppColors.darkGray,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
                 height: 1.45,
               ),
             ),
