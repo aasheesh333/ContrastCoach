@@ -9,7 +9,7 @@ import 'package:contrast_coach/data/local/database/app_database.dart';
 import 'package:contrast_coach/presentation/widgets/atomic/app_button.dart';
 import 'package:contrast_coach/presentation/widgets/atomic/app_card.dart';
 import 'package:contrast_coach/presentation/widgets/dialogs/medical_disclaimer_dialog.dart';
-import 'package:drift/drift.dart';
+import 'package:drift/drift.dart' hide Column;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
