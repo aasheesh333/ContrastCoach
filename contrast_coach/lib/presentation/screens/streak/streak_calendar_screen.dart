@@ -54,42 +54,45 @@ class _StreakCalendarScreenState extends State<StreakCalendarScreen> {
   }
 
   Future<void> _load() async {
-    final repo = SubscriptionRepositoryImpl()..bindSharedState(_sharedState);
-    await repo.currentTier();
-    final tier = _sharedState.tier.value;
+    SubscriptionTier tier = _tier;
+    Set<DateTime> dates = <DateTime>{};
+    Map<DateTime, int> counts = <DateTime, int>{};
+    SessionStats stats = _stats;
+    try {
+      final repo = SubscriptionRepositoryImpl()..bindSharedState(_sharedState);
+      await repo.currentTier();
+      tier = _sharedState.tier.value;
 
-    final db = await DatabaseProvider.instance();
-    final sessionRepo = SessionRepositoryImpl(db);
+      final db = await DatabaseProvider.instance();
+      final sessionRepo = SessionRepositoryImpl(db);
 
-    final sessionsResult = await sessionRepo.getAll();
-    if (sessionsResult is Ok<List<Session>, AppException>) {
-      final sessions = sessionsResult.value;
-      final filteredSessions = FeatureGating.canUseFullStreakHistory(tier)
-          ? sessions
-          : sessions.where((s) => s.startedAt.isAfter(
-              DateTime.now().subtract(Duration(days: FeatureGating.freeStreakHistoryDays)),
-            )).toList();
-      final dates = <DateTime>{};
-      final counts = <DateTime, int>{};
-      for (final s in filteredSessions) {
-        final d = DateTime(s.startedAt.year, s.startedAt.month, s.startedAt.day);
-        dates.add(d);
-        counts[d] = (counts[d] ?? 0) + 1;
+      final sessionsResult = await sessionRepo.getAll();
+      if (sessionsResult is Ok<List<Session>, AppException>) {
+        final sessions = sessionsResult.value;
+        final filteredSessions = FeatureGating.canUseFullStreakHistory(tier)
+            ? sessions
+            : sessions.where((s) => s.startedAt.isAfter(
+                DateTime.now().subtract(Duration(days: FeatureGating.freeStreakHistoryDays)),
+              )).toList();
+        for (final s in filteredSessions) {
+          final d = DateTime(s.startedAt.year, s.startedAt.month, s.startedAt.day);
+          dates.add(d);
+          counts[d] = (counts[d] ?? 0) + 1;
+        }
+        stats = computeSessionStats(filteredSessions);
       }
+    } catch (_) {
+      // Any failure — render empty state instead of spinning forever.
+    } finally {
       if (mounted) {
         setState(() {
           _daysWithSessions = dates;
           _intensity = counts;
-          _stats = computeSessionStats(filteredSessions);
+          _stats = stats;
           _tier = tier;
           _loading = false;
         });
       }
-    } else if (mounted) {
-      setState(() {
-        _tier = tier;
-        _loading = false;
-      });
     }
   }
 
