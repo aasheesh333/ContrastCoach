@@ -1,6 +1,7 @@
 import 'package:contrast_coach/core/animations/animation_utils.dart';
 import 'package:contrast_coach/core/constants/app_colors.dart';
 import 'package:contrast_coach/core/constants/app_typography.dart';
+import 'package:contrast_coach/core/theme/app_accents.dart';
 import 'package:flutter/material.dart';
 
 ThemeData buildLightTheme() {
@@ -8,8 +9,15 @@ ThemeData buildLightTheme() {
     brightness: Brightness.light,
     primary: AppColors.brandWarm,
     onPrimary: AppColors.white,
+    primaryContainer: AppColors.brandCoral,
+    onPrimaryContainer: AppColors.white,
     secondary: AppColors.brandCool,
     onSecondary: AppColors.white,
+    secondaryContainer: AppColors.brandCool2,
+    onSecondaryContainer: AppColors.white,
+    // v4 purple accent (sleep protocol tile) exposed via tertiary slot.
+    tertiary: AppColors.brandPurple,
+    onTertiary: AppColors.white,
     surface: AppColors.offWhite,
     onSurface: AppColors.charcoal,
     surfaceContainerLowest: AppColors.white,
@@ -22,12 +30,11 @@ ThemeData buildLightTheme() {
     outlineVariant: Color(0xFFE5E5E0),
     error: AppColors.error,
     onError: AppColors.white,
-    tertiary: AppColors.brandCool,
-    onTertiary: AppColors.white,
   );
   return ThemeData(
     useMaterial3: true,
     colorScheme: cs,
+    extensions: const <ThemeExtension<dynamic>>[AppAccents.light],
     textTheme: AppTypography.textTheme.apply(
       bodyColor: AppColors.charcoal,
       displayColor: AppColors.charcoal,
