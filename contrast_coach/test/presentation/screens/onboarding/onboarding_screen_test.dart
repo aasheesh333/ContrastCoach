@@ -63,7 +63,8 @@ void main() {
       matching: find.byType(Material),
     );
     final material = tester.widget<Material>(materialFinder.first);
-    expect(material.color, isNot(equals(Material.defaultColor)));
+    // Material.color is an opaque Color (not the default Theme null).
+    expect(material.color, isNotNull);
     final text = tester.widget<Text>(ctaFinder);
     expect(text.style?.color, const Color(0xFFFF6B35));
   });

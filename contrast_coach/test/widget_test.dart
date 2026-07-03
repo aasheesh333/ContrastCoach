@@ -8,6 +8,6 @@ void main() {
       const ProviderScope(child: ContrastCoachApp()),
     );
     await tester.pumpAndSettle();
-    expect(find.text('HEAT.\nCOLD.\nREPEAT.'), findsOneWidget);
+    expect(find.text('Heat.\nCold.\nRecover smarter.'), findsOneWidget);
   });
 }
