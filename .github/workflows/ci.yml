@@ -162,10 +162,31 @@ jobs:
             --dart-define=GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }} \
             --dart-define=ENV=dev
 
+      - name: Build debug AAB
+        run: |
+          flutter build appbundle --debug --flavor dev \
+            --dart-define=FIREBASE_API_KEY=${{ steps.firebase-key.outputs.key }} \
+            --dart-define=FIREBASE_PROJECT_ID=${{ secrets.FIREBASE_PROJECT_ID }} \
+            --dart-define=FIREBASE_APP_ID=${{ secrets.FIREBASE_APP_ID }} \
+            --dart-define=FIREBASE_MESSAGING_SENDER_ID=${{ secrets.FIREBASE_MESSAGING_SENDER_ID }} \
+            --dart-define=FIREBASE_STORAGE_BUCKET=${{ secrets.FIREBASE_STORAGE_BUCKET }} \
+            --dart-define=REVENUECAT_API_KEY=${{ secrets.REVENUECAT_API_KEY }} \
+            --dart-define=GOOGLE_WEB_CLIENT_ID=${{ steps.google-client-id.outputs.id }} \
+            --dart-define=GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }} \
+            --dart-define=ENV=dev
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: debug-apk
           path: contrast_coach/build/app/outputs/flutter-apk/app-dev-debug.apk
+          retention-days: 7
+          if-no-files-found: error
+
+      - name: Upload AAB
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-aab
+          path: contrast_coach/build/app/outputs/flutter-apk/app-dev-debug.aab
           retention-days: 7
           if-no-files-found: error
