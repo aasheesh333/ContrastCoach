@@ -29,4 +29,6 @@ class FeatureGating {
   static int freeStreakHistoryDays = 7;
 
   static bool canUseFullRecoveryScore(SubscriptionTier tier) => tier.isPro;
+
+  static bool canUseFullAchievementsHistory(SubscriptionTier tier) => tier.isPro;
 }
