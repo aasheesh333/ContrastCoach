@@ -1,6 +1,8 @@
 import 'dart:ui';
 
 import 'package:contrast_coach/core/constants/app_colors.dart';
+import 'package:contrast_coach/core/errors/app_exception.dart';
+import 'package:contrast_coach/core/errors/result.dart';
 import 'package:contrast_coach/data/local/database/database_provider.dart';
 import 'package:contrast_coach/data/repositories/session_repository.dart';
 import 'package:contrast_coach/domain/entities/session.dart';

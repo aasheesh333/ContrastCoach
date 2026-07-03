@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:contrast_coach/core/constants/app_colors.dart';
 import 'package:contrast_coach/core/preferences/app_preferences.dart';
 import 'package:contrast_coach/core/theme/gradients.dart';
@@ -13,10 +15,18 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  Timer? _timer;
+
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(milliseconds: 1900), _routeNext);
+    _timer = Timer(const Duration(milliseconds: 1900), _routeNext);
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
   }
 
   void _routeNext() {
