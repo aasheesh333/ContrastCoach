@@ -79,27 +79,31 @@ void main() {
     expect(dotsFinder, findsNWidgets(3));
   });
 
-  testWidgets('headline is bottom-positioned (its top is in the lower half '
-      'of the viewport)', (tester) async {
+  testWidgets('content is bottom-anchored: Skip link at top, pager dots '
+      'next, then headline, subtitle, CTA in vertical order with the '
+      'CTA bottom within the SafeArea / padding band', (tester) async {
     await tester.pumpWidget(buildHarness());
-    final headlineFinder = find.text('Heat.\nCold.\nRecover smarter.');
-    final headlineTop = tester.getTopLeft(headlineFinder).dy;
-    final viewportHeight = tester.view.physicalSize.height /
-        tester.view.devicePixelRatio;
-    expect(headlineTop, greaterThan(viewportHeight / 2));
-  });
 
-  testWidgets('renders exactly one subtitle paragraph preceded by the '
-      'headline', (tester) async {
-    await tester.pumpWidget(buildHarness());
-    expect(
-      find.textContaining('ContrastCoach turns cold plunge'),
-      findsOneWidget,
-    );
+    final skipFinder = find.text('Skip');
     final headlineFinder = find.text('Heat.\nCold.\nRecover smarter.');
-    final subtitleFinder = find.textContaining('ContrastCoach turns cold plunge');
+    final subtitleFinder =
+        find.textContaining('ContrastCoach turns cold plunge');
+    final ctaFinder = find.text('Get started →');
+
+    final skipY = tester.getTopLeft(skipFinder).dy;
     final headlineY = tester.getTopLeft(headlineFinder).dy;
     final subtitleY = tester.getTopLeft(subtitleFinder).dy;
+    final ctaY = tester.getTopLeft(ctaFinder).dy;
+    final ctaBottom = tester.getBottomRight(ctaFinder).dy;
+
+    // Vertical order — content cascades down the screen.
+    expect(skipY, lessThan(headlineY));
     expect(headlineY, lessThan(subtitleY));
+    expect(subtitleY, lessThan(ctaY));
+
+    // CTA sits near the bottom of the viewport (anchored via padding 46).
+    // 800x600 default test viewport → CTA bottom should be within the
+    // last 60px of the viewport.
+    expect(ctaBottom, greaterThan(540.0));
   });
 }
