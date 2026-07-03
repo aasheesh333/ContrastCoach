@@ -33,4 +33,10 @@ class RouteNames {
   static const String editProfile = 'editProfile';
   static const String sessionDetail = 'sessionDetail';
   static const String breathwork = 'breathwork';
+  static const String account = 'account';
+  static const String notifications = 'notifications';
+  static const String widgets = 'widgets';
+  static const String subscription = 'subscription';
+  static const String help = 'help';
+  static const String history = 'history';
 }

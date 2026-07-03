@@ -33,6 +33,11 @@ import 'package:contrast_coach/presentation/screens/profile/edit_profile_screen.
 import 'package:contrast_coach/presentation/screens/coach/coach_screen.dart';
 import 'package:contrast_coach/presentation/screens/session/session_detail_screen.dart';
 import 'package:contrast_coach/presentation/screens/breathwork/breathwork_screen.dart';
+import 'package:contrast_coach/presentation/screens/account/account_screen.dart';
+import 'package:contrast_coach/presentation/screens/notifications/notifications_screen.dart';
+import 'package:contrast_coach/presentation/screens/widgets/widgets_screen.dart';
+import 'package:contrast_coach/presentation/screens/subscription/subscription_screen.dart';
+import 'package:contrast_coach/presentation/screens/help/help_screen.dart';
 
 class AppRouter {
   const AppRouter._();
@@ -161,6 +166,36 @@ class AppRouter {
           path: '/profile/edit',
           name: RouteNames.editProfile,
           builder: (_, __) => const EditProfileScreen(),
+        ),
+        GoRoute(
+          path: '/account',
+          name: RouteNames.account,
+          builder: (_, __) => const AccountScreen(),
+        ),
+        GoRoute(
+          path: '/notifications',
+          name: RouteNames.notifications,
+          builder: (_, __) => const NotificationsScreen(),
+        ),
+        GoRoute(
+          path: '/widgets',
+          name: RouteNames.widgets,
+          builder: (_, __) => const WidgetsScreen(),
+        ),
+        GoRoute(
+          path: '/subscription',
+          name: RouteNames.subscription,
+          builder: (_, __) => const SubscriptionScreen(),
+        ),
+        GoRoute(
+          path: '/help',
+          name: RouteNames.help,
+          builder: (_, __) => const HelpScreen(),
+        ),
+        GoRoute(
+          path: '/history',
+          name: RouteNames.history,
+          builder: (_, __) => const StreakCalendarScreen(),
         ),
         ShellRoute(
           builder: (_, __, child) => HomeShell(child: child),

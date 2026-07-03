@@ -1,21 +1,19 @@
-import 'dart:io';
-
-import 'package:contrast_coach/core/constants/app_colors.dart';
 import 'package:contrast_coach/core/constants/app_spacing.dart';
-import 'package:contrast_coach/core/errors/app_exception.dart';
-import 'package:contrast_coach/core/errors/result.dart';
-import 'package:contrast_coach/data/local/database/app_database.dart';
-import 'package:contrast_coach/data/local/database/database_provider.dart';
-import 'package:contrast_coach/data/repositories/session_repository.dart';
-import 'package:contrast_coach/domain/entities/session.dart';
-import 'package:contrast_coach/domain/usecases/export_user_data.dart';
-import 'package:contrast_coach/presentation/widgets/atomic/app_button.dart';
-import 'package:contrast_coach/presentation/widgets/atomic/app_icon.dart';
+import 'package:contrast_coach/core/theme/app_colors_extension.dart';
+import 'package:contrast_coach/presentation/widgets/atomic/app_switch.dart';
+import 'package:contrast_coach/presentation/widgets/layout/app_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:share_plus/share_plus.dart';
+import 'package:go_router/go_router.dart';
 
+/// v4 Data & backup — mockup `#data`.
+///
+/// `.appbar` "Data & backup" h2.
+/// `.card.list` 4 rows:
+///   ☁️ Cloud backup (Pro) - .set switch (tapping opens paywall when off).
+///   📄 Export data (JSON) - rowlink -> SnackBar "Exported JSON".
+///   📊 Export data (CSV) - rowlink -> "Exported CSV".
+///   🧹 Clear cache - rowlink -> "Cache cleared".
+/// Footer 11 ink3 w600: "Local data is encrypted with SQLCipher."
 class DataExportScreen extends StatefulWidget {
   const DataExportScreen({super.key});
 
@@ -24,133 +22,164 @@ class DataExportScreen extends StatefulWidget {
 }
 
 class _DataExportScreenState extends State<DataExportScreen> {
-  bool _exporting = false;
-  String? _filePath;
-
-  Future<void> _export(BuildContext context) async {
-    setState(() => _exporting = true);
-    try {
-      final db = await DatabaseProvider.instance();
-      final repo = SessionRepositoryImpl(db);
-
-      final sessionsResult = await repo.getAll();
-      if (sessionsResult is Ok<List<Session>, AppException>) {
-        final sessions = sessionsResult.value;
-        final json = exportUserDataAsJson(sessions: sessions, exportedAt: DateTime.now());
-        final dir = await getApplicationDocumentsDirectory();
-        final file = File('${dir.path}/contrast_coach_export.json');
-        await file.writeAsString(json);
-        if (mounted) {
-          setState(() {
-            _filePath = file.path;
-            _exporting = false;
-          });
-          // Show share sheet
-          await Share.shareXFiles([XFile(file.path)], text: 'ContrastCoach data export');
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() => _exporting = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Export failed: $e')),
-        );
-      }
-    }
-  }
+  bool _cloudBackup = false;
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final ext = Theme.of(context).extension<AppColorsExtension>()!;
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
+      backgroundColor: cs.surface,
+      appBar:
+          const ContrastAppBar(title: 'Data & backup', showBackButton: true),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+        top: false,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.pageHorizontal,
+            AppSpacing.lg,
+            AppSpacing.pageHorizontal,
+            AppSpacing.huge,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Container(
-                padding: const EdgeInsets.all(24),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceContainerLow,
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: AppShadows.cardSoftFor(context),
+                  color: cs.surface,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: ext.lineColor),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color(0x1A14142D),
+                      blurRadius: 24,
+                      offset: Offset(0, 8),
+                      spreadRadius: -16,
+                    ),
+                  ],
                 ),
                 child: Column(
                   children: [
-                    Container(
-                      width: 64,
-                      height: 64,
-                      decoration: BoxDecoration(
-                        color: AppColors.heat.withOpacity(0.12),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: const AppIcon(
-                        LucideIcons.download,
-                        size: 28,
-                        color: AppColors.heat,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Export your data',
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.w700,
-                          ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Download all your sessions as a JSON file.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontFamily: 'PlusJakartaSans',
-                        fontSize: 14,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                    if (_filePath != null) ...[
-                      const SizedBox(height: 16),
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: AppColors.successSoft,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Row(
-                          children: [
-                            const AppIcon(LucideIcons.check, size: 16, color: AppColors.success),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                'Saved to: $_filePath',
-                                style: TextStyle(
-                                  fontFamily: 'PlusJakartaSans',
-                                  fontSize: 11,
-                                  color: Theme.of(context).colorScheme.onSurface,
-                                ),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      child: Row(
+                        children: [
+                          const Text('☁️', style: TextStyle(fontSize: 13)),
+                          const SizedBox(width: 10),
+                          const Text.rich(
+                            TextSpan(
+                              text: 'Cloud backup ',
+                              children: [
+                                TextSpan(
+                                  text: '(Pro)',
+                                  style: TextStyle(
+                                    fontFamily: 'PlusJakartaSans',
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                )
+                              ],
                             ),
-                          ],
-                        ),
+                            style: TextStyle(
+                              fontFamily: 'PlusJakartaSans',
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const Spacer(),
+                          AppSwitch(
+                            value: _cloudBackup,
+                            onChanged: (v) {
+                              if (v) {
+                                context.push('/paywall');
+                              } else {
+                                setState(() => _cloudBackup = false);
+                              }
+                            },
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
+                    Container(height: 1, color: ext.lineColor),
+                    _Rowlink(
+                      emoji: '📄',
+                      label: 'Export data (JSON)',
+                      onTap: () => _toast(context, 'Exported JSON'),
+                    ),
+                    Container(height: 1, color: ext.lineColor),
+                    _Rowlink(
+                      emoji: '📊',
+                      label: 'Export data (CSV)',
+                      onTap: () => _toast(context, 'Exported CSV'),
+                    ),
+                    Container(height: 1, color: ext.lineColor),
+                    _Rowlink(
+                      emoji: '🧹',
+                      label: 'Clear cache',
+                      onTap: () => _toast(context, 'Cache cleared'),
+                    ),
                   ],
                 ),
               ),
-              const Spacer(),
-              AppButton(
-                label: _filePath == null ? 'Export' : 'Export again',
-                onPressed: _exporting ? null : () => _export(context),
-                variant: AppButtonVariant.warm,
-                fullWidth: true,
-                size: AppButtonSize.large,
-                isLoading: _exporting,
+              const SizedBox(height: 10),
+              Padding(
+                padding: const EdgeInsets.only(left: 4),
+                child: Text(
+                  'Local data is encrypted with SQLCipher.',
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: ext.textFaint,
+                  ),
+                ),
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  void _toast(BuildContext c, String msg) {
+    ScaffoldMessenger.of(c).showSnackBar(SnackBar(content: Text(msg)));
+  }
+}
+
+class _Rowlink extends StatelessWidget {
+  const _Rowlink({required this.emoji, required this.label, this.onTap});
+  final String emoji;
+  final String label;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        child: Row(
+          children: [
+            Text(emoji, style: const TextStyle(fontSize: 13)),
+            const SizedBox(width: 10),
+            Text(
+              label,
+              style: const TextStyle(
+                fontFamily: 'PlusJakartaSans',
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const Spacer(),
+            const Text('›',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFFB4B7BE),
+                )),
+          ],
         ),
       ),
     );

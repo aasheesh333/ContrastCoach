@@ -333,14 +333,14 @@ class _RowlinkCard extends StatelessWidget {
     _Rowlink(emoji: '🗓️', label: 'History & calendar', subtext: '', location: '/history'),
     _Rowlink(emoji: '📝', label: 'Journal', subtext: '', location: '/journal'),
     _Rowlink(emoji: '🏆', label: 'Challenges', subtext: '', location: '/challenges'),
-    _Rowlink(emoji: '🔐', label: 'Account & security', subtext: '', location: '/settings/privacy'),
-    _Rowlink(emoji: '🔔', label: 'Notifications', subtext: '', location: '/settings'),
+    _Rowlink(emoji: '🔐', label: 'Account & security', subtext: '', location: '/account'),
+    _Rowlink(emoji: '🔔', label: 'Notifications', subtext: '', location: '/notifications'),
     _Rowlink(emoji: '🎨', label: 'Appearance', subtext: '', location: '/appearance'),
     _Rowlink(emoji: '❤️', label: 'Health Connect', subtext: '', location: '/settings/health'),
-    _Rowlink(emoji: '🧩', label: 'Home-screen widgets', subtext: '', location: '/settings'),
-    _Rowlink(emoji: '⭐', label: 'Subscription', subtext: 'Free plan', location: '/paywall'),
+    _Rowlink(emoji: '🧩', label: 'Home-screen widgets', subtext: '', location: '/widgets'),
+    _Rowlink(emoji: '⭐', label: 'Subscription', subtext: 'Free plan', location: '/subscription'),
     _Rowlink(emoji: '💾', label: 'Data & backup', subtext: '', location: '/settings/export'),
-    _Rowlink(emoji: '❓', label: 'Help & support', subtext: '', location: '/settings/about'),
+    _Rowlink(emoji: '❓', label: 'Help & support', subtext: '', location: '/help'),
   ];
 
   @override
