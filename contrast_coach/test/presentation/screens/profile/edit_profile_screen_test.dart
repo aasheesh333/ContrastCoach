@@ -45,11 +45,11 @@ void main() {
 
     // Weekly session goal default caption
     await tester.scrollUntilVisible(
-      find.textContaining('sessions'),
+      find.text('5 sessions / week'),
       200,
     );
     await tester.pumpAndSettle();
-    expect(find.textContaining('sessions'), findsOneWidget);
+    expect(find.text('5 sessions / week'), findsOneWidget);
 
     // Save changes button
     expect(find.text('Save changes'), findsOneWidget);
