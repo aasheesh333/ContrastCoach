@@ -1,145 +1,97 @@
 import 'package:contrast_coach/core/constants/app_colors.dart';
-import 'package:contrast_coach/core/theme/gradients.dart';
+import 'package:contrast_coach/core/theme/app_colors_extension.dart';
 import 'package:contrast_coach/presentation/screens/home/firebase_auth_proxy.dart';
+import 'package:contrast_coach/presentation/widgets/atomic/app_button.dart';
+import 'package:contrast_coach/presentation/widgets/atomic/app_refcode.dart';
+import 'package:contrast_coach/presentation/widgets/layout/app_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
 
-/// v4 Referral screen (spec §3.2 row 7).
+/// v4 Referral screen — mockup `#referral`.
 ///
-/// Derives a deterministic 6-char referral code from the signed-in user's
-/// UID — no backend table required. Renders the v4 hero header and a Card
-/// holding the code with Copy / Share actions.
+/// Standard `.appbar` "Invite friends" 19 w800.
+/// A single centered `.card`:
+///   🎁 emoji 34px,
+///   "Give a month, get a month" w800,
+///   "Both you and your friend get 1 month of Pro free." 13 ink2,
+///   `.refcode` (2px dashed heat border, JetBrains Mono 26 w500 ls2, heat color),
+///   `.btn` "Share invite link" heat→coral gradient.
 class ReferralScreen extends StatelessWidget {
   const ReferralScreen({super.key});
 
   String _referralCode(String? uid) {
-    if (uid == null || uid.isEmpty) return 'GUEST0';
+    if (uid == null || uid.isEmpty) return 'AASHEESH50';
     final hash = uid.hashCode.abs().toRadixString(36).toUpperCase();
-    return 'CC-${hash.length >= 4 ? hash.substring(0, 4) : hash.padLeft(4, '0')}';
+    return hash.length >= 8 ? hash.substring(0, 8) : hash.padLeft(8, '0');
   }
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final ext = Theme.of(context).extension<AppColorsExtension>()!;
     final uid = FirebaseAuthNullableProxy.tryGet()?.currentUser?.uid;
     final code = _referralCode(uid);
 
     return Scaffold(
       backgroundColor: cs.surface,
-      body: Column(
-        children: [
-          _HeroHeader(),
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 24,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Card(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                      side: BorderSide(color: AppColors.heat, width: 1.5),
-                    ),
-                    elevation: 0,
-                    color: cs.surface,
-                    child: Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Your referral code',
-                            style: TextStyle(
-                              fontFamily: 'PlusJakartaSans',
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.heat,
-                              letterSpacing: 0.4,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          SelectableText(
-                            code,
-                            style: const TextStyle(
-                              fontFamily: 'PlusJakartaSans',
-                              fontSize: 30,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: 1.5,
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: FilledButton.icon(
-                                  onPressed: () => Clipboard.setData(
-                                    ClipboardData(text: code),
-                                  ),
-                                  icon: const Icon(Icons.copy_rounded, size: 18),
-                                  label: const Text('Copy'),
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: OutlinedButton.icon(
-                                  onPressed: () => Share.share(
-                                    'Join me on ContrastCoach! Use my code: $code',
-                                  ),
-                                  icon: const Icon(Icons.share_outlined, size: 18),
-                                  label: const Text('Share'),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
+      appBar: const ContrastAppBar(title: 'Invite friends', showBackButton: true),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 18,
+            vertical: 24,
+          ),
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: cs.surface,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: ext.lineColor),
+              boxShadow: const [
+                BoxShadow(
+                  color: Color(0x1A14142D),
+                  blurRadius: 24,
+                  offset: Offset(0, 8),
+                  spreadRadius: -16,
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text('🎁', style: TextStyle(fontSize: 34)),
+                const SizedBox(height: 8),
+                const Text(
+                  'Give a month, get a month',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
+                    fontWeight: FontWeight.w800,
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Both you and your friend get 1 month of Pro free.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
+                    fontSize: 13,
+                    color: cs.onSurfaceVariant,
+                  ),
+                ),
+                AppRefCode(code: code),
+                AppButton(
+                  label: 'Share invite link',
+                  fullWidth: true,
+                  marginTop: 4,
+                  onPressed: () => Share.share(
+                    'Join me on ContrastCoach! Use my code: $code',
+                  ),
+                ),
+              ],
             ),
           ),
-        ],
-      ),
-    );
-  }
-}
-
-/// v4 hero strip — gradient band holding the screen title and subtitle.
-class _HeroHeader extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(gradient: AppGradients.splashBg),
-      padding: const EdgeInsets.fromLTRB(20, 60, 20, 24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
-          Text(
-            'Invite friends, earn Pro',
-            style: TextStyle(
-              fontFamily: 'PlusJakartaSans',
-              fontSize: 30,
-              fontWeight: FontWeight.w800,
-              color: Colors.white,
-              letterSpacing: -0.8,
-            ),
-          ),
-          SizedBox(height: 6),
-          Text(
-            'Share your code. When a friend joins, you both unlock Pro rewards.',
-            style: TextStyle(
-              fontFamily: 'PlusJakartaSans',
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: Colors.white70,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

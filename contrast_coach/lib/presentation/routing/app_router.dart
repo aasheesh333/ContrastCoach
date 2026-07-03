@@ -32,6 +32,7 @@ import 'package:contrast_coach/presentation/screens/settings/appearance_screen.d
 import 'package:contrast_coach/presentation/screens/profile/edit_profile_screen.dart';
 import 'package:contrast_coach/presentation/screens/coach/coach_screen.dart';
 import 'package:contrast_coach/presentation/screens/session/session_detail_screen.dart';
+import 'package:contrast_coach/presentation/screens/breathwork/breathwork_screen.dart';
 
 class AppRouter {
   const AppRouter._();
@@ -145,6 +146,11 @@ class AppRouter {
           path: '/share',
           name: RouteNames.share,
           builder: (_, __) => const ShareCardScreen(),
+        ),
+        GoRoute(
+          path: '/breathwork',
+          name: RouteNames.breathwork,
+          builder: (_, __) => const BreathworkScreen(),
         ),
         GoRoute(
           path: '/appearance',

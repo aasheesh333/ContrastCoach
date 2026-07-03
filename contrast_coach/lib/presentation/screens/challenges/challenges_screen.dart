@@ -2,18 +2,25 @@ import 'dart:convert';
 
 import 'package:contrast_coach/core/constants/app_colors.dart';
 import 'package:contrast_coach/core/constants/app_spacing.dart';
-import 'package:contrast_coach/core/constants/app_typography.dart';
 import 'package:contrast_coach/core/theme/app_colors_extension.dart';
 import 'package:contrast_coach/core/theme/gradients.dart';
+import 'package:contrast_coach/presentation/widgets/atomic/app_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 
-/// CHALLENGES screen (spec §3.2 row 5).
+/// v4 Challenges screen — mockup `#community`.
 ///
-/// Renders active challenges and the weekly leaderboard from the static
-/// `assets/challenges.json` bundle (spec §8 DoD — intentional static mock
-/// data). The "You" leaderboard row uses the [AppColors.heat] accent so it
-/// stands out per the v4 token system.
+/// `.name` "Challenges" 28 w800.
+/// `.hero` dark `linear-gradient(140deg,#12121a,#25252f)` radius 26 padding 20
+///   with cold-blue box-shadow `0 20px 40px -18px rgba(45,124,241,.5)`,
+///   radial heat blob top-right + radial cold blob bottom-left,
+///   `.lbl` "This week" + `.big` "❄️ Cold Streak Challenge" 19 w800 + subtext
+///   "1,240 people joined · 3 days left".
+/// Leaderboard `.card.leader` single shared card with 4 flat rows:
+///   "1 🥇 Priya S. <b>21</b>", "2 🥈 Marcus <b>19</b>",
+///   "7 🔥 You <b>14</b>" (heat-tinted via `.leader .me`), "8 Dana <b>13</b>".
+/// `.btn.cold` "Invite friends →" (cold→cold2 gradient, cold shadow).
 class ChallengesScreen extends StatefulWidget {
   const ChallengesScreen({super.key});
 
@@ -22,7 +29,6 @@ class ChallengesScreen extends StatefulWidget {
 }
 
 class _ChallengesScreenState extends State<ChallengesScreen> {
-  List<Map<String, dynamic>> _challenges = const [];
   List<Map<String, dynamic>> _leaderboard = const [];
   bool _loading = true;
   String? _error;
@@ -38,11 +44,10 @@ class _ChallengesScreenState extends State<ChallengesScreen> {
       final raw = await rootBundle.loadString('assets/challenges.json');
       final decoded = jsonDecode(raw) as Map<String, dynamic>;
       if (!mounted) return;
+      final list = (decoded['leaderboard'] as List<dynamic>)
+          .cast<Map<String, dynamic>>();
       setState(() {
-        _challenges =
-            (decoded['challenges'] as List<dynamic>).cast<Map<String, dynamic>>();
-        _leaderboard =
-            (decoded['leaderboard'] as List<dynamic>).cast<Map<String, dynamic>>();
+        _leaderboard = list;
         _loading = false;
       });
     } catch (e) {
@@ -61,105 +66,139 @@ class _ChallengesScreenState extends State<ChallengesScreen> {
       backgroundColor: cs.surface,
       body: SafeArea(
         top: false,
-        child: CustomScrollView(
-          physics: const BouncingScrollPhysics(),
-          slivers: [
-            const SliverToBoxAdapter(child: _HeroHeader()),
-            if (_loading)
-              const SliverFillRemaining(
-                child: Center(child: CircularProgressIndicator()),
-              )
-            else if (_error != null)
-              SliverFillRemaining(
-                child: _ErrorState(message: _error!),
-              )
-            else ...[
-              SliverPadding(
-                padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.pageHorizontal,
-                  AppSpacing.lg,
-                  AppSpacing.pageHorizontal,
-                  AppSpacing.sm,
-                ),
-                sliver: SliverToBoxAdapter(
-                  child: _SectionHeading(text: 'Challenges'),
-                ),
-              ),
-              SliverList.separated(
-                itemCount: _challenges.length,
-                separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.md),
-                itemBuilder: (context, i) => _ChallengeTile(
-                  challenge: _challenges[i],
-                ),
-              ),
-              SliverPadding(
-                padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.pageHorizontal,
-                  AppSpacing.sectionGap,
-                  AppSpacing.pageHorizontal,
-                  AppSpacing.sm,
-                ),
-                sliver: SliverToBoxAdapter(
-                  child: _SectionHeading(text: 'Leaderboard'),
-                ),
-              ),
-              SliverPadding(
-                padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.pageHorizontal,
-                  0,
-                  AppSpacing.pageHorizontal,
-                  AppSpacing.sectionGap,
-                ),
-                sliver: SliverList.separated(
-                  itemCount: _leaderboard.length,
-                  separatorBuilder: (_, __) =>
-                      const SizedBox(height: AppSpacing.sm),
-                  itemBuilder: (context, i) => _LeaderboardRow(
-                    entry: _leaderboard[i],
+        child: _loading
+            ? const Center(child: CircularProgressIndicator())
+            : _error != null
+                ? Center(child: Text('Unable to load challenges.'))
+                : ListView(
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSpacing.pageHorizontal,
+                      AppSpacing.lg,
+                      AppSpacing.pageHorizontal,
+                      AppSpacing.huge,
+                    ),
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(top: AppSpacing.xxl),
+                        child: Text(
+                          'Challenges',
+                          style: TextStyle(
+                            fontFamily: 'PlusJakartaSans',
+                            fontSize: 28,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -0.7,
+                            color: cs.onSurface,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      const _Hero(),
+                      const SizedBox(height: 14),
+                      _Leaderboard(entries: _leaderboard),
+                      AppButton(
+                        label: 'Invite friends →',
+                        variant: AppButtonVariant.cool,
+                        fullWidth: true,
+                        marginTop: 16,
+                        onPressed: () => context.push('/referral'),
+                      ),
+                    ],
                   ),
-                ),
-              ),
-            ],
-          ],
-        ),
       ),
     );
   }
 }
 
-/// Heat-tinted hero strip with the screen title, matching the Explore
-/// screen's hero pattern (spec §3.2: v4 tokens + heat accent).
-class _HeroHeader extends StatelessWidget {
-  const _HeroHeader();
+class _Hero extends StatelessWidget {
+  const _Hero();
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(gradient: AppGradients.splashBg),
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.pageHorizontal,
-        AppSpacing.pageTop + AppSpacing.xxl,
-        AppSpacing.pageHorizontal,
-        AppSpacing.xxl,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: AppGradients.heroDark,
+        borderRadius: BorderRadius.circular(26),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x802D7CF1),
+            blurRadius: 40,
+            offset: Offset(0, 20),
+            spreadRadius: -18,
+          ),
+        ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      clipBehavior: Clip.antiAlias,
+      child: Stack(
         children: [
-          Text(
-            'Challenges',
-            style: AppTypography.titleHero.copyWith(
-              fontSize: 34,
-              fontWeight: FontWeight.w800,
-              letterSpacing: -0.8,
-              color: Colors.white,
+          Positioned(
+            right: -70,
+            top: -70,
+            child: Container(
+              width: 220,
+              height: 220,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [AppColors.heat.withOpacity(0.55), Colors.transparent],
+                  stops: const [0.0, 0.7],
+                ),
+              ),
             ),
           ),
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            'Compete. Stay consistent.',
-            style: AppTypography.bodyMedium.copyWith(
-              color: Colors.white70,
-              fontWeight: FontWeight.w500,
+          Positioned(
+            left: -70,
+            bottom: -90,
+            child: Container(
+              width: 200,
+              height: 200,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [AppColors.cold.withOpacity(0.5), Colors.transparent],
+                  stops: const [0.0, 0.7],
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: const [
+                Text(
+                  'THIS WEEK',
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.4,
+                    color: Color(0xB3FFFFFF),
+                  ),
+                ),
+                SizedBox(height: 3),
+                Text(
+                  '❄️ Cold Streak Challenge',
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
+                    fontSize: 19,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.3,
+                    color: Colors.white,
+                  ),
+                ),
+                SizedBox(height: 10),
+                Text(
+                  '1,240 people joined · 3 days left',
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: Color(0xD9FFFFFF),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -168,173 +207,93 @@ class _HeroHeader extends StatelessWidget {
   }
 }
 
-class _SectionHeading extends StatelessWidget {
-  const _SectionHeading({required this.text});
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Text(
-      text,
-      style: AppTypography.titleHero.copyWith(color: cs.onSurface),
-    );
-  }
-}
-
-class _ChallengeTile extends StatelessWidget {
-  const _ChallengeTile({required this.challenge});
-  final Map<String, dynamic> challenge;
+class _Leaderboard extends StatelessWidget {
+  const _Leaderboard({required this.entries});
+  final List<Map<String, dynamic>> entries;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final ext = Theme.of(context).extension<AppColorsExtension>()!;
-    final emoji = (challenge['emoji'] as String?) ?? '';
-    final title = (challenge['title'] as String?) ?? '';
-    final description = (challenge['description'] as String?) ?? '';
-    final goal = (challenge['goal'] as num?)?.toInt() ?? 0;
-    final participants = (challenge['participants'] as num?)?.toInt() ?? 0;
-    // Spec §3.2: live session progress would require a repo lookup; the
-    // static screen shows each challenge as INCOMPLETE (progress = 0).
-    const progress = 0;
-    final progressFraction = goal > 0 ? (progress / goal).clamp(0.0, 1.0) : 0.0;
-
+    final children = <Widget>[];
+    for (var i = 0; i < entries.length; i++) {
+      final e = entries[i];
+      final rank = (e['rank'] as num?)?.toInt() ?? 0;
+      final name = (e['displayName'] as String?) ?? '';
+      final points = (e['points'] as num?)?.toInt() ?? 0;
+      final isYou = (e['isYou'] as bool?) ?? false;
+      final medal = switch (rank) {
+        1 => '🥇',
+        2 => '🥈',
+        _ when isYou => '🔥',
+        _ => '',
+      };
+      final nameColor = isYou ? AppColors.heat : cs.onSurface;
+      final rkColor = cs.onSurfaceVariant;
+      final row = Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        child: Row(
+          children: [
+            SizedBox(
+              width: 22,
+              child: Text(
+                '$rank',
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
+                  fontSize: 13,
+                  fontWeight: FontWeight.w800,
+                  color: rkColor,
+                ),
+              ),
+            ),
+            if (medal.isNotEmpty) ...[
+              Text(medal, style: const TextStyle(fontSize: 13)),
+              const SizedBox(width: 6),
+            ],
+            Expanded(
+              child: Text(
+                name,
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: nameColor,
+                ),
+              ),
+            ),
+            Text(
+              '$points',
+              style: TextStyle(
+                fontFamily: 'PlusJakartaSans',
+                fontSize: 13,
+                fontWeight: FontWeight.w800,
+                color: nameColor,
+              ),
+            ),
+          ],
+        ),
+      );
+      children.add(row);
+      if (i < entries.length - 1) {
+        children.add(Container(height: 1, color: ext.lineColor));
+      }
+    }
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.lg),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
-        color: cs.surfaceContainerHigh,
+        color: cs.surface,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: ext.lineColor),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(emoji, style: const TextStyle(fontSize: 28)),
-              const SizedBox(width: AppSpacing.md),
-              Expanded(
-                child: Text(
-                  title,
-                  style: AppTypography.titleMedium.copyWith(
-                    color: cs.onSurface,
-                  ),
-                ),
-              ),
-              Text(
-                '$participants joined',
-                style: AppTypography.captionV4.copyWith(color: ext.textMuted),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            description,
-            style: AppTypography.bodySmall.copyWith(color: ext.textMuted),
-          ),
-          const SizedBox(height: AppSpacing.md),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(999),
-            child: LinearProgressIndicator(
-              value: progressFraction,
-              minHeight: 6,
-              backgroundColor: ext.lineColor,
-              valueColor: const AlwaysStoppedAnimation<Color>(AppColors.heat),
-            ),
-          ),
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            '0 / $goal',
-            style: AppTypography.captionV4.copyWith(color: ext.textMuted),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x1A14142D),
+            blurRadius: 24,
+            offset: Offset(0, 8),
+            spreadRadius: -16,
           ),
         ],
       ),
-    );
-  }
-}
-
-class _LeaderboardRow extends StatelessWidget {
-  const _LeaderboardRow({required this.entry});
-  final Map<String, dynamic> entry;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final ext = Theme.of(context).extension<AppColorsExtension>()!;
-    final rank = (entry['rank'] as num?)?.toInt() ?? 0;
-    final displayName = (entry['displayName'] as String?) ?? '';
-    final points = (entry['points'] as num?)?.toInt() ?? 0;
-    final isYou = (entry['isYou'] as bool?) ?? false;
-    final accent = isYou ? AppColors.heat : cs.onSurface;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.lg,
-        vertical: AppSpacing.md,
-      ),
-      decoration: BoxDecoration(
-        color: isYou ? AppColors.heat.withOpacity(0.10) : cs.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: isYou ? AppColors.heat.withOpacity(0.5) : ext.lineColor,
-        ),
-      ),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 28,
-            child: Text(
-              '#$rank',
-              style: AppTypography.labelMedium.copyWith(
-                color: isYou ? AppColors.heat : ext.textMuted,
-              ),
-            ),
-          ),
-          const SizedBox(width: AppSpacing.sm),
-          Expanded(
-            child: Text(
-              displayName,
-              style: AppTypography.titleMedium.copyWith(color: accent),
-            ),
-          ),
-          Text(
-            '$points pts',
-            style: AppTypography.labelMediumV4.copyWith(
-              color: isYou ? AppColors.heat : ext.textMuted,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ErrorState extends StatelessWidget {
-  const _ErrorState({required this.message});
-  final String message;
-
-  @override
-  Widget build(BuildContext context) {
-    final ext = Theme.of(context).extension<AppColorsExtension>()!;
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.xxl),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text('🧊', style: TextStyle(fontSize: 40)),
-            const SizedBox(height: AppSpacing.md),
-            Text(
-              'Unable to load challenges.',
-              textAlign: TextAlign.center,
-              style: AppTypography.titleMedium.copyWith(color: ext.textMuted),
-            ),
-          ],
-        ),
-      ),
+      child: Column(children: children),
     );
   }
 }

@@ -1,14 +1,29 @@
+import 'dart:convert';
+
 import 'package:contrast_coach/core/constants/app_colors.dart';
+import 'package:contrast_coach/core/constants/app_spacing.dart';
 import 'package:contrast_coach/core/errors/app_exception.dart';
 import 'package:contrast_coach/core/errors/result.dart';
+import 'package:contrast_coach/core/theme/app_colors_extension.dart';
 import 'package:contrast_coach/core/theme/gradients.dart';
 import 'package:contrast_coach/data/local/database/database_provider.dart';
 import 'package:contrast_coach/data/repositories/session_repository.dart';
+import 'package:contrast_coach/domain/entities/goal.dart';
+import 'package:contrast_coach/domain/entities/phase.dart';
 import 'package:contrast_coach/domain/entities/phase_type.dart';
 import 'package:contrast_coach/domain/entities/session.dart';
 import 'package:contrast_coach/presentation/widgets/layout/app_bar.dart';
 import 'package:flutter/material.dart';
 
+/// v4 Session detail — mockup `#detail`.
+///
+/// `.appbar` "Session detail" h2.
+/// `.score` `.n` 70px w800 heat→cold text-clip gradient (ShaderMask),
+///   `.s` 14 w800 ok-green "STRONG · Standard Recovery".
+/// `.card.list` — 5 flat rows separated by 1px line, each row flex:
+///   ⏱ Duration, 🔁 Rounds, 🌡️ Max heat, ❄️ Min cold, ❤️ HRV after.
+/// `.sec-t` "Phase breakdown" 15 w800.
+/// `.bars` 6 cells, heat→coral gradient, flex row 8px gap, 70 tall.
 class SessionDetailScreen extends StatefulWidget {
   const SessionDetailScreen({required this.sessionId, super.key});
 
@@ -59,18 +74,90 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
     return total;
   }
 
+  double? _maxHeat() {
+    final session = _session;
+    if (session == null) return null;
+    double? maxC;
+    for (final p in session.phases) {
+      if (p.type != PhaseType.sauna || p.skipped) continue;
+      final t = p.actualTempC ?? p.targetTempC;
+      if (t != null && (maxC == null || t > maxC)) maxC = t;
+    }
+    return maxC;
+  }
+
+  double? _minCold() {
+    final session = _session;
+    if (session == null) return null;
+    double? minC;
+    for (final p in session.phases) {
+      if (p.type != PhaseType.cold || p.skipped) continue;
+      final t = p.actualTempC ?? p.targetTempC;
+      if (t != null && (minC == null || t < minC)) minC = t;
+    }
+    return minC;
+  }
+
+  int? _hrvAfter() {
+    final raw = _session?.healthDataSnapshot;
+    if (raw == null) return null;
+    try {
+      final map = jsonDecode(raw.toString()) as Map<String, dynamic>;
+      final v = map['hrvAfter'] ?? map['hrv'] ?? map['HrvAfter'];
+      if (v is num) return v.toInt();
+    } catch (_) {}
+    return null;
+  }
+
+  String _bandLabel(double? score) {
+    if (score == null) return '—';
+    final i = score.round();
+    if (i >= 85) return 'STRONG';
+    if (i >= 65) return 'MODERATE';
+    return 'LOW';
+  }
+
+  String _title() {
+    final g = _session?.goal;
+    switch (g) {
+      case Goal.recovery:
+        return 'Standard Recovery';
+      case Goal.energy:
+        return 'Morning Energy';
+      case Goal.sleep:
+        return 'Deep Sleep';
+      case Goal.immunity:
+        return 'Immunity Boost';
+      case null:
+        return '';
+    }
+  }
+
   String _formatDuration(Duration d) {
     final m = d.inMinutes.remainder(60).toString().padLeft(2, '0');
     final s = d.inSeconds.remainder(60).toString().padLeft(2, '0');
-    return '${d.inHours > 0 ? '${d.inHours}:' : ''}$m:$s';
+    return '$m:$s';
   }
 
-  String _formatDate(DateTime dt) {
-    final m = dt.month.toString().padLeft(2, '0');
-    final d = dt.day.toString().padLeft(2, '0');
-    final h = dt.hour.toString().padLeft(2, '0');
-    final min = dt.minute.toString().padLeft(2, '0');
-    return '$m/$d/${dt.year} $h:$min';
+  List<double> _phaseBars() {
+    final phases = _session?.phases.where((p) => !p.skipped).toList() ?? const [];
+    if (phases.isEmpty) return const [0.5, 0.5, 0.5, 0.5, 0.5, 0.5];
+    final maxSec = phases.fold<int>(
+      0,
+      (a, p) => (a > (p.actualDuration ?? p.plannedDuration).inSeconds)
+          ? a
+          : (p.actualDuration ?? p.plannedDuration).inSeconds,
+    );
+    if (maxSec <= 0) return List.filled(phases.length, 0.5);
+    final heights = <double>[];
+    for (var i = 0; i < 6; i++) {
+      if (i < phases.length) {
+        heights.add((phases[i].actualDuration ?? phases[i].plannedDuration).inSeconds / maxSec);
+      } else {
+        heights.add(0.0);
+      }
+    }
+    return heights;
   }
 
   @override
@@ -78,258 +165,192 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
     if (!_loaded) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
-    final session = _session;
-    if (session == null) {
+    if (_session == null) {
       return Scaffold(
         appBar: const ContrastAppBar(title: 'Session detail', showBackButton: true),
         body: const Center(child: Text('Session not found')),
       );
     }
-    final hot = _phaseDuration(PhaseType.sauna);
-    final cold = _phaseDuration(PhaseType.cold);
-    final rounds = session.roundsCompleted;
-    final total = session.totalActualDuration;
+    final cs = Theme.of(context).colorScheme;
+    final ext = Theme.of(context).extension<AppColorsExtension>()!;
+    final score = _session!.recoveryScore;
+    final band = _bandLabel(score);
+    final maxHeat = _maxHeat();
+    final minCold = _minCold();
+    final hrv = _hrvAfter();
+    final rows = <_ListRow>[
+      _ListRow(emoji: '⏱', label: 'Duration',
+          value: _formatDuration(_session!.totalActualDuration)),
+      _ListRow(emoji: '🔁', label: 'Rounds',
+          value: '${_session!.roundsCompleted}'),
+      _ListRow(emoji: '🌡️', label: 'Max heat',
+          value: maxHeat == null ? '—' : '${maxHeat.round()}°C'),
+      _ListRow(emoji: '❄️', label: 'Min cold',
+          value: minCold == null ? '—' : '${minCold.round()}°C'),
+      _ListRow(emoji: '❤️', label: 'HRV after',
+          value: hrv == null ? '—' : '$hrv ms'),
+    ];
     return Scaffold(
+      backgroundColor: cs.surface,
       appBar: const ContrastAppBar(title: 'Session detail', showBackButton: true),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _HeroCard(
-              title: session.goal.name.toUpperCase(),
-              subtitle: _formatDate(session.startedAt),
-            ),
-            const SizedBox(height: 16),
-            _StatGrid(
-              tiles: [
-                _StatTile(label: 'Hot', value: _formatDuration(hot)),
-                _StatTile(label: 'Cold', value: _formatDuration(cold)),
-                _StatTile(label: 'Rounds', value: '$rounds'),
-                _StatTile(label: 'Total', value: _formatDuration(total)),
-              ],
-            ),
-            if (session.recoveryScore != null) ...[
-              const SizedBox(height: 16),
-              _RecoveryRow(score: session.recoveryScore!.round()),
+      body: SafeArea(
+        top: false,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.pageHorizontal,
+            AppSpacing.lg,
+            AppSpacing.pageHorizontal,
+            AppSpacing.huge,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ShaderMask(
+                      shaderCallback: (b) => AppGradients.scoreText.createShader(b),
+                      blendMode: BlendMode.srcIn,
+                      child: Text(
+                        '${score?.round() ?? '—'}',
+                        style: const TextStyle(
+                          fontFamily: 'PlusJakartaSans',
+                          fontSize: 70,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                          height: 1,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      '$band · ${_title()}',
+                      style: const TextStyle(
+                        fontFamily: 'PlusJakartaSans',
+                        fontSize: 14,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.5,
+                        color: AppColors.success,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 14),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: cs.surface,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: ext.lineColor),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color(0x1A14142D),
+                      blurRadius: 24,
+                      offset: Offset(0, 8),
+                      spreadRadius: -16,
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    for (var i = 0; i < rows.length; i++) ...[
+                      rows[i],
+                      if (i < rows.length - 1)
+                        Container(height: 1, color: ext.lineColor),
+                    ],
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(2, 20, 2, 12),
+                child: Text(
+                  'Phase breakdown',
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.2,
+                    color: cs.onSurface,
+                  ),
+                ),
+              ),
+              _PhaseBars(heights: _phaseBars()),
             ],
-            if (session.notes != null && session.notes!.isNotEmpty) ...[
-              const SizedBox(height: 16),
-              _NoteCard(note: session.notes!),
-            ],
-          ],
+          ),
         ),
       ),
     );
   }
 }
 
-class _HeroCard extends StatelessWidget {
-  const _HeroCard({required this.title, required this.subtitle});
-  final String title;
-  final String subtitle;
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      color: AppColors.lightCard,
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: const BorderSide(color: AppColors.lightLine, width: 1),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: const TextStyle(
-                fontFamily: 'PlusJakartaSans',
-                fontSize: 28,
-                fontWeight: FontWeight.w700,
-                color: AppColors.lightInk,
-                letterSpacing: -0.5,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              subtitle,
-              style: const TextStyle(
-                fontFamily: 'PlusJakartaSans',
-                fontSize: 14,
-                color: AppColors.lightInk2,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _StatTile {
-  const _StatTile({required this.label, required this.value});
-  final String label;
-  final String value;
-}
-
-class _StatGrid extends StatelessWidget {
-  const _StatGrid({required this.tiles});
-  final List<_StatTile> tiles;
-
-  @override
-  Widget build(BuildContext context) {
-    return GridView.count(
-      crossAxisCount: 2,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      mainAxisSpacing: 12,
-      crossAxisSpacing: 12,
-      childAspectRatio: 2.2,
-      children: tiles
-          .map((t) => _StatCard(label: t.label, value: t.value))
-          .toList(),
-    );
-  }
-}
-
-class _StatCard extends StatelessWidget {
-  const _StatCard({required this.label, required this.value});
+class _ListRow extends StatelessWidget {
+  const _ListRow({required this.emoji, required this.label, required this.value});
+  final String emoji;
   final String label;
   final String value;
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: AppColors.lightCard,
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: const BorderSide(color: AppColors.lightLine, width: 1),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              label,
-              style: const TextStyle(
-                fontFamily: 'PlusJakartaSans',
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: AppColors.lightInk3,
-                letterSpacing: 1.1,
-              ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: Row(
+        children: [
+          Text(emoji, style: const TextStyle(fontSize: 13)),
+          const SizedBox(width: 10),
+          Text(
+            label,
+            style: const TextStyle(
+              fontFamily: 'PlusJakartaSans',
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
             ),
-            const SizedBox(height: 4),
-            Text(
-              value,
-              style: const TextStyle(
-                fontFamily: 'PlusJakartaSans',
-                fontSize: 22,
-                fontWeight: FontWeight.w700,
-                color: AppColors.lightInk,
-              ),
+          ),
+          const Spacer(),
+          Text(
+            value,
+            style: const TextStyle(
+              fontFamily: 'PlusJakartaSans',
+              fontSize: 13,
+              fontWeight: FontWeight.w800,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 }
 
-class _RecoveryRow extends StatelessWidget {
-  const _RecoveryRow({required this.score});
-  final int score;
+class _PhaseBars extends StatelessWidget {
+  const _PhaseBars({required this.heights});
+  final List<double> heights;
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: AppColors.lightCard,
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: const BorderSide(color: AppColors.lightLine, width: 1),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-        child: Row(
-          children: [
-            const Text(
-              'Recovery score',
-              style: TextStyle(
-                fontFamily: 'PlusJakartaSans',
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: AppColors.lightInk2,
-              ),
-            ),
-            const Spacer(),
-            ShaderMask(
-              shaderCallback: (bounds) => AppGradients.scoreText.createShader(bounds),
-              blendMode: BlendMode.srcIn,
-              child: Text(
-                '$score',
-                style: const TextStyle(
-                  fontFamily: 'PlusJakartaSans',
-                  fontSize: 32,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white,
+    return SizedBox(
+      height: 70,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          for (var i = 0; i < heights.length; i++) ...[
+            if (i > 0) const SizedBox(width: 8),
+            Expanded(
+              child: FractionallySizedBox(
+                heightFactor: heights[i] == 0 ? 0.05 : heights[i].clamp(0.05, 1.0),
+                child: Container(
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(5),
+                      bottom: Radius.zero,
+                    ),
+                    gradient: AppGradients.btnPrimary,
+                  ),
                 ),
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _NoteCard extends StatelessWidget {
-  const _NoteCard({required this.note});
-  final String note;
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      color: AppColors.lightCard,
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: const BorderSide(color: AppColors.lightLine, width: 1),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Note',
-              style: TextStyle(
-                fontFamily: 'PlusJakartaSans',
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: AppColors.lightInk3,
-                letterSpacing: 1.1,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              note,
-              style: const TextStyle(
-                fontFamily: 'PlusJakartaSans',
-                fontSize: 15,
-                height: 1.5,
-                color: AppColors.lightInk,
-              ),
-            ),
-          ],
-        ),
+        ],
       ),
     );
   }

@@ -1,3 +1,5 @@
+import 'dart:ui' as ui;
+
 import 'package:contrast_coach/core/constants/app_colors.dart';
 import 'package:contrast_coach/core/constants/app_spacing.dart';
 import 'package:contrast_coach/core/errors/app_exception.dart';
@@ -9,20 +11,42 @@ import 'package:contrast_coach/domain/entities/achievement.dart';
 import 'package:contrast_coach/domain/entities/session.dart';
 import 'package:contrast_coach/domain/entities/subscription_tier.dart';
 import 'package:contrast_coach/domain/usecases/evaluate_achievements.dart';
+import 'package:contrast_coach/domain/usecases/session_stats.dart';
 import 'package:contrast_coach/presentation/widgets/layout/app_bar.dart';
+import 'package:contrast_coach/core/theme/gradients.dart';
 import 'package:flutter/material.dart';
 
-/// v4 Achievements screen.
-///
-/// Loads all sessions from the local drift store, runs the pure-Dart
-/// [evaluateAchievements] evaluator, and renders a 2-column grid of badge
-/// tiles with v4 styling (radius 20, surfaceContainerHigh, PlusJakartaSans).
-///
-/// Subscription tier gate: [FeatureGating.canUseFullAchievementsHistory].
-/// Free users see unlocked badges within a 7-day window plus all locked
-/// badges; Pro users see the full history. The live tier read is deferred
-/// (would require Firestore/RevenueCat) — see "Tier wiring" in the task
-/// report. Until wired, the screen defaults to showing all badges.
+const _kLevelNames = [
+  'Novice',
+  'Apprentice',
+  'Steady',
+  'Frostwalker',
+  'Coldforge',
+  'Heatsworn',
+  'Ironliver',
+  'Aurora',
+  'Icemaster',
+  'Legend',
+];
+
+String _levelName(int level) {
+  if (level < 0) return _kLevelNames.first;
+  final idx = (level - 1).clamp(0, _kLevelNames.length - 1);
+  return _kLevelNames[idx];
+}
+
+int _levelForSessions(int sessions) =>
+    (sessions ~/ 12).clamp(0, _kLevelNames.length - 1) + 1;
+
+int _xpForMinutes(int minutes) => minutes * 10;
+
+const _grayscale = ui.ColorFilter.matrix(<double>[
+  0.2126, 0.7152, 0.0722, 0, 0,
+  0.2126, 0.7152, 0.0722, 0, 0,
+  0.2126, 0.7152, 0.0722, 0, 0,
+  0, 0, 0, 1, 0,
+]);
+
 class AchievementsScreen extends StatefulWidget {
   const AchievementsScreen({super.key});
 
@@ -31,13 +55,8 @@ class AchievementsScreen extends StatefulWidget {
 }
 
 class _AchievementsScreenState extends State<AchievementsScreen> {
-  late Future<List<Achievement>> _load;
+  late Future<({List<Achievement> badges, int level, int xp, double pct})> _load;
 
-  /// Deferred: read live tier from RevenueCat/Firestore via
-  /// [SharedSubscriptionState] (see insights/streak screens). Until then
-  /// we default to [SubscriptionTier.free] only to expose the gate flag —
-  /// the consumer behavior is "show all badges" so the screen is not
-  /// degraded for Free users during the v4 port.
   static const SubscriptionTier _tier = SubscriptionTier.free;
 
   @override
@@ -46,22 +65,27 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
     _load = _loadAchievements();
   }
 
-  Future<List<Achievement>> _loadAchievements() async {
+  Future<({List<Achievement> badges, int level, int xp, double pct})>
+      _loadAchievements() async {
     final db = await DatabaseProvider.instance();
     final repo = SessionRepositoryImpl(db);
     final result = await repo.getAll();
     final sessions = result is Ok<List<Session>, AppException>
         ? result.value
         : <Session>[];
+    final stats = computeSessionStats(sessions);
+    final level = _levelForSessions(stats.totalSessions);
+    final xp = _xpForMinutes(stats.totalMinutes);
+    final nextThreshold = (level + 1) * 1200;
+    final curThreshold = level * 1200;
+    final pct = nextThreshold == curThreshold
+        ? 1.0
+        : ((xp - curThreshold) / (nextThreshold - curThreshold)).clamp(0.0, 1.0);
     final all = evaluateAchievements(sessions);
-    return _applyTierGate(all);
+    final gated = _applyTierGate(all);
+    return (badges: gated, level: level, xp: xp, pct: pct);
   }
 
-  /// Apply the Pro/Free achievements-history gate.
-  ///
-  /// Free: drop unlocked badges whose `unlockedAt` is older than 7 days,
-  /// keep locked badges and recently-unlocked ones.
-  /// Pro (or any `isPro` tier): keep all badges.
   List<Achievement> _applyTierGate(List<Achievement> all) {
     final fullHistory = FeatureGating.canUseFullAchievementsHistory(_tier);
     if (fullHistory) return all;
@@ -69,9 +93,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
       Duration(days: FeatureGating.freeStreakHistoryDays),
     );
     return all
-        .where(
-          (a) => !a.isUnlocked || (a.unlockedAt?.isAfter(cutoff) ?? false),
-        )
+        .where((a) => !a.isUnlocked || (a.unlockedAt?.isAfter(cutoff) ?? false))
         .toList(growable: false);
   }
 
@@ -79,21 +101,32 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: const ContrastAppBar(title: 'Achievements'),
+      appBar: const ContrastAppBar(title: 'Achievements', showBackButton: true),
       body: SafeArea(
         top: false,
-        child: FutureBuilder<List<Achievement>>(
+        child: FutureBuilder<
+            ({List<Achievement> badges, int level, int xp, double pct})>(
           future: _load,
           builder: (context, snapshot) {
             if (snapshot.connectionState != ConnectionState.done) {
               return const Center(child: CircularProgressIndicator());
             }
-            if (snapshot.hasError) {
-              return _emptyState(context);
-            }
-            final items = snapshot.data ?? const <Achievement>[];
-            if (items.isEmpty) return _emptyState(context);
-            return _AchievementsGrid(items: items);
+            if (snapshot.hasError) return _emptyState(context);
+            final data = snapshot.data;
+            if (data == null || data.badges.isEmpty) return _emptyState(context);
+            return ListView(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.pageHorizontal,
+                AppSpacing.lg,
+                AppSpacing.pageHorizontal,
+                AppSpacing.sectionGap,
+              ),
+              children: [
+                _LevelCard(level: data.level, xp: data.xp, pct: data.pct),
+                const SizedBox(height: 14),
+                _BadgesGrid(badges: data.badges),
+              ],
+            );
           },
         ),
       ),
@@ -106,12 +139,9 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
         padding: const EdgeInsets.all(AppSpacing.pageHorizontal),
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              '🏆',
-              style: TextStyle(fontSize: 40),
-            ),
-            const SizedBox(height: AppSpacing.lg),
+          children: const [
+            Text('🏆', style: TextStyle(fontSize: 40)),
+            SizedBox(height: AppSpacing.lg),
             Text(
               'No achievements yet — start a session to unlock',
               textAlign: TextAlign.center,
@@ -119,7 +149,6 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                 fontFamily: 'PlusJakartaSans',
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
-                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
           ],
@@ -129,107 +158,162 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
   }
 }
 
-class _AchievementsGrid extends StatelessWidget {
-  const _AchievementsGrid({required this.items});
-  final List<Achievement> items;
+/// Level + XP card. Mockup `.card` margin-bottom 14:
+///   Row "Level 4 · Frostwalker" + "720 XP" — 13 w700.
+///   `.bar-p` 8 tall, heat→coral inner at 72%.
+class _LevelCard extends StatelessWidget {
+  const _LevelCard({required this.level, required this.xp, required this.pct});
+  final int level;
+  final int xp;
+  final double pct;
 
   @override
   Widget build(BuildContext context) {
-    return GridView.builder(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.pageHorizontal,
-        AppSpacing.lg,
-        AppSpacing.pageHorizontal,
-        AppSpacing.sectionGap,
-      ),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        mainAxisSpacing: AppSpacing.md,
-        crossAxisSpacing: AppSpacing.md,
-        childAspectRatio: 0.82,
-      ),
-      itemCount: items.length,
-      itemBuilder: (context, i) => _AchievementTile(achievement: items[i]),
-    );
-  }
-}
-
-class _AchievementTile extends StatelessWidget {
-  const _AchievementTile({required this.achievement});
-  final Achievement achievement;
-
-  @override
-  Widget build(BuildContext context) {
-    final unlocked = achievement.isUnlocked;
-    // Spec said AppColors.ink3 — that token does not exist in AppColors
-    // (only lightInk3/darkInk3 do). Use colorScheme.outline so the locked
-    // state is theme-aware and consistent with other v4 screens.
-    final mutedColor = Theme.of(context).colorScheme.outline;
-    final emojiColor = unlocked ? AppColors.heat : mutedColor;
-    final nameColor = unlocked
-        ? Theme.of(context).colorScheme.onSurface
-        : mutedColor;
-
+    final cs = Theme.of(context).colorScheme;
+    final ext = Theme.of(context).extension<AppColorsExtension>()!;
+    final name = _levelName(level).trim();
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.lg),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHigh,
+        color: cs.surface,
         borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: ext.lineColor),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x1A14142D),
+            blurRadius: 24,
+            offset: Offset(0, 8),
+            spreadRadius: -16,
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            achievement.emoji,
-            style: TextStyle(fontSize: 36, color: emojiColor, height: 1.0),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Level $level · $name',
+                style: const TextStyle(
+                  fontFamily: 'PlusJakartaSans',
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              Text(
+                '$xp XP',
+                style: const TextStyle(
+                  fontFamily: 'PlusJakartaSans',
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: AppSpacing.md),
-          Text(
-            achievement.title,
-            style: TextStyle(
-              fontFamily: 'PlusJakartaSans',
-              fontSize: 15,
-              fontWeight: FontWeight.w700,
-              color: nameColor,
-              height: 1.2,
+          const SizedBox(height: 8),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(5),
+            child: SizedBox(
+              height: 8,
+              child: Stack(
+                children: [
+                  Container(color: ext.lineColor),
+                  FractionallySizedBox(
+                    widthFactor: pct,
+                    child: const DecoratedBox(
+                      decoration: BoxDecoration(gradient: AppGradients.btnPrimary),
+                    ),
+                  ),
+                ],
+              ),
             ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            achievement.description,
-            style: TextStyle(
-              fontFamily: 'PlusJakartaSans',
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-              color: Theme.of(context).colorScheme.outline,
-              height: 1.3,
-            ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const Spacer(),
-          Text(
-            unlocked
-                ? 'Unlocked ${_formatDate(achievement.unlockedAt!)}'
-                : 'Locked',
-            style: TextStyle(
-              fontFamily: 'PlusJakartaSans',
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: unlocked ? AppColors.heat : mutedColor,
-              letterSpacing: 0.3,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
     );
   }
+}
 
-  String _formatDate(DateTime d) {
-    return '${d.month}/${d.day}/${d.year}';
+/// 3-column badge grid. Mockup `.badges` `grid-template-columns: 1fr 1fr 1fr`
+/// gap 12. `.badge` radius 16, padding 14/6, emoji 26px centered, small label
+/// 10 w700. `.badge.locked` opacity .4 + filter grayscale(1).
+class _BadgesGrid extends StatelessWidget {
+  const _BadgesGrid({required this.badges});
+  final List<Achievement> badges;
+
+  @override
+  Widget build(BuildContext context) {
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: badges.length,
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        mainAxisSpacing: 12,
+        crossAxisSpacing: 12,
+        childAspectRatio: 0.78,
+      ),
+      itemBuilder: (context, i) => _BadgeTile(achievement: badges[i]),
+    );
+  }
+}
+
+class _BadgeTile extends StatelessWidget {
+  const _BadgeTile({required this.achievement});
+  final Achievement achievement;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final ext = Theme.of(context).extension<AppColorsExtension>()!;
+    final unlocked = achievement.isUnlocked;
+    final tile = Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 14),
+      decoration: BoxDecoration(
+        color: cs.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: ext.lineColor),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x1A14142D),
+            blurRadius: 24,
+            offset: Offset(0, 8),
+            spreadRadius: -16,
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            achievement.emoji,
+            style: const TextStyle(fontSize: 26, height: 1.0),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 6),
+          Text(
+            achievement.title,
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontFamily: 'PlusJakartaSans',
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
+    );
+    if (unlocked) return tile;
+    return Opacity(
+      opacity: 0.4,
+      child: ColorFiltered(
+        colorFilter: _grayscale,
+        child: tile,
+      ),
+    );
   }
 }

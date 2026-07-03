@@ -32,4 +32,5 @@ class RouteNames {
   static const String appearance = 'appearance';
   static const String editProfile = 'editProfile';
   static const String sessionDetail = 'sessionDetail';
+  static const String breathwork = 'breathwork';
 }
