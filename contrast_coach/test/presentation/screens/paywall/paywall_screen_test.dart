@@ -16,7 +16,8 @@ void main() {
         home: const PaywallScreen(),
       ),
     );
-    await tester.pump(const Duration(milliseconds: 600));
+    await tester.pump(const Duration(milliseconds: 50));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
 
     expect(find.textContaining('CONTRASTCOACH PRO'), findsOneWidget);
     expect(find.text('See what actually works for you'), findsOneWidget);

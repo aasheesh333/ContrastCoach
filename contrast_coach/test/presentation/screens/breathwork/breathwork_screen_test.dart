@@ -19,5 +19,8 @@ void main() {
     expect(find.textContaining('Round'), findsOneWidget);
     expect(find.textContaining('tap anywhere to pause'), findsOneWidget);
     expect(find.text('✕'), findsOneWidget);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump(const Duration(milliseconds: 50));
   });
 }

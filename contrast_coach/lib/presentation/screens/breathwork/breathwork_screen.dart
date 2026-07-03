@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:contrast_coach/core/theme/gradients.dart';
 import 'package:contrast_coach/presentation/widgets/composite/breathing_orb.dart';
 import 'package:flutter/material.dart';
@@ -21,32 +23,46 @@ class BreathworkScreen extends StatefulWidget {
 class _BreathworkScreenState extends State<BreathworkScreen> {
   static const _sequence = ['INHALE', 'HOLD', 'EXHALE', 'HOLD'];
   int _phaseIndex = 0;
-  int _round = 2;
-  int _rounds = 5;
+  int _round = 1;
+  final int _rounds = 5;
   bool _paused = false;
+  Timer? _timer;
 
   @override
   void initState() {
     super.initState();
-    _tick();
+    _startTimer();
   }
 
-  Future<void> _tick() async {
-    while (mounted && !_paused) {
-      await Future.delayed(const Duration(seconds: 2));
-      if (!mounted || _paused) return;
+  void _startTimer() {
+    _timer?.cancel();
+    _timer = Timer.periodic(const Duration(seconds: 2), (_) {
+      if (!mounted) return;
       setState(() {
         _phaseIndex = (_phaseIndex + 1) % _sequence.length;
         if (_phaseIndex == 0) {
           _round = (_round % _rounds) + 1;
         }
       });
-    }
+    });
   }
 
   void _togglePause() {
-    setState(() => _paused = !_paused);
-    if (!_paused) _tick();
+    if (_paused) {
+      _paused = false;
+      _startTimer();
+    } else {
+      _paused = true;
+      _timer?.cancel();
+      _timer = null;
+    }
+    setState(() {});
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
   }
 
   @override
