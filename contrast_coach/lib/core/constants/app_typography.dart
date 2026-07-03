@@ -63,6 +63,13 @@ class AppTypography {
     fontWeight: FontWeight.w600,
   );
 
+  static const TextStyle titleHero = TextStyle(
+    fontFamily: bodyFont,
+    fontSize: 19,
+    height: 1.25,
+    fontWeight: FontWeight.w700,
+  );
+
   static const TextStyle titleMedium = TextStyle(
     fontFamily: bodyFont,
     fontSize: 16,
@@ -83,6 +90,13 @@ class AppTypography {
     fontSize: 16,
     height: 1.45,
     fontWeight: FontWeight.w500,
+  );
+
+  static const TextStyle bodyLargeV4 = TextStyle(
+    fontFamily: bodyFont,
+    fontSize: 15,
+    height: 1.45,
+    fontWeight: FontWeight.w400,
   );
 
   static const TextStyle bodyMedium = TextStyle(
@@ -116,12 +130,28 @@ class AppTypography {
     letterSpacing: 0.5,
   );
 
+  static const TextStyle labelMediumV4 = TextStyle(
+    fontFamily: bodyFont,
+    fontSize: 13,
+    height: 1.3,
+    fontWeight: FontWeight.w600,
+    letterSpacing: 0.4,
+  );
+
   static const TextStyle labelSmall = TextStyle(
     fontFamily: bodyFont,
     fontSize: 11,
     height: 1.3,
     fontWeight: FontWeight.w600,
     letterSpacing: 1.2,
+  );
+
+  static const TextStyle captionV4 = TextStyle(
+    fontFamily: bodyFont,
+    fontSize: 11,
+    height: 1.3,
+    fontWeight: FontWeight.w500,
+    letterSpacing: 0.2,
   );
 
   // Timer (ultra-thin, huge)
@@ -149,6 +179,18 @@ class AppTypography {
     height: 16 / 12,
     fontWeight: FontWeight.w400,
     fontFeatures: [FontFeature.tabularFigures()],
+  );
+
+  static const TextStyle monoLight = TextStyle(
+    fontFamily: monoFont,
+    fontSize: 14,
+    fontWeight: FontWeight.w300,
+  );
+
+  static const TextStyle monoMedium = TextStyle(
+    fontFamily: monoFont,
+    fontSize: 14,
+    fontWeight: FontWeight.w500,
   );
 
   // TextTheme
