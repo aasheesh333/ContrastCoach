@@ -1,4 +1,5 @@
 import 'package:contrast_coach/data/local/database/app_database.dart';
+import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -19,8 +20,8 @@ void main() {
           JournalEntriesCompanion.insert(
             id: 'je1',
             createdAt: now,
-            mood: 'recovered',
-            note: 'Felt great after cold shower',
+            mood: const Value('recovered'),
+            note: const Value('Felt great after cold shower'),
           ),
         );
     final all = await db.select(db.journalEntries).get();

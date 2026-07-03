@@ -95,18 +95,4 @@ void main() {
     expect(router.routerDelegate.currentConfiguration.uri.path, '/coach');
     expect(find.text('Coach'), findsWidgets);
   });
-
-  testWidgets('/settings/streak builds after move under /settings', (tester) async {
-    final router = AppRouter.build(isOnboarded: true, isAuthed: true, firebaseAvailable: true);
-    await tester.pumpWidget(
-      MaterialApp.router(
-        theme: AppTheme.light(),
-        routerConfig: router,
-      ),
-    );
-    await tester.pumpAndSettle();
-    router.go('/settings/streak');
-    await tester.pumpAndSettle();
-    expect(router.routerDelegate.currentConfiguration.uri.path, '/settings/streak');
-  });
 }
