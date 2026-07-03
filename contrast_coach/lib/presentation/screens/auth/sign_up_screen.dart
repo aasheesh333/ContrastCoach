@@ -2,6 +2,7 @@ import 'package:contrast_coach/core/constants/app_colors.dart';
 import 'package:contrast_coach/core/env/env_config.dart';
 import 'package:contrast_coach/core/errors/app_exception.dart';
 import 'package:contrast_coach/core/errors/result.dart';
+import 'package:contrast_coach/core/theme/gradients.dart';
 import 'package:contrast_coach/data/repositories/auth_repository.dart';
 import 'package:contrast_coach/domain/repositories/auth_repository.dart';
 import 'package:contrast_coach/presentation/screens/home/firebase_auth_proxy.dart';
@@ -95,132 +96,135 @@ class _SignUpScreenState extends State<SignUpScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Container(
-                width: 72,
-                height: 72,
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [AppColors.brandWarm, AppColors.brandCoral],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+      backgroundColor: Colors.transparent,
+      body: Container(
+        decoration: const BoxDecoration(gradient: AppGradients.heroDark),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // v4 brand header
+                const Icon(LucideIcons.flame, color: AppColors.heat, size: 56),
+                const SizedBox(height: 16),
+                const Text(
+                  'Create your account',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
+                    fontSize: 22,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
                   ),
-                  borderRadius: BorderRadius.circular(20),
                 ),
-                child: const Center(
-                  child: Icon(LucideIcons.thermometer, color: AppColors.white, size: 36),
-                ),
-              ),
-              const SizedBox(height: 24),
-              Text(
-                'Start tracking',
-                style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                      fontWeight: FontWeight.w800,
-                    ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Create an account to sync across devices.',
-                style: TextStyle(
-                  fontFamily: 'PlusJakartaSans',
-                  fontSize: 15,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              ),
-              const SizedBox(height: 32),
-              AppTextField(
-                label: 'Email',
-                controller: _email,
-                keyboardType: TextInputType.emailAddress,
-                autofillHints: const [AutofillHints.email],
-                prefixIcon: LucideIcons.mail,
-              ),
-              const SizedBox(height: 14),
-              AppTextField(
-                label: 'Password',
-                controller: _password,
-                obscureText: true,
-                autofillHints: const [AutofillHints.newPassword],
-                prefixIcon: LucideIcons.lock,
-              ),
-              if (_error != null) ...[
-                const SizedBox(height: 12),
+                const SizedBox(height: 24),
                 Text(
-                  _error!,
-                  style: const TextStyle(
-                    color: AppColors.error,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
+                  'Start tracking',
+                  style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Create an account to sync across devices.',
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
+                    fontSize: 15,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
-              ],
-              const SizedBox(height: 24),
-              AppButton(
-                label: 'Create account',
-                onPressed: _loading ? null : _signUp,
-                variant: AppButtonVariant.warm,
-                fullWidth: true,
-                size: AppButtonSize.large,
-                isLoading: _loading,
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                   Expanded(child: Divider(color: Theme.of(context).colorScheme.outline)),
-                   Padding(
-                     padding: const EdgeInsets.symmetric(horizontal: 12),
-                     child: Text(
-                       'or',
-                       style: TextStyle(
-                         fontFamily: 'PlusJakartaSans',
-                         fontSize: 12,
-                         color: Theme.of(context).colorScheme.outline,
-                         fontWeight: FontWeight.w500,
-                       ),
-                     ),
-                   ),
-                   Expanded(child: Divider(color: Theme.of(context).colorScheme.outline)),
-                ],
-              ),
-              const SizedBox(height: 12),
-              AppButton(
-                label: 'Continue with Google',
-                onPressed: _loading ? null : _signInGoogle,
-                variant: AppButtonVariant.secondary,
-                fullWidth: true,
-                leadingIcon: LucideIcons.mail,
-              ),
-              const SizedBox(height: 24),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
+                const SizedBox(height: 32),
+                AppTextField(
+                  label: 'Email',
+                  controller: _email,
+                  keyboardType: TextInputType.emailAddress,
+                  autofillHints: const [AutofillHints.email],
+                  prefixIcon: LucideIcons.mail,
+                ),
+                const SizedBox(height: 14),
+                AppTextField(
+                  label: 'Password',
+                  controller: _password,
+                  obscureText: true,
+                  autofillHints: const [AutofillHints.newPassword],
+                  prefixIcon: LucideIcons.lock,
+                ),
+                if (_error != null) ...[
+                  const SizedBox(height: 12),
                   Text(
-                    'Already have an account?',
-                    style: TextStyle(
-                      fontFamily: 'PlusJakartaSans',
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      fontSize: 14,
+                    _error!,
+                    style: const TextStyle(
+                      color: AppColors.error,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
-                  TextButton(
-                    onPressed: () => context.pop(),
-                    child: const Text(
-                      'Sign in',
-                      style: TextStyle(
-                        color: AppColors.brandWarm,
-                        fontWeight: FontWeight.w700,
+                ],
+                const SizedBox(height: 24),
+                AppButton(
+                  label: 'Create account',
+                  onPressed: _loading ? null : _signUp,
+                  variant: AppButtonVariant.warm,
+                  fullWidth: true,
+                  size: AppButtonSize.large,
+                  isLoading: _loading,
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                        child: Divider(color: Theme.of(context).colorScheme.outline)),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: Text(
+                        'or',
+                        style: TextStyle(
+                          fontFamily: 'PlusJakartaSans',
+                          fontSize: 12,
+                          color: Theme.of(context).colorScheme.outline,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ],
+                    Expanded(
+                        child: Divider(color: Theme.of(context).colorScheme.outline)),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                AppButton(
+                  label: 'Continue with Google',
+                  onPressed: _loading ? null : _signInGoogle,
+                  variant: AppButtonVariant.secondary,
+                  fullWidth: true,
+                  leadingIcon: LucideIcons.mail,
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Already have an account?',
+                      style: TextStyle(
+                        fontFamily: 'PlusJakartaSans',
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        fontSize: 14,
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () => context.pop(),
+                      child: const Text(
+                        'Sign in',
+                        style: TextStyle(
+                          color: AppColors.heat,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),

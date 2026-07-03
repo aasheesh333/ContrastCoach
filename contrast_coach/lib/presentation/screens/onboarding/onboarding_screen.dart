@@ -1,7 +1,9 @@
 import 'package:contrast_coach/core/constants/app_colors.dart';
+import 'package:contrast_coach/core/constants/app_motion.dart';
 import 'package:contrast_coach/core/constants/app_spacing.dart';
 import 'package:contrast_coach/core/constants/app_strings.dart';
 import 'package:contrast_coach/core/preferences/app_preferences.dart';
+import 'package:contrast_coach/core/theme/gradients.dart';
 import 'package:contrast_coach/presentation/widgets/atomic/app_button.dart';
 import 'package:contrast_coach/presentation/widgets/atomic/app_card.dart';
 import 'package:contrast_coach/presentation/widgets/dialogs/medical_disclaimer_dialog.dart';
@@ -56,8 +58,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      body: SafeArea(
+      backgroundColor: Colors.transparent,
+      body: Container(
+        decoration: const BoxDecoration(gradient: AppGradients.splashBg),
+        child: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(
             AppSpacing.xxl,
@@ -68,10 +72,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           child: Column(
                 children: [
                   const SizedBox(height: AppSpacing.md),
+                  const Icon(LucideIcons.flame, color: AppColors.heat, size: 56),
+                  const SizedBox(height: 16),
                   _PageDots(active: _step, total: 3),
                   const SizedBox(height: 24),
                   AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 240),
+                    duration: AppMotion.defaultDuration,
                     child: _StepContent(key: ValueKey(_step), step: _step),
                   ),
                   const SizedBox(height: 24),
@@ -100,6 +106,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               ),
         ),
       ),
+      ),
     );
   }
 }
@@ -116,12 +123,12 @@ class _PageDots extends StatelessWidget {
       children: List.generate(total, (i) {
         final isActive = i == active;
         return AnimatedContainer(
-          duration: const Duration(milliseconds: 220),
+          duration: AppMotion.defaultDuration,
           margin: const EdgeInsets.symmetric(horizontal: 4),
           width: isActive ? 24 : 8,
           height: 8,
           decoration: BoxDecoration(
-            color: isActive ? AppColors.brandWarm : Theme.of(context).colorScheme.surfaceContainerHigh,
+            color: isActive ? AppColors.heat : Theme.of(context).colorScheme.surfaceContainerHigh,
             borderRadius: BorderRadius.circular(4),
           ),
         );

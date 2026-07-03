@@ -1,6 +1,7 @@
 import 'package:contrast_coach/core/env/env_config.dart';
 import 'package:contrast_coach/core/constants/app_colors.dart';
 import 'package:contrast_coach/core/constants/app_strings.dart';
+import 'package:contrast_coach/core/theme/gradients.dart';
 import 'package:contrast_coach/core/errors/app_exception.dart';
 import 'package:contrast_coach/core/errors/result.dart';
 import 'package:contrast_coach/data/repositories/auth_repository.dart';
@@ -119,169 +120,170 @@ class _SignInScreenState extends State<SignInScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Logo + greeting
-              Container(
-                width: 72,
-                height: 72,
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [AppColors.brandWarm, AppColors.brandCoral],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: const Center(
-                  child: Icon(LucideIcons.thermometer, color: AppColors.white, size: 36),
-                ),
-              ),
-              const SizedBox(height: 24),
-              Text(
-                'Welcome back',
-                style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                      fontWeight: FontWeight.w800,
-                      height: 1.1,
-                    ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Sign in to keep your streak going.',
-                style: TextStyle(
-                  fontFamily: 'PlusJakartaSans',
-                  fontSize: 15,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              ),
-              const SizedBox(height: 32),
-              AppTextField(
-                label: 'Email',
-                controller: _email,
-                keyboardType: TextInputType.emailAddress,
-                autofillHints: const [AutofillHints.email],
-                prefixIcon: LucideIcons.mail,
-              ),
-              const SizedBox(height: 14),
-              AppTextField(
-                label: 'Password',
-                controller: _password,
-                obscureText: _obscurePassword,
-                autofillHints: const [AutofillHints.password],
-                prefixIcon: LucideIcons.lock,
-                suffix: IconButton(
-                  icon: Icon(
-                    _obscurePassword ? LucideIcons.eyeOff : LucideIcons.eye,
-                    color: Theme.of(context).colorScheme.outline,
-                    size: 20,
-                  ),
-                  onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
-                ),
-              ),
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton(
-                  onPressed: () => _sendPasswordResetEmail(context),
-                  child: const Text(
-                    'Forgot password?',
-                    style: TextStyle(
-                      fontFamily: 'PlusJakartaSans',
-                      fontSize: 13,
-                      color: AppColors.brandWarm,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ),
-              if (_error != null) ...[
-                const SizedBox(height: 12),
-                Text(
-                  _error!,
-                  style: const TextStyle(
-                    color: AppColors.error,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-              const SizedBox(height: 24),
-              AppButton(
-                label: 'Sign in',
-                onPressed: _loading ? null : _signInEmail,
-                variant: AppButtonVariant.warm,
-                fullWidth: true,
-                size: AppButtonSize.large,
-                isLoading: _loading,
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                   Expanded(child: Divider(color: Theme.of(context).colorScheme.outline)),
-                   Padding(
-                     padding: const EdgeInsets.symmetric(horizontal: 12),
-                     child: Text(
-                       'or',
-                       style: TextStyle(
-                         fontFamily: 'PlusJakartaSans',
-                         fontSize: 12,
-                         color: Theme.of(context).colorScheme.outline,
-                         fontWeight: FontWeight.w500,
-                       ),
-                     ),
-                   ),
-                   Expanded(child: Divider(color: Theme.of(context).colorScheme.outline)),
-                ],
-              ),
-              const SizedBox(height: 12),
-              AppButton(
-                label: 'Continue with Google',
-                onPressed: _loading ? null : _signInGoogle,
-                variant: AppButtonVariant.secondary,
-                fullWidth: true,
-                leadingIcon: LucideIcons.mail,
-              ),
-              const SizedBox(height: 24),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'New here?',
-                    style: TextStyle(
-                      fontFamily: 'PlusJakartaSans',
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      fontSize: 14,
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () => context.push('/sign-up'),
-                    child: const Text(
-                      'Create account',
-                      style: TextStyle(
-                        color: AppColors.brandWarm,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Center(
-                child: Text(
-                  AppStrings.medicalDisclaimer.split('.').first + '.',
+      backgroundColor: Colors.transparent,
+      body: Container(
+        decoration: const BoxDecoration(gradient: AppGradients.heroDark),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // v4 🔥 brand header
+                const Icon(LucideIcons.flame, color: AppColors.heat, size: 56),
+                const SizedBox(height: 16),
+                const Text(
+                  'ContrastCoach',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontFamily: 'PlusJakartaSans',
-                    color: Theme.of(context).colorScheme.outline,
-                    fontSize: 11,
+                    fontSize: 24,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
                   ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 24),
+                Text(
+                  'Welcome back',
+                  style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        height: 1.1,
+                        color: Colors.white,
+                      ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Sign in to keep your streak going.',
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
+                    fontSize: 15,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: 32),
+                AppTextField(
+                  label: 'Email',
+                  controller: _email,
+                  keyboardType: TextInputType.emailAddress,
+                  autofillHints: const [AutofillHints.email],
+                  prefixIcon: LucideIcons.mail,
+                ),
+                const SizedBox(height: 14),
+                AppTextField(
+                  label: 'Password',
+                  controller: _password,
+                  obscureText: _obscurePassword,
+                  autofillHints: const [AutofillHints.password],
+                  prefixIcon: LucideIcons.lock,
+                  suffix: IconButton(
+                    icon: Icon(
+                      _obscurePassword ? LucideIcons.eyeOff : LucideIcons.eye,
+                      color: Theme.of(context).colorScheme.outline,
+                      size: 20,
+                    ),
+                    onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () => _sendPasswordResetEmail(context),
+                    child: const Text(
+                      'Forgot password?',
+                      style: TextStyle(
+                        fontFamily: 'PlusJakartaSans',
+                        fontSize: 13,
+                        color: AppColors.heat,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+                if (_error != null) ...[
+                  const SizedBox(height: 12),
+                  Text(
+                    _error!,
+                    style: const TextStyle(
+                      color: AppColors.error,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 24),
+                AppButton(
+                  label: 'Sign in',
+                  onPressed: _loading ? null : _signInEmail,
+                  variant: AppButtonVariant.warm,
+                  fullWidth: true,
+                  size: AppButtonSize.large,
+                  isLoading: _loading,
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(child: Divider(color: Theme.of(context).colorScheme.outline)),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: Text(
+                        'or',
+                        style: TextStyle(
+                          fontFamily: 'PlusJakartaSans',
+                          fontSize: 12,
+                          color: Theme.of(context).colorScheme.outline,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    Expanded(child: Divider(color: Theme.of(context).colorScheme.outline)),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                AppButton(
+                  label: 'Continue with Google',
+                  onPressed: _loading ? null : _signInGoogle,
+                  variant: AppButtonVariant.secondary,
+                  fullWidth: true,
+                  leadingIcon: LucideIcons.mail,
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'New here?',
+                      style: TextStyle(
+                        fontFamily: 'PlusJakartaSans',
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        fontSize: 14,
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () => context.push('/sign-up'),
+                      child: const Text(
+                        'Create account',
+                        style: TextStyle(
+                          color: AppColors.heat,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Center(
+                  child: Text(
+                    AppStrings.medicalDisclaimer.split('.').first + '.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontFamily: 'PlusJakartaSans',
+                      color: Theme.of(context).colorScheme.outline,
+                      fontSize: 11,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
