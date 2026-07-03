@@ -175,6 +175,9 @@ jobs:
             --dart-define=GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }} \
             --dart-define=ENV=dev
 
+      - name: List bundle outputs
+        run: find build/app/outputs/bundle -type f 2>&1 | head -30 || true
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
@@ -187,6 +190,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: debug-aab
-          path: contrast_coach/build/app/outputs/bundle/devDebug/app-dev-debug.aab
+          path: contrast_coach/build/app/outputs/bundle/**/app-*.aab
           retention-days: 7
           if-no-files-found: error
