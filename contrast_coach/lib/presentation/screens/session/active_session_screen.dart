@@ -1,4 +1,4 @@
-import 'package:contrast_coach/core/animations/animation_utils.dart';
+import 'package:contrast_coach/core/constants/app_colors.dart';
 import 'package:contrast_coach/core/constants/app_colors.dart';
 import 'package:contrast_coach/core/errors/app_exception.dart';
 import 'package:contrast_coach/core/errors/result.dart';
@@ -26,6 +26,7 @@ import 'package:contrast_coach/domain/voice/command_parser.dart';
 import 'package:contrast_coach/presentation/screens/home/firebase_auth_proxy.dart';
 import 'package:contrast_coach/presentation/widgets/atomic/app_button.dart';
 import 'package:contrast_coach/presentation/widgets/composite/session_timer.dart';
+import 'package:contrast_coach/core/theme/gradients.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -461,24 +462,19 @@ class _ActiveSessionScreenState extends State<ActiveSessionScreen>
   Widget build(BuildContext context) {
     if (_loading) {
       return const Scaffold(
-        backgroundColor: AppColors.charcoal,
-        body: Center(
-          child: CircularProgressIndicator(color: AppColors.white),
-        ),
+        body: Center(child: CircularProgressIndicator(color: AppColors.heat)),
       );
     }
 
     if (_error != null) {
       return Scaffold(
-        backgroundColor: AppColors.charcoal,
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(24),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text('Error: $_error', textAlign: TextAlign.center,
-                    style: const TextStyle(color: AppColors.white, fontSize: 15)),
+                Text('Error: $_error', textAlign: TextAlign.center),
                 const SizedBox(height: 16),
                 AppButton(
                   label: 'Try again',
@@ -503,102 +499,50 @@ class _ActiveSessionScreenState extends State<ActiveSessionScreen>
         body: SafeArea(
           child: Stack(
             children: [
-              // Top: phase pills + close
+              // Top: close button
               Positioned(
-                top: 16,
-                left: 16,
+                top: 12,
                 right: 16,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    for (final t in PhaseType.values.where((t) => t != PhaseType.custom))
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 4),
-                        child: PhasePill(type: t, active: t == phaseType),
-                      ),
-                  ],
-                ),
+                child: _CloseButton(onPressed: _confirmEnd),
               ),
-              // Center: timer
+              // Center: timer + controls
               Center(
-                child: BreathingCircle(
-                  isActive: !_paused && !_sessionComplete && _protocol != null,
-                  color: phaseType == PhaseType.cold ? AppColors.cold : AppColors.heat,
-                  size: 240,
-                  child: SessionTimer(
-                    phaseType: phaseType,
-                    remaining: _remaining,
-                    plannedDuration: _currentPhaseDuration,
-                    currentRound: _currentRound + 1,
-                    totalRounds: _protocol!.rounds,
-                    targetTempC: _protocol!.phases[_currentPhaseIndex].targetTempC,
-                    onPause: _togglePause,
-                    onMic: _showVoiceStatus,
-                  ),
+                child: SessionTimer(
+                  phaseType: phaseType,
+                  remaining: _remaining,
+                  plannedDuration: _currentPhaseDuration,
+                  currentRound: _currentRound + 1,
+                  totalRounds: _protocol!.rounds,
+                  targetTempC: _protocol!.phases[_currentPhaseIndex].targetTempC,
+                  onPause: _togglePause,
+                  onMic: _showVoiceStatus,
                 ),
               ),
-              // Bottom: controls
+              // Bottom: manual controls + end session
               Positioned(
-                bottom: 16,
+                bottom: 24,
                 left: 16,
                 right: 16,
                 child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Phase indicator
-                    Text(
-                      'Phase ${_currentPhaseIndex + 1} of ${_protocol?.phases.length ?? 1} · Round ${_currentRound + 1} of ${_protocol?.rounds ?? 1}',
-                      style: TextStyle(
-                        color: AppColors.white.withOpacity(0.7),
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    // Manual control buttons
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Expanded(
-                          child: Semantics(
-                            label: _paused ? 'Resume session' : 'Pause session',
-                            button: true,
-                            child: AppButton(
-                              label: _paused ? 'Resume' : 'Pause',
-                              onPressed: _togglePause,
-                              variant: AppButtonVariant.secondary,
-                              fullWidth: true,
-                            ),
-                          ),
-                        ),
+                        _ActionChip(label: 'Skip', onPressed: _skipPhase),
                         const SizedBox(width: 8),
-                        Semantics(
-                          label: 'Skip current phase',
-                          button: true,
-                          child: AppButton(
-                            label: 'Skip',
-                            onPressed: _skipPhase,
-                            variant: AppButtonVariant.secondary,
-                          ),
-                        ),
+                        _ActionChip(label: '+30s', onPressed: _addTime),
                         const SizedBox(width: 8),
-                        Semantics(
-                          label: 'Add 30 seconds',
-                          button: true,
-                          child: AppButton(
-                            label: '+30s',
-                            onPressed: _addTime,
-                            variant: AppButtonVariant.secondary,
-                          ),
-                        ),
+                        _ActionChip(label: 'End', onPressed: _confirmEnd),
                       ],
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 12),
                     TextButton(
                       onPressed: _confirmEnd,
-                      child: const Text(
+                      child: Text(
                         'End session',
                         style: TextStyle(
-                          color: AppColors.white,
+                          color: AppColors.white.withOpacity(0.7),
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                           letterSpacing: 0.5,
@@ -612,6 +556,86 @@ class _ActiveSessionScreenState extends State<ActiveSessionScreen>
           ),
         ),
       ),
+    );
+  }
+}
+
+/// v4 close button for active session screen.
+class _CloseButton extends StatelessWidget {
+  const _CloseButton({required this.onPressed});
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onPressed,
+      child: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: AppColors.white.withOpacity(0.12),
+          shape: BoxShape.circle,
+        ),
+        alignment: Alignment.center,
+        child: Text('×', style: TextStyle(fontSize: 20, color: AppColors.white, fontWeight: FontWeight.w300)),
+      ),
+    );
+  }
+}
+
+/// v4 action chip for skip/+30s/end controls.
+class _ActionChip extends StatelessWidget {
+  const _ActionChip({required this.label, this.onPressed});
+  final String label;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onPressed,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+        decoration: BoxDecoration(
+          color: AppColors.white.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(color: AppColors.white.withOpacity(0.15)),
+        ),
+        child: Text(
+          label,
+          style: const TextStyle(
+            fontFamily: 'PlusJakartaSans',
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: AppColors.white,
+            letterSpacing: 0.4,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Animates between warm and cold radial gradients based on phase.
+class ActiveSessionBackground extends StatelessWidget {
+  const ActiveSessionBackground({
+    super.key,
+    required this.child,
+    required this.phaseType,
+  });
+
+  final Widget child;
+  final PhaseType phaseType;
+
+  @override
+  Widget build(BuildContext context) {
+    final isCold = phaseType == PhaseType.cold;
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 800),
+      curve: Curves.easeInOutCubic,
+      decoration: BoxDecoration(
+        gradient: isCold ? AppGradients.sessionCold : AppGradients.sessionWarm,
+      ),
+      child: child,
     );
   }
 }

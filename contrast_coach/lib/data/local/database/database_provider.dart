@@ -52,4 +52,9 @@ class DatabaseProvider {
       await db.close();
     }
   }
+
+  /// Override the singleton with a test instance (injected in-memory DB).
+  static void setTestInstance(AppDatabase db) {
+    _instance = db;
+  }
 }

@@ -3,10 +3,12 @@ import 'dart:ui';
 import 'package:contrast_coach/core/constants/app_colors.dart';
 import 'package:contrast_coach/core/errors/app_exception.dart';
 import 'package:contrast_coach/core/errors/result.dart';
+import 'package:contrast_coach/core/constants/app_spacing.dart';
 import 'package:contrast_coach/data/local/database/database_provider.dart';
 import 'package:contrast_coach/data/repositories/session_repository.dart';
 import 'package:contrast_coach/domain/entities/session.dart';
 import 'package:contrast_coach/domain/usecases/render_share_card.dart';
+import 'package:contrast_coach/presentation/widgets/atomic/app_button.dart';
 import 'package:contrast_coach/presentation/widgets/composite/share_card_painter.dart';
 import 'package:contrast_coach/presentation/widgets/layout/app_bar.dart';
 import 'package:flutter/material.dart';
@@ -131,7 +133,7 @@ class _ShareCardScreenState extends State<ShareCardScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const ContrastAppBar(
-        title: 'Share',
+        title: 'Share card',
         showBackButton: true,
       ),
       body: _loading
@@ -156,33 +158,31 @@ class _ShareCardScreenState extends State<ShareCardScreen> {
                           streakDays: _streakDays,
                           boundaryKey: _boundaryKey,
                         ),
-                        const SizedBox(height: 32),
-                        FilledButton.icon(
-                          onPressed: _sharing ? null : _share,
-                          icon: _sharing
-                              ? const SizedBox(
-                                  width: 18,
-                                  height: 18,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: Colors.white,
-                                  ),
-                                )
-                              : const Icon(Icons.share_outlined),
-                          label: Text(_sharing ? 'Sharing…' : 'Share to...'),
-                          style: FilledButton.styleFrom(
-                            backgroundColor: AppColors.heat,
-                            foregroundColor: Colors.white,
-                            minimumSize: const Size.fromHeight(52),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
+                        const SizedBox(height: 14),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: AppButton(
+                                label: 'Instagram',
+                                onPressed: _sharing ? null : _share,
+                                variant: AppButtonVariant.primary,
+                                fullWidth: true,
+                                isLoading: _sharing,
+                                marginTop: 0,
+                              ),
                             ),
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        TextButton(
-                          onPressed: () => context.go('/home'),
-                          child: const Text('Done'),
+                            const SizedBox(width: AppSpacing.sm),
+                            Expanded(
+                              child: AppButton(
+                                label: 'WhatsApp',
+                                onPressed: _sharing ? null : _share,
+                                variant: AppButtonVariant.cool,
+                                fullWidth: true,
+                                isLoading: _sharing,
+                                marginTop: 0,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),

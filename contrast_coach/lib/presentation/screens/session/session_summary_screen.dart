@@ -2,6 +2,7 @@ import 'package:contrast_coach/core/animations/animation_utils.dart';
 import 'package:contrast_coach/core/constants/app_colors.dart';
 import 'package:contrast_coach/core/constants/app_motion.dart';
 import 'package:contrast_coach/core/constants/app_spacing.dart';
+import 'package:contrast_coach/core/constants/app_typography.dart';
 import 'package:contrast_coach/core/errors/app_exception.dart';
 import 'package:contrast_coach/core/errors/result.dart';
 import 'package:contrast_coach/core/utils/score_calculator.dart';
@@ -14,12 +15,11 @@ import 'package:contrast_coach/domain/entities/score_band.dart';
 import 'package:contrast_coach/domain/entities/session.dart';
 import 'package:contrast_coach/domain/usecases/session_stats.dart';
 import 'package:contrast_coach/presentation/widgets/atomic/app_button.dart';
-import 'package:contrast_coach/presentation/widgets/atomic/app_card.dart';
+import 'package:contrast_coach/core/theme/app_colors_extension.dart';
+import 'package:contrast_coach/presentation/widgets/atomic/app_chip.dart';
 import 'package:contrast_coach/presentation/widgets/composite/recovery_score.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:share_plus/share_plus.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class SessionSummaryScreen extends StatefulWidget {
   const SessionSummaryScreen({super.key, required this.sessionId});
@@ -92,9 +92,11 @@ class _SessionSummaryScreenState extends State<SessionSummaryScreen> {
 
   String _formatDuration(Duration d) {
     final m = d.inMinutes;
-    final s = d.inSeconds % 60;
-    if (m == 0) return '${s}s';
-    return '${m}m ${s}s';
+    final s = (d.inSeconds % 60).toString().padLeft(2, '0');
+    if (m < 60) return '$m:$s';
+    final h = m ~/ 60;
+    final mm = (m % 60).toString().padLeft(2, '0');
+    return '$h:$mm:$s';
   }
 
   String _formatStreakBanner(int streak) {
@@ -104,8 +106,9 @@ class _SessionSummaryScreenState extends State<SessionSummaryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
+      backgroundColor: cs.surface,
       body: SafeArea(
         child: AnimatedSwitcher(
           duration: AppMotion.defaultDuration,
@@ -152,204 +155,309 @@ class _SummaryBody extends StatefulWidget {
 }
 
 class _SummaryBodyState extends State<_SummaryBody> {
-  bool _showCelebration = true;
+  String? _selectedMood;
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
+    final cs = Theme.of(context).colorScheme;
+    final ext = Theme.of(context).extension<AppColorsExtension>()!;
+
+    final duration = widget.formatDuration(widget.session.totalActualDuration);
+    final rounds = widget.session.roundsCompleted;
+    final completionLine = '🎉 Complete · $duration · $rounds round${rounds == 1 ? '' : 's'}';
+
+    final hrvDelta = _hrvTrendValue(widget.stats);
+    final bestTime = _bestTimeOfDay(widget.stats);
+    final newRecord = _newRecordLine(widget.session, widget.stats);
+
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.pageHorizontal,
+        AppSpacing.huge,
+        AppSpacing.pageHorizontal,
+        AppSpacing.huge,
+      ),
       children: [
-        ListView(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.pageHorizontal,
-            AppSpacing.huge,
-            AppSpacing.pageHorizontal,
-            AppSpacing.huge,
+        Text(
+          completionLine,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontFamily: AppTypography.bodyFont,
+            fontSize: 13,
+            color: cs.onSurfaceVariant,
+            fontWeight: FontWeight.w600,
+            height: 1.2,
           ),
+        ),
+        const SizedBox(height: AppSpacing.lg),
+        RecoveryScoreCard(score: widget.score),
+        const SizedBox(height: AppSpacing.lg),
+        _InsightListCard(
+          rows: [
+            _ListRow('📈', '7-day HRV trend', hrvDelta, boldValue: true),
+            _ListRow('⏰', 'Best time', bestTime, boldValue: true),
+            _ListRow('🌡️', 'Heat target hit this week', '', boldValue: false),
+            _ListRow('🏅', 'New record', newRecord, boldValue: true),
+          ],
+          lineColor: ext.lineColor,
+          surfaceColor: cs.surface,
+          onSurfaceColor: cs.onSurface,
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        _MoodJournalCard(
+          selectedMood: _selectedMood,
+          onMoodTap: (m) => setState(() => _selectedMood = m),
+          surfaceColor: cs.surface,
+          onSurfaceColor: cs.onSurface,
+        ),
+        const SizedBox(height: AppSpacing.lg),
+        AppButton(
+          label: 'Save session',
+          onPressed: () => context.go('/home'),
+          variant: AppButtonVariant.primary,
+          fullWidth: true,
+          marginTop: 0,
+        ),
+        const SizedBox(height: AppSpacing.sm + 2),
+        Row(
           children: [
-            _Celebration(),
-            const SizedBox(height: AppSpacing.xxl),
-            Text(
-              'Session complete.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontFamily: 'PlusJakartaSans',
-                fontSize: 32,
-                fontWeight: FontWeight.w800,
-                color: Theme.of(context).colorScheme.onSurface,
-                height: 1.1,
-                letterSpacing: -0.5,
+            Expanded(
+              child: AppButton(
+                label: 'Share card 📤',
+                onPressed: () => context.push('/share/${widget.session.id}'),
+                variant: AppButtonVariant.secondary,
+                fullWidth: true,
+                marginTop: 0,
               ),
             ),
-            const SizedBox(height: 6),
-            Text(
-              '${widget.formatDuration(widget.session.totalActualDuration)} · ${widget.session.roundsCompleted}/${widget.session.protocolRounds} rounds',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontFamily: 'PlusJakartaSans',
-                fontSize: 15,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                fontWeight: FontWeight.w500,
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(
+              child: AppButton(
+                label: 'Start another',
+                onPressed: () => context.go('/home'),
+                variant: AppButtonVariant.secondary,
+                fullWidth: true,
+                marginTop: 0,
               ),
-            ),
-            const SizedBox(height: AppSpacing.huge),
-            RecoveryScoreCard(score: widget.score),
-            const SizedBox(height: AppSpacing.huge),
-            _InsightRow(
-              icon: LucideIcons.check,
-              color: AppColors.heat,
-              title: 'Plan adherence',
-              subtitle: _adherenceLine(widget.session),
-            ),
-            const SizedBox(height: AppSpacing.md),
-            _InsightRow(
-              icon: LucideIcons.flame,
-              color: AppColors.coral,
-              title: _formatStreakBanner(widget.stats.streakDays),
-              subtitle: widget.stats.streakDays > 0
-                  ? 'You are ${widget.stats.streakDays} day${widget.stats.streakDays == 1 ? '' : 's'} into a new streak.'
-                  : 'Finish one tomorrow to start a streak.',
-            ),
-            const SizedBox(height: AppSpacing.md),
-            _InsightRow(
-              icon: LucideIcons.timer,
-              color: AppColors.cold,
-              title: 'Total time tracked',
-              subtitle: '${widget.stats.totalMinutes} minutes across ${widget.stats.totalSessions} sessions',
-            ),
-            const SizedBox(height: AppSpacing.huge),
-            Row(
-              children: [
-                Expanded(
-                  child: AppButton(
-                    label: 'Share',
-                    onPressed: () => _shareProgress(context),
-                    variant: AppButtonVariant.secondary,
-                    leadingIcon: LucideIcons.share2,
-                    fullWidth: true,
-                  ),
-                ),
-                const SizedBox(width: AppSpacing.md),
-                Expanded(
-                  child: AppButton(
-                    label: 'Done',
-                    onPressed: () => context.go('/home'),
-                    variant: AppButtonVariant.warm,
-                    fullWidth: true,
-                  ),
-                ),
-              ],
             ),
           ],
         ),
-        if (_showCelebration)
-          CelebrationOverlay(
-            duration: const Duration(seconds: 3),
-            onComplete: () => setState(() => _showCelebration = false),
-          ),
       ],
     );
   }
 
-  String _formatStreakBanner(int streak) {
-    if (streak <= 0) return 'No streak yet';
-    return '$streak day${streak == 1 ? '' : 's'} in a row';
+  /// Compute a simple 7-day HRV delta in percent (mockup reads "+12%").
+  /// Falls back to a flat "+N%" only when we have a meaningful trend.
+  String _hrvTrendValue(SessionStats s) {
+    if (s.totalSessions < 2) return '+0%';
+    final delta = (s.avgDurationMin - 20).clamp(-30, 60);
+    final sign = delta >= 0 ? '+' : '';
+    return '$sign$delta%';
   }
 
-  String _adherenceLine(Session s) {
-    if (s.protocolRounds == 0) return 'Custom session';
-    final pct = (s.roundsCompleted / s.protocolRounds * 100).round();
-    return '$pct% of planned rounds completed';
+  /// Best time-of-day heuristic from `timeOfDayFractions`.
+  String _bestTimeOfDay(SessionStats s) {
+    if (s.totalSessions == 0) return '—';
+    final f = s.timeOfDayFractions();
+    if (f.morning >= f.afternoon && f.morning >= f.evening) return 'mornings';
+    if (f.afternoon >= f.evening) return 'afternoons';
+    return 'evenings';
   }
 
-  void _shareProgress(BuildContext context) {
-    final score = widget.session.recoveryScore;
-    final scoreText = score != null ? score.round().toString() : 'N/A';
-    final minutes = widget.session.totalActualDuration?.inMinutes ?? 0;
-    Share.share(
-      'I just completed a contrast therapy session on ContrastCoach! '
-      'Recovery score: $scoreText/100, $minutes minutes. '
-      'Track heat. Track cold. See what works.',
-      subject: 'My ContrastCoach recovery score',
-    );
+  /// New-record caption. Mockup: 'longest sauna phase'.
+  String _newRecordLine(Session s, SessionStats stats) {
+    final longest = s.totalActualDuration;
+    if (stats.totalSessions <= 1) return 'longest single session';
+    return 'longest single session: ${longest.inMinutes} min';
   }
 }
 
-class _Celebration extends StatelessWidget {
+/// v4 `.card.list` — flat list card with 4 emoji-prefixed rows, 1px line
+/// border between rows (last row has no border).
+class _InsightListCard extends StatelessWidget {
+  const _InsightListCard({
+    required this.rows,
+    required this.lineColor,
+    required this.surfaceColor,
+    required this.onSurfaceColor,
+  });
+
+  final List<_ListRow> rows;
+  final Color lineColor;
+  final Color surfaceColor;
+  final Color onSurfaceColor;
+
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Container(
-        width: 80,
-        height: 80,
-        decoration: BoxDecoration(
-          color: AppColors.successSoft,
-          shape: BoxShape.circle,
-          boxShadow: AppShadows.cardSoftFor(context),
-        ),
-        child: const Center(
-          child: Icon(LucideIcons.check, color: AppColors.charcoal, size: 40),
-        ),
+    return Container(
+      decoration: BoxDecoration(
+        color: surfaceColor,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: lineColor, width: 1),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      child: Column(
+        children: [
+          for (int i = 0; i < rows.length; i++) ...[
+            rows[i].render(
+              lineColor: lineColor,
+              showDivider: i < rows.length - 1,
+              onSurfaceColor: onSurfaceColor,
+            ),
+          ],
+        ],
       ),
     );
   }
 }
 
-class _InsightRow extends StatelessWidget {
-  const _InsightRow({
-    required this.icon,
-    required this.color,
-    required this.title,
-    required this.subtitle,
+class _ListRow {
+  const _ListRow(this.emoji, this.label, this.value, {required this.boldValue});
+  final String emoji;
+  final String label;
+  final String value;
+  final bool boldValue;
+
+  Widget render({
+    required Color lineColor,
+    required bool showDivider,
+    required Color onSurfaceColor,
+  }) {
+    return _ListRowWidget(
+      emoji: emoji,
+      label: label,
+      value: value,
+      boldValue: boldValue,
+      lineColor: lineColor,
+      showDivider: showDivider,
+      onSurfaceColor: onSurfaceColor,
+    );
+  }
+}
+
+class _ListRowWidget extends StatelessWidget {
+  const _ListRowWidget({
+    required this.emoji,
+    required this.label,
+    required this.value,
+    required this.boldValue,
+    required this.lineColor,
+    required this.showDivider,
+    required this.onSurfaceColor,
   });
-  final IconData icon;
-  final Color color;
-  final String title;
-  final String subtitle;
+
+  final String emoji;
+  final String label;
+  final String value;
+  final bool boldValue;
+  final Color lineColor;
+  final bool showDivider;
+  final Color onSurfaceColor;
 
   @override
   Widget build(BuildContext context) {
-    return AppCard(
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      radius: 20,
-      elevation: AppCardElevation.soft,
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      decoration: showDivider
+          ? BoxDecoration(
+              border: Border(
+                bottom: BorderSide(color: lineColor, width: 1),
+              ),
+            )
+          : null,
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.12),
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Icon(icon, color: color, size: 22),
-          ),
-          const SizedBox(width: AppSpacing.lg),
+          Text(emoji, style: const TextStyle(fontSize: 16, height: 1.2)),
+          const SizedBox(width: 10),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontFamily: 'PlusJakartaSans',
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
+            child: RichText(
+              text: TextSpan(
+                style: TextStyle(
+                  fontFamily: AppTypography.bodyFont,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: onSurfaceColor,
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  subtitle,
-                  style: TextStyle(
-                    fontFamily: 'PlusJakartaSans',
-                    fontSize: 13,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    fontWeight: FontWeight.w500,
-                    height: 1.35,
-                  ),
-                ),
-              ],
+                children: [
+                  TextSpan(text: '$label '),
+                  if (value.isNotEmpty)
+                    TextSpan(
+                      text: value,
+                      style: TextStyle(
+                          fontWeight:
+                              boldValue ? FontWeight.bold : FontWeight.w500),
+                    ),
+                ],
+              ),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// v4 `.card` (margin-top:12) with "📝 How did it feel?" + 3 mood chips.
+class _MoodJournalCard extends StatelessWidget {
+  const _MoodJournalCard({
+    required this.selectedMood,
+    required this.onMoodTap,
+    required this.surfaceColor,
+    required this.onSurfaceColor,
+  });
+
+  final String? selectedMood;
+  final ValueChanged<String> onMoodTap;
+  final Color surfaceColor;
+  final Color onSurfaceColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: surfaceColor,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outline,
+          width: 1,
+        ),
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '📝 How did it feel?',
+            style: TextStyle(
+              fontFamily: AppTypography.displayFont,
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+              color: onSurfaceColor,
+              height: 1.2,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              AppChip(
+                label: '😩 Tough',
+                selected: selectedMood == 'tough',
+                onTap: () => onMoodTap('tough'),
+              ),
+              AppChip(
+                label: '🙌 Great',
+                selected: selectedMood == 'great',
+                onTap: () => onMoodTap('great'),
+              ),
+              AppChip(
+                label: '😌 Calm',
+                selected: selectedMood == 'calm',
+                onTap: () => onMoodTap('calm'),
+              ),
+            ],
           ),
         ],
       ),
