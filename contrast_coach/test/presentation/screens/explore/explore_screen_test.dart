@@ -97,10 +97,11 @@ void main() {
         home: const ExploreScreen(),
       ),
     );
-    // Resolve async asset load with explicit pumps (no pumpAndSettle).
-    await tester.pump(const Duration(milliseconds: 50));
-    await tester.pump(const Duration(milliseconds: 50));
-    await tester.pump(const Duration(milliseconds: 50));
+    // Resolve async asset load with explicit pumps (no pumpAndSettle which
+    // times out on the FutureBuilder rebuild loop).
+    for (int i = 0; i < 6; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
   }
 
   testWidgets('renders the v4 .name "Explore" 28/w800/ls-.7', (tester) async {
