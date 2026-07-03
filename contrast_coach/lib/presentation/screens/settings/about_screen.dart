@@ -50,7 +50,7 @@ class _AboutScreenState extends State<AboutScreen> {
                         height: 96,
                         decoration: BoxDecoration(
                           gradient: const LinearGradient(
-                            colors: [AppColors.brandWarm, AppColors.brandCoral],
+                            colors: [AppColors.heat, AppColors.coral],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
@@ -109,13 +109,13 @@ class _AboutScreenState extends State<AboutScreen> {
                           width: 32,
                           height: 32,
                           decoration: BoxDecoration(
-                            color: AppColors.brandWarm.withOpacity(0.12),
+                            color: AppColors.heat.withOpacity(0.12),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: const AppIcon(
                             LucideIcons.shield,
                             size: 16,
-                            color: AppColors.brandWarm,
+                            color: AppColors.heat,
                           ),
                         ),
                         const SizedBox(width: 12),

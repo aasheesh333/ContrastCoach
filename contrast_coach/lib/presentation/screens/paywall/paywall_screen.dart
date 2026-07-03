@@ -189,7 +189,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
                                     color: AppColors.white,
                                     shape: BoxShape.circle,
                                   ),
-                                  child: const Icon(LucideIcons.check, color: AppColors.brandWarm, size: 16),
+                                  child: const Icon(LucideIcons.check, color: AppColors.heat, size: 16),
                                 ),
                                 const SizedBox(width: 12),
                                 Expanded(
@@ -224,7 +224,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
                                         _isUnconfigured
                                             ? LucideIcons.cloudOff
                                             : LucideIcons.alertCircle,
-                                        color: AppColors.brandWarm,
+                                        color: AppColors.heat,
                                         size: 48,
                                       ),
                                       const SizedBox(height: 12),
@@ -334,7 +334,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
                                           width: 24,
                                           height: 24,
                                           child: CircularProgressIndicator(
-                                            color: AppColors.brandWarm,
+                                            color: AppColors.heat,
                                             strokeWidth: 2.5,
                                           ),
                                         )
@@ -493,7 +493,7 @@ class _PriceCard extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
         side: BorderSide(
-          color: isBest ? AppColors.brandWarm : Colors.transparent,
+          color: isBest ? AppColors.heat : Colors.transparent,
           width: isBest ? 2.5 : 0,
         ),
       ),
@@ -510,10 +510,10 @@ class _PriceCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: selected ? AppColors.brandWarm : AppColors.midGray,
+                    color: selected ? AppColors.heat : AppColors.midGray,
                     width: 2,
                   ),
-                  color: selected ? AppColors.brandWarm : Colors.transparent,
+                  color: selected ? AppColors.heat : Colors.transparent,
                 ),
                 child: selected
                     ? const Icon(LucideIcons.check, size: 14, color: AppColors.white)
@@ -541,7 +541,7 @@ class _PriceCard extends StatelessWidget {
                             margin: const EdgeInsets.only(top: 4),
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                             decoration: BoxDecoration(
-                              color: AppColors.brandWarm,
+                              color: AppColors.heat,
                               borderRadius: BorderRadius.circular(999),
                             ),
                             child: const Text(

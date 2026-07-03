@@ -44,10 +44,10 @@ class _PrivacyScreenState extends State<PrivacyScreen> {
                       width: 44,
                       height: 44,
                       decoration: BoxDecoration(
-                        color: AppColors.brandCool.withOpacity(0.12),
+                        color: AppColors.cold.withOpacity(0.12),
                         borderRadius: BorderRadius.circular(14),
                       ),
-                      child: const Icon(Icons.analytics_outlined, color: AppColors.brandCool, size: 20),
+                      child: const Icon(Icons.analytics_outlined, color: AppColors.cold, size: 20),
                     ),
                     const SizedBox(width: 14),
                     Expanded(

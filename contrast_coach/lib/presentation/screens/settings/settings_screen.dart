@@ -1,4 +1,5 @@
 import 'package:contrast_coach/core/constants/app_colors.dart';
+import 'package:contrast_coach/core/constants/app_motion.dart';
 import 'package:contrast_coach/core/constants/app_spacing.dart';
 import 'package:contrast_coach/core/errors/app_exception.dart';
 import 'package:contrast_coach/core/errors/result.dart';
@@ -136,7 +137,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       : mode == 'light'
                           ? LucideIcons.sun
                           : LucideIcons.moon,
-                  color: AppColors.brandWarm,
+                  color: AppColors.heat,
                 ),
                 title: Text(
                   mode == 'system'
@@ -146,7 +147,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           : 'Dark',
                 ),
                 trailing: AppPreferences.themeMode == mode
-                    ? const Icon(Icons.check, color: AppColors.brandWarm)
+                    ? const Icon(Icons.check, color: AppColors.heat)
                     : null,
                 onTap: () async {
                   await AppPreferences.setThemeMode(mode);
@@ -192,11 +193,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
       body: SafeArea(
         top: false,
         child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 300),
+          duration: AppMotion.defaultDuration,
           child: _loading
               ? const Center(
                   key: ValueKey('loading'),
-                  child: CircularProgressIndicator(color: AppColors.brandWarm),
+                  child: CircularProgressIndicator(color: AppColors.heat),
                 )
               : KeyedSubtree(
                   key: const ValueKey('content'),
@@ -217,7 +218,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       _SettingsRow(
                         label: 'Theme',
                         icon: LucideIcons.sun,
-                        iconColor: AppColors.brandWarm,
+                        iconColor: AppColors.heat,
                         trailing: _TrailingValue(
                           label: _themeLabel,
                           icon: LucideIcons.chevronRight,
@@ -228,7 +229,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       _SettingsRow(
                         label: 'Accent color',
                         icon: LucideIcons.droplet,
-                        iconColor: AppColors.brandCool,
+                        iconColor: AppColors.cold,
                         trailing: const _TrailingValue(
                           label: 'Orange',
                         ),
@@ -237,14 +238,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       _SettingsRow(
                         label: 'Health Connect',
                         icon: LucideIcons.heart,
-                        iconColor: AppColors.brandWarm,
+                        iconColor: AppColors.heat,
                         location: '/settings/health',
                       ),
                       const AppDivider(),
                       _SettingsRow(
                         label: 'Voice control',
                         icon: LucideIcons.mic,
-                        iconColor: AppColors.brandCool,
+                        iconColor: AppColors.cold,
                         trailing: AppSwitch(
                           value: _voice,
                           onChanged: (value) => _setVoice(value),
@@ -254,7 +255,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       _SettingsRow(
                         label: 'Notifications',
                         icon: LucideIcons.bell,
-                        iconColor: AppColors.brandCoral,
+                        iconColor: AppColors.coral,
                         trailing: AppSwitch(
                           value: _notifications,
                           onChanged: (value) => _setNotifications(value),
@@ -313,14 +314,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       _SettingsRow(
                         label: 'Privacy',
                         icon: LucideIcons.shield,
-                        iconColor: AppColors.brandWarm,
+                        iconColor: AppColors.heat,
                         location: '/settings/privacy',
                       ),
                       const AppDivider(),
                       _SettingsRow(
                         label: 'Export data',
                         icon: LucideIcons.download,
-                        iconColor: AppColors.brandCool,
+                        iconColor: AppColors.cold,
                         location: '/settings/export',
                       ),
                       const AppDivider(),
@@ -334,7 +335,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       _SettingsRow(
                         label: 'Manage subscription',
                         icon: LucideIcons.creditCard,
-                        iconColor: AppColors.brandCoral,
+                        iconColor: AppColors.coral,
                         location: '/paywall',
                       ),
                       const SectionHeader(label: 'Help'),
@@ -505,10 +506,10 @@ class _SettingsRow extends StatelessWidget {
                   width: 24,
                   height: 24,
                   decoration: BoxDecoration(
-                    color: (iconColor ?? AppColors.brandWarm).withOpacity(0.12),
+                    color: (iconColor ?? AppColors.heat).withOpacity(0.12),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(icon, color: iconColor ?? AppColors.brandWarm, size: 14),
+                  child: Icon(icon, color: iconColor ?? AppColors.heat, size: 14),
                 ),
                 const SizedBox(width: 14),
               ],

@@ -140,13 +140,13 @@ class _HealthConnectScreenState extends State<HealthConnectScreen> {
                           width: 44,
                           height: 44,
                           decoration: BoxDecoration(
-                            color: AppColors.brandWarm.withOpacity(0.12),
+                            color: AppColors.heat.withOpacity(0.12),
                             borderRadius: BorderRadius.circular(14),
                           ),
                           child: const AppIcon(
                             LucideIcons.heart,
                             size: 20,
-                            color: AppColors.brandWarm,
+                            color: AppColors.heat,
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -189,8 +189,8 @@ class _HealthConnectScreenState extends State<HealthConnectScreen> {
                      children: [
                        _SnapshotRow(
                          icon: LucideIcons.activity,
-                         color: AppColors.brandWarm,
-                         label: _snapshot!.hrvRmssd7DayAvg != null
+                          color: AppColors.heat,
+                          label: _snapshot!.hrvRmssd7DayAvg != null
                              ? 'HRV 7-day avg'
                              : 'HRV',
                          value: _snapshot!.hrvRmssd7DayAvg != null
@@ -200,8 +200,8 @@ class _HealthConnectScreenState extends State<HealthConnectScreen> {
                        const SizedBox(height: 12),
                        _SnapshotRow(
                          icon: LucideIcons.moon,
-                         color: AppColors.brandCool,
-                         label: 'Sleep',
+                          color: AppColors.cold,
+                          label: 'Sleep',
                          value: _snapshot!.lastNightSleepMinutes != null
                              ? '${(_snapshot!.lastNightSleepMinutes! / 60).toStringAsFixed(1)} h'
                              : 'not recorded',
@@ -210,8 +210,8 @@ class _HealthConnectScreenState extends State<HealthConnectScreen> {
                          const SizedBox(height: 12),
                          _SnapshotRow(
                            icon: LucideIcons.heartPulse,
-                           color: AppColors.brandCoral,
-                           label: 'Resting HR 7-day',
+                            color: AppColors.coral,
+                            label: 'Resting HR 7-day',
                            value: '${_snapshot!.restingHr7DayAvg!.toStringAsFixed(0)} bpm',
                          ),
                        ],
@@ -219,8 +219,8 @@ class _HealthConnectScreenState extends State<HealthConnectScreen> {
                          const SizedBox(height: 12),
                          _SnapshotRow(
                            icon: LucideIcons.footprints,
-                           color: AppColors.brandWarm,
-                           label: 'Steps yesterday',
+                            color: AppColors.heat,
+                            label: 'Steps yesterday',
                            value: '${_snapshot!.stepsYesterday}',
                          ),
                        ],

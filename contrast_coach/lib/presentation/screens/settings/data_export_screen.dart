@@ -82,13 +82,13 @@ class _DataExportScreenState extends State<DataExportScreen> {
                       width: 64,
                       height: 64,
                       decoration: BoxDecoration(
-                        color: AppColors.brandWarm.withOpacity(0.12),
+                        color: AppColors.heat.withOpacity(0.12),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: const AppIcon(
                         LucideIcons.download,
                         size: 28,
-                        color: AppColors.brandWarm,
+                        color: AppColors.heat,
                       ),
                     ),
                     const SizedBox(height: 16),

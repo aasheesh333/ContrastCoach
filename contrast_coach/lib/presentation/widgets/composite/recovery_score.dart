@@ -1,4 +1,5 @@
 import 'package:contrast_coach/core/constants/app_colors.dart';
+import 'package:contrast_coach/core/theme/gradients.dart';
 import 'package:contrast_coach/domain/entities/recovery_score.dart' as domain;
 import 'package:contrast_coach/domain/entities/score_band.dart';
 import 'package:flutter/material.dart';
@@ -23,15 +24,19 @@ class RecoveryScoreCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(
-          score.value.round().toString(),
-          style: TextStyle(
-            fontFamily: 'PlusJakartaSans',
-            fontWeight: FontWeight.w200,
-            fontSize: 96,
-            color: Theme.of(context).colorScheme.onSurface,
-            height: 1.0,
-            letterSpacing: -2,
+        ShaderMask(
+          shaderCallback: (bounds) => AppGradients.scoreText.createShader(bounds),
+          blendMode: BlendMode.srcIn,
+          child: Text(
+            score.value.round().toString(),
+            style: const TextStyle(
+              fontFamily: 'PlusJakartaSans',
+              fontWeight: FontWeight.w200,
+              fontSize: 96,
+              color: Colors.white,
+              height: 1.0,
+              letterSpacing: -2,
+            ),
           ),
         ),
         const SizedBox(height: 12),
