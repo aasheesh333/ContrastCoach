@@ -6,6 +6,11 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   testWidgets('EditProfile renders v4 controls (avatar, emoji picker, all 7 fields, save)',
       (tester) async {
+    // Make viewport tall enough that the whole ListView renders without
+    // lazy off-screen culling (avoids scrollUntilVisible's .single pitfall).
+    await tester.binding.setSurfaceSize(const Size(800, 2200));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+
     await tester.pumpWidget(
       MaterialApp(
         theme: buildLightTheme(),
@@ -44,11 +49,6 @@ void main() {
     expect(find.text('°F'), findsOneWidget);
 
     // Weekly session goal default caption
-    await tester.scrollUntilVisible(
-      find.text('5 sessions / week'),
-      200,
-    );
-    await tester.pumpAndSettle();
     expect(find.text('5 sessions / week'), findsOneWidget);
 
     // Save changes button

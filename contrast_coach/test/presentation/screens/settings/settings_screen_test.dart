@@ -5,6 +5,11 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   testWidgets('renders v4 profile hub "You" title and rowlinks', (tester) async {
+    // Make viewport tall enough that the whole ListView renders without
+    // lazy off-screen culling (Go Pro CTA lives below 11 rowlinks).
+    await tester.binding.setSurfaceSize(const Size(800, 2200));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+
     await tester.pumpWidget(
       MaterialApp(
         theme: buildLightTheme(),
@@ -45,12 +50,7 @@ void main() {
     // Subscription subtext "Free plan"
     expect(find.text('Free plan'), findsOneWidget);
 
-    // Scroll down to reveal the Go Pro CTA (below the fold in 800x600 viewport)
-    await tester.scrollUntilVisible(
-      find.textContaining('Go Pro'),
-      200,
-    );
-    await tester.pumpAndSettle();
+    // Go Pro CTA (now visible without scrolling due to tall viewport)
     expect(find.textContaining('Go Pro'), findsOneWidget);
   });
 }
