@@ -13,6 +13,7 @@ import 'package:contrast_coach/domain/entities/subscription_tier.dart';
 import 'package:contrast_coach/domain/usecases/evaluate_achievements.dart';
 import 'package:contrast_coach/domain/usecases/session_stats.dart';
 import 'package:contrast_coach/presentation/widgets/layout/app_bar.dart';
+import 'package:contrast_coach/core/theme/app_colors_extension.dart';
 import 'package:contrast_coach/core/theme/gradients.dart';
 import 'package:flutter/material.dart';
 
