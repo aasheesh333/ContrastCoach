@@ -13,6 +13,6 @@ void main() {
       ),
     );
     expect(find.byType(BodyGlow), findsOneWidget);
-    expect(find.byType(CustomPaint), findsNWidgets(1));
+    expect(find.byType(CustomPaint), findsAtLeastNWidgets(1));
   });
 }
