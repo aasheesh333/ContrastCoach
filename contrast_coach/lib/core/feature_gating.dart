@@ -30,5 +30,7 @@ class FeatureGating {
 
   static bool canUseFullRecoveryScore(SubscriptionTier tier) => tier.isPro;
 
+  static bool canUseCoach(SubscriptionTier tier) => tier.isPro;
+
   static bool canUseFullAchievementsHistory(SubscriptionTier tier) => tier.isPro;
 }

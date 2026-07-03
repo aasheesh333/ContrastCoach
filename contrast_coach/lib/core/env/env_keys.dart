@@ -11,4 +11,5 @@ class EnvKeys {
   static const String revenuecatApiKeyAndroid = 'REVENUECAT_API_KEY_ANDROID';
   static const String revenuecatApiKeyIOS = 'REVENUECAT_API_KEY_IOS';
   static const String googleWebClientId = 'GOOGLE_WEB_CLIENT_ID';
+  static const String geminiApiKey = 'GEMINI_API_KEY';
 }

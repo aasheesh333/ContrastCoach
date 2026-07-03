@@ -42,4 +42,5 @@ class EnvConfig {
     return _read(EnvKeys.revenuecatApiKey);
   }
   static String? get googleWebClientId => _read(EnvKeys.googleWebClientId);
+  static String? get geminiApiKey => _read(EnvKeys.geminiApiKey);
 }
