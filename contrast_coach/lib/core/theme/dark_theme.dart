@@ -1,51 +1,53 @@
 import 'package:contrast_coach/core/animations/animation_utils.dart';
 import 'package:contrast_coach/core/constants/app_colors.dart';
 import 'package:contrast_coach/core/constants/app_typography.dart';
+import 'package:contrast_coach/core/theme/app_colors_extension.dart';
 import 'package:flutter/material.dart';
 
 ThemeData buildDarkTheme() {
   const cs = ColorScheme.dark(
     brightness: Brightness.dark,
-    primary: AppColors.brandWarm,
-    onPrimary: AppColors.white,
-    secondary: AppColors.brandCool,
-    onSecondary: AppColors.white,
-    surface: AppColors.darkBackground,
-    onSurface: AppColors.darkTextPrimary,
-    surfaceContainerLowest: AppColors.darkBackground,
-    surfaceContainerLow: AppColors.darkSurface,
+    primary: AppColors.heat,
+    onPrimary: AppColors.darkInk,
+    secondary: AppColors.cold,
+    onSecondary: AppColors.darkInk,
+    surface: AppColors.darkBg,
+    onSurface: AppColors.darkInk,
+    surfaceContainerLowest: AppColors.darkBg,
+    surfaceContainerLow: AppColors.darkCard,
     surfaceContainer: AppColors.darkSurfaceVariant,
     surfaceContainerHigh: AppColors.darkSurfaceVariant,
-    surfaceContainerHighest: Color(0xFF3A3A3A),
-    onSurfaceVariant: AppColors.darkTextSecondary,
-    outline: Color(0xFF3A3A3A),
-    outlineVariant: Color(0xFF2F2F2F),
+    surfaceContainerHighest: AppColors.darkLine,
+    onSurfaceVariant: AppColors.darkInk2,
+    outline: AppColors.darkLine,
+    outlineVariant: AppColors.darkLine,
     error: AppColors.error,
-    onError: AppColors.white,
-    tertiary: AppColors.brandCool,
-    onTertiary: AppColors.white,
+    onError: AppColors.darkInk,
+    tertiary: AppColors.cold,
+    onTertiary: AppColors.darkInk,
   );
   return ThemeData(
     useMaterial3: true,
     colorScheme: cs,
+    extensions: const [AppColorsExtension.dark],
     textTheme: AppTypography.textTheme.apply(
-      bodyColor: AppColors.darkTextPrimary,
-      displayColor: AppColors.darkTextPrimary,
+      bodyColor: AppColors.darkInk,
+      displayColor: AppColors.darkInk,
     ),
     scaffoldBackgroundColor: cs.surface,
     splashFactory: InkSplash.splashFactory,
     visualDensity: VisualDensity.standard,
     appBarTheme: const AppBarTheme(
-      backgroundColor: AppColors.darkBackground,
-      foregroundColor: AppColors.darkTextPrimary,
+      backgroundColor: AppColors.darkBg,
+      foregroundColor: AppColors.darkInk,
       elevation: 0,
       scrolledUnderElevation: 0,
       surfaceTintColor: Colors.transparent,
       titleTextStyle: AppTypography.titleLarge,
       centerTitle: false,
     ),
-    cardColor: AppColors.darkSurface,
-    dividerColor: const Color(0xFF2A2A2A),
+    cardColor: AppColors.darkCard,
+    dividerColor: AppColors.darkLine,
     pageTransitionsTheme: PageTransitionsTheme(
       builders: {
         TargetPlatform.android: AnimationUtils.pageTransition,

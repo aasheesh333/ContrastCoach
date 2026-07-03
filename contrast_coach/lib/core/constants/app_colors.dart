@@ -1,55 +1,79 @@
 import 'package:flutter/material.dart';
 
-/// Warm & Cool design palette for ContrastCoach.
-/// Orange = heat/recovery. Blue = cold/focus.
 class AppColors {
   const AppColors._();
 
-  // Brand
-  static const Color brandWarm = Color(0xFFFF6B35);
-  static const Color brandCool = Color(0xFF2D7CF1);
-  static const Color brandCoral = Color(0xFFFF8A65);
+  static const Color heat = Color(0xFFFF6B35);
+  static const Color coral = Color(0xFFFF8A65);
+  static const Color cold = Color(0xFF2D7CF1);
+  static const Color cold2 = Color(0xFF5B9CFF);
+  static const Color purple = Color(0xFF7A5BFF);
+  static const Color ok = Color(0xFF33C27F);
+  static const Color error = Color(0xFFE53935);
+
+  static const Color lightInk = Color(0xFF0C0C0E);
+  static const Color lightInk2 = Color(0xFF6B6E76);
+  static const Color lightInk3 = Color(0xFF9AA0A8);
+  static const Color lightBg = Color(0xFFEEF0F5);
+  static const Color lightCard = Color(0xFFFFFFFF);
+  static const Color lightLine = Color(0xFFECEEF2);
+
+  static const Color darkInk = Color(0xFFF4F5F7);
+  static const Color darkInk2 = Color(0xFFAEB2BC);
+  static const Color darkInk3 = Color(0xFF7B7F8A);
+  static const Color darkBg = Color(0xFF0A0B0F);
+  static const Color darkCard = Color(0xFF15161B);
+  static const Color darkLine = Color(0xFF24252C);
+
+  @Deprecated('Use heat')
+  static const Color brandWarm = heat;
+  @Deprecated('Use cold')
+  static const Color brandCool = cold;
+  @Deprecated('Use coral')
+  static const Color brandCoral = coral;
+  @Deprecated('Use v4 tokens')
   static const Color brandCoralPop = Color(0xFFFF6B9D);
 
-  // Neutrals (light)
-  static const Color charcoal = Color(0xFF1A1A1A);
-  static const Color darkGray = Color(0xFF4A4A4A);
-  static const Color midGray = Color(0xFF6B6B6B);
-  static const Color outline = Color(0xFFE0E0DC);
-  static const Color lightGray = Color(0xFFF0F0F0);
-  static const Color offWhite = Color(0xFFFAFAF7);
-  static const Color warmBeige = Color(0xFFF5F0E8);
-  static const Color white = Color(0xFFFFFFFF);
+  static const Color charcoal = lightInk;
+  static const Color darkGray = lightInk2;
+  static const Color midGray = lightInk3;
+  static const Color outline = lightLine;
+  static const Color lightGray = Color(0xFFECEEF2);
+  static const Color offWhite = lightBg;
+  @Deprecated('Use lightBg')
+  static const Color warmBeige = lightBg;
+  static const Color white = lightCard;
 
-  // Status
-  static const Color success = Color(0xFF4CAF50);
-  static const Color successSoft = Color(0xFFD7E8D7);
-  static const Color error = Color(0xFFE53935);
+  static const Color success = ok;
+  @Deprecated('Use v4 tokens')
+  static const Color successSoft = Color(0xFFD7F2E3);
   static const Color errorSoft = Color(0xFFFFCDD2);
 
-  // Heatmap intensity (4 levels, light to deep orange)
-  static const Color heatmap0 = Color(0xFFF0F0F0);
+  @Deprecated('Use v4 tokens')
+  static const Color heatmap0 = Color(0xFFECEEF2);
+  @Deprecated('Use v4 tokens')
   static const Color heatmap1 = Color(0xFFFFE0CC);
+  @Deprecated('Use v4 tokens')
   static const Color heatmap2 = Color(0xFFFFAB7E);
+  @Deprecated('Use v4 tokens')
   static const Color heatmap3 = Color(0xFFFF8050);
-  static const Color heatmap4 = Color(0xFFFF6B35);
+  @Deprecated('Use v4 tokens')
+  static const Color heatmap4 = heat;
 
-  // Theme surfaces (light)
-  static const Color lightBackground = offWhite;
-  static const Color lightHomeBackground = warmBeige;
-  static const Color lightSurface = white;
-  static const Color lightSurfaceVariant = lightGray;
-  static const Color lightTextPrimary = charcoal;
-  static const Color lightTextSecondary = darkGray;
-  static const Color lightTextTertiary = midGray;
+  static const Color lightBackground = lightBg;
+  @Deprecated('Use lightBg')
+  static const Color lightHomeBackground = lightBg;
+  static const Color lightSurface = lightCard;
+  static const Color lightSurfaceVariant = lightLine;
+  static const Color lightTextPrimary = lightInk;
+  static const Color lightTextSecondary = lightInk2;
+  static const Color lightTextTertiary = lightInk3;
 
-  // Theme surfaces (dark)
-  static const Color darkBackground = Color(0xFF0A0A0A);
-  static const Color darkSurface = Color(0xFF141414);
-  static const Color darkSurfaceVariant = Color(0xFF1F1F1F);
-  static const Color darkTextPrimary = Color(0xFFF5F5F5);
-  static const Color darkTextSecondary = Color(0xFFA8A8A8);
-  static const Color darkTextTertiary = Color(0xFF6E6E6E);
-  static const Color darkOutline = Color(0xFF2A2A2A);
-  static const Color darkCard = Color(0xFF1A1A1A);
+  static const Color darkBackground = darkBg;
+  static const Color darkSurface = darkCard;
+  static const Color darkSurfaceVariant = Color(0xFF24252C);
+  static const Color darkTextPrimary = darkInk;
+  static const Color darkTextSecondary = darkInk2;
+  static const Color darkTextTertiary = darkInk3;
+  static const Color darkOutline = darkLine;
 }
