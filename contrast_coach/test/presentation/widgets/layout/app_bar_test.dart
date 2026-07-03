@@ -26,7 +26,7 @@ void main() {
       materials.any((m) {
         final shape = m.shape;
         if (shape is! RoundedRectangleBorder) return false;
-        final r = shape.borderRadius;
+        final r = shape.borderRadius as BorderRadius;
         return r.topLeft == const Radius.circular(12) &&
             r.topRight == const Radius.circular(12) &&
             r.bottomLeft == const Radius.circular(12) &&

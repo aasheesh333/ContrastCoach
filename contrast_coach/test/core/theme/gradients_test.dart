@@ -17,13 +17,42 @@ void main() {
       expect(g.stops, [0.0, 0.58, 1.0]);
     });
 
-    test('heroDark is vertical near-black pair', () {
+    test('heroDark is 140deg diagonal near-black pair', () {
       final g = AppGradients.heroDark;
-      expect(g.begin, Alignment.topCenter);
-      expect(g.end, Alignment.bottomCenter);
+      // 140deg in css-gradient-to-flutter-mapping yields (-0.27, -1) -> (0.27, 1).
+      expect(g.begin, const Alignment(-0.27, -1));
+      expect(g.end, const Alignment(0.27, 1));
       expect(g.colors.length, 2);
       expect(g.colors[0], const Color(0xFF12121A));
       expect(g.colors[1], const Color(0xFF25252F));
+    });
+
+    test('heat is heat→coral 120deg diagonal (matches .btn)', () {
+      final g = AppGradients.heat;
+      expect(g.begin, const Alignment(-0.5, -1));
+      expect(g.end, const Alignment(0.5, 1));
+      expect(g.colors, [AppColors.heat, AppColors.coral]);
+    });
+
+    test('scoreTextShare is heat→cold2 120deg', () {
+      final g = AppGradients.scoreTextShare;
+      expect(g.begin, const Alignment(-0.5, -1));
+      expect(g.end, const Alignment(0.5, 1));
+      expect(g.colors, [AppColors.heat, AppColors.cold2]);
+    });
+
+    test('shareCard is near-black→ember 160deg', () {
+      final g = AppGradients.shareCard;
+      expect(g.begin, const Alignment(-0.4, -1));
+      expect(g.end, const Alignment(0.4, 1));
+      expect(g.colors, [const Color(0xFF12121A), const Color(0xFF3A1E12)]);
+    });
+
+    test('breathwork is deep-blue→near-black 160deg', () {
+      final g = AppGradients.breathwork;
+      expect(g.begin, const Alignment(-0.4, -1));
+      expect(g.end, const Alignment(0.4, 1));
+      expect(g.colors, [const Color(0xFF0A2A5C), const Color(0xFF0C0C0E)]);
     });
 
     test('btnPrimary is heat→coral 120deg', () {

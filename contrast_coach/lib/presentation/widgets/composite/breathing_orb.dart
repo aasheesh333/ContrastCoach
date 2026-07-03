@@ -24,10 +24,25 @@ class _BreathingOrbState extends State<BreathingOrb>
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 8),
-    )..repeat();
+    );
+    if (widget.enabled) {
+      _controller.repeat();
+    }
     _scale = Tween<double>(begin: 0.65, end: 1.0).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
+  }
+
+  @override
+  void didUpdateWidget(covariant BreathingOrb oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.enabled != widget.enabled) {
+      if (widget.enabled && !_controller.isAnimating) {
+        _controller.repeat();
+      } else if (!widget.enabled && _controller.isAnimating) {
+        _controller.stop();
+      }
+    }
   }
 
   @override

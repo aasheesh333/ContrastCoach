@@ -26,7 +26,11 @@ void main() {
       home: Scaffold(body: Center(child: BreathingOrb(enabled: true))),
     ));
     expect(find.byType(BreathingOrb), findsOneWidget);
-    expect(find.byType(Transform), findsOneWidget);
+    final orbTransformFinder = find.descendant(
+      of: find.byType(BreathingOrb),
+      matching: find.byType(Transform),
+    );
+    expect(orbTransformFinder, findsOneWidget);
   });
 
   testWidgets('orb container has the cold radial gradient', (tester) async {

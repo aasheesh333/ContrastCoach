@@ -92,7 +92,7 @@ class _DashedBorderPainter extends BoxPainter {
   }
 
   @override
-  bool? operator ==(Object other) =>
+  bool operator ==(Object other) =>
       other is _DashedBorderPainter &&
       other._decoration.color == _decoration.color &&
       other._decoration.width == _decoration.width &&

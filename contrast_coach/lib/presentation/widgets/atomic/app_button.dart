@@ -1,5 +1,6 @@
 import 'package:contrast_coach/core/constants/app_colors.dart';
 import 'package:contrast_coach/core/constants/app_shapes.dart';
+import 'package:contrast_coach/core/constants/app_spacing.dart';
 import 'package:contrast_coach/core/constants/app_typography.dart';
 import 'package:contrast_coach/core/theme/gradients.dart';
 import 'package:contrast_coach/presentation/widgets/atomic/app_icon.dart';
@@ -119,23 +120,31 @@ class AppButton extends StatelessWidget {
       _ => BorderSide.none,
     };
 
-    final bgEffective = isDisabled && !hasGradient
-        ? cs.surfaceContainerHigh
-        : bg;
-    final fgEffective = isDisabled ? cs.onSurfaceVariant : fg;
-    final shadowsEffective = isDisabled ? const <BoxShadow>[] : shadows;
+    // Pull gradient + flat color separately so the disabled-state override
+    // can fall back to a Color (cs.surfaceContainerHigh) without unifying the
+    // static type of `bg` (BoxDecoration?) with Color (Object?).
+    final Gradient? gradientBg = hasGradient ? bg?.gradient : null;
+    final Color? flatColor = hasGradient ? null : (bg?.color ?? cs.surface);
+    final Color? disabledFlatColor = (hasGradient || isDisabled) ? null : cs.surfaceContainerHigh;
+    final Color? effectiveFlatColor = isDisabled ? disabledFlatColor : flatColor;
+    final Gradient? effectiveGradient =
+        (hasGradient && !isDisabled) ? gradientBg : null;
+    final Color fgEffective = isDisabled ? cs.onSurfaceVariant : fg;
+    final List<BoxShadow> shadowsEffective =
+        isDisabled ? const <BoxShadow>[] : shadows;
+    final BoxBorder? effectiveBorder = border == BorderSide.none
+        ? null
+        : Border.fromBorderSide(border);
 
     final double height = size == AppButtonSize.large ? 56 : 48;
     final double radius = AppShapes.small; // 14
 
     final child = DecoratedBox(
       decoration: BoxDecoration(
-        gradient: hasGradient && !isDisabled ? bgEffective?.gradient : null,
-        color: hasGradient
-            ? null
-            : (bgEffective?.color ?? Colors.transparent),
+        gradient: effectiveGradient,
+        color: effectiveFlatColor,
         borderRadius: BorderRadius.circular(radius),
-        border: border == BorderSide.none ? null : border,
+        border: effectiveBorder,
         boxShadow: shadowsEffective,
       ),
       child: Material(
