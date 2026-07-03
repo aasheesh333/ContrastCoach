@@ -15,7 +15,7 @@ void main() {
         GoRoute(path: '/onboarding', builder: (_, __) => const Scaffold(body: SizedBox.shrink())),
       ],
     );
-    await tester.pumpWidget(MaterialApp(home: Router(routerConfig: router)));
+    await tester.pumpWidget(MaterialApp.router(routerConfig: router));
     await tester.pump(const Duration(milliseconds: 50));
     expect(find.text('ContrastCoach'), findsOneWidget);
     expect(find.text('HEAT. COLD. REPEAT.'), findsOneWidget);
