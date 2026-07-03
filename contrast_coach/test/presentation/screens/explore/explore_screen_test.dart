@@ -97,23 +97,16 @@ void main() {
         home: const ExploreScreen(),
       ),
     );
-    // Widget-test fake clock requires `runAsync` so platform messages (the
-    // `flutter/assets` channel handler) can resolve the await on
-    // `rootBundle.loadString`.
+    // Drain initial microtasks so the future is created and awaited.
+    await tester.idle();
+    // Drain platform-channel responses (rootBundle.loadString) in real-async:
     await tester.runAsync(() async {
-      // Give the asset bundle future time to resolve in real-async context.
       await Future<void>.delayed(const Duration(milliseconds: 100));
     });
-    // Pump to let FutureBuilder rebuild from the now-resolved future.
-    try {
-      await tester.pumpAndSettle(const Duration(seconds: 2));
-    } catch (_) {
-      // pumpAndSettle may time out if there's a perpetual animation; explicit
-      // frame pumps are an acceptable fallback.
-      for (int i = 0; i < 8; i++) {
-        await tester.pump(const Duration(milliseconds: 50));
-      }
-    }
+    // Pump frames so FutureBuilder rebuilds with the resolved data.
+    await tester.idle();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 50));
   }
 
   testWidgets('renders the v4 .name "Explore" 28/w800/ls-.7', (tester) async {
