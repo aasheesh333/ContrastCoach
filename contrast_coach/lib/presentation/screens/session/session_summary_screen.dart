@@ -371,8 +371,8 @@ class _ListRowWidget extends StatelessWidget {
           Text(emoji, style: const TextStyle(fontSize: 16, height: 1.2)),
           const SizedBox(width: 10),
           Expanded(
-            child: RichText(
-              text: TextSpan(
+            child: Text.rich(
+              TextSpan(
                 style: TextStyle(
                   fontFamily: AppTypography.bodyFont,
                   fontSize: 13,

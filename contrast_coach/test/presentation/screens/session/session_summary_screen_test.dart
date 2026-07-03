@@ -49,11 +49,8 @@ void main() {
       ),
     );
 
-    await tester.pump(const Duration(milliseconds: 50));
-    while (find.byType(CircularProgressIndicator).evaluate().isNotEmpty) {
-      await tester.pump(const Duration(milliseconds: 50));
-    }
-    await tester.pump(const Duration(milliseconds: 300));
+    // Wait for DB load + AnimatedSwitcher transition to complete
+    await tester.pump(const Duration(milliseconds: 500));
 
     // Completion line
     expect(find.textContaining('Complete'), findsOneWidget);

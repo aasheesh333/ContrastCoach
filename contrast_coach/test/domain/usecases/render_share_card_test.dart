@@ -76,11 +76,11 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(find.textContaining('RECOVERY SCORE'), findsOneWidget);
+      expect(find.textContaining('CONTRASTCOACH'), findsOneWidget);
       expect(find.text('88'), findsOneWidget);
     });
 
-    testWidgets('renders -- when score null', (tester) async {
+    testWidgets('renders em-dash when score null', (tester) async {
       final s = _make(score: null);
       await tester.pumpWidget(
         MaterialApp(
@@ -92,7 +92,7 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(find.text('--'), findsOneWidget);
+      expect(find.text('—'), findsOneWidget);
     });
   });
 }
