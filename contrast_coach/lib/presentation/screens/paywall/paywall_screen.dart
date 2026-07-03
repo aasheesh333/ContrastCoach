@@ -719,7 +719,7 @@ class _ReviewsCarousel extends StatelessWidget {
         : Theme.of(context).colorScheme.surface;
     final cs = Theme.of(context).colorScheme;
     return SizedBox(
-      height: 96,
+      height: 116,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: _reviews.length,

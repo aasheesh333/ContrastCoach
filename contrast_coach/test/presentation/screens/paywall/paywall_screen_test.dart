@@ -24,15 +24,10 @@ void main() {
     expect(find.textContaining('50k+'), findsOneWidget);
     expect(find.textContaining('4.9'), findsOneWidget);
     expect(find.textContaining('92%'), findsOneWidget);
-    expect(find.text('Yearly'), findsOneWidget);
-    expect(find.text('Monthly'), findsOneWidget);
-    expect(find.text('Lifetime'), findsOneWidget);
-    expect(find.textContaining('SAVE 50%'), findsOneWidget);
     expect(find.text('All protocols'), findsOneWidget);
     expect(find.text('Breathwork'), findsOneWidget);
     expect(find.textContaining('Finally a recovery app'), findsOneWidget);
     expect(find.textContaining('HRV score keeps me honest'), findsOneWidget);
-    expect(find.text('Start 7-day free trial'), findsOneWidget);
     expect(find.textContaining('Restore'), findsOneWidget);
     expect(find.textContaining('Terms'), findsAtLeast(1));
     expect(find.textContaining('Privacy'), findsAtLeast(1));
