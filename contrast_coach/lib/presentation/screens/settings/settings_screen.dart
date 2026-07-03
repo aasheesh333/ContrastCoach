@@ -49,21 +49,32 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> _load() async {
-    final profileService = UserProfileService(
-      auth: FirebaseAuthNullableProxy.auth,
-      firestore: FirebaseFirestore.instance,
-    );
-    final profileResult = await profileService.current();
-    final profile = profileResult is Ok<UserProfile, AppException>
-        ? profileResult.value
-        : _profile;
+    if (FirebaseAuthNullableProxy.tryGet() == null) {
+      if (mounted) setState(() => _loading = false);
+      return;
+    }
 
-    final db = await DatabaseProvider.instance();
-    final repo = SessionRepositoryImpl(db);
-    final sessionsResult = await repo.getAll();
-    final sessions = sessionsResult is Ok<List<Session>, AppException>
-        ? sessionsResult.value
-        : <Session>[];
+    UserProfile profile = _profile;
+    try {
+      final profileService = UserProfileService(
+        auth: FirebaseAuthNullableProxy.auth,
+        firestore: FirebaseFirestore.instance,
+      );
+      final profileResult = await profileService.current();
+      profile = profileResult is Ok<UserProfile, AppException>
+          ? profileResult.value
+          : _profile;
+    } catch (_) {}
+
+    List<Session> sessions = const [];
+    try {
+      final db = await DatabaseProvider.instance();
+      final repo = SessionRepositoryImpl(db);
+      final sessionsResult = await repo.getAll();
+      sessions = sessionsResult is Ok<List<Session>, AppException>
+          ? sessionsResult.value
+          : <Session>[];
+    } catch (_) {}
 
     if (mounted) {
       setState(() {

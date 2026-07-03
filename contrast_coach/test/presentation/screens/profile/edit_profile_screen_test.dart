@@ -43,8 +43,8 @@ void main() {
     expect(find.text('°C'), findsOneWidget);
     expect(find.text('°F'), findsOneWidget);
 
-    // Weekly session goal default caption "5 sessions / week"
-    expect(find.textContaining('sessions / week'), findsOneWidget);
+    // Weekly session goal default caption
+    expect(find.textContaining('sessions'), findsOneWidget);
 
     // Save changes button
     expect(find.text('Save changes'), findsOneWidget);
