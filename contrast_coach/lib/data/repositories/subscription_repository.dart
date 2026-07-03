@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:contrast_coach/core/errors/app_exception.dart';
 import 'package:contrast_coach/core/errors/result.dart';
+import 'package:contrast_coach/data/remote/firebase/analytics_api.dart';
 import 'package:contrast_coach/data/remote/subscription/revenue_cat_client.dart';
 import 'package:contrast_coach/domain/entities/subscription_tier.dart';
 import 'package:contrast_coach/domain/repositories/subscription_repository.dart';
@@ -72,6 +73,9 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
       final info = await Purchases.purchasePackage(package);
       final tier = _toTier(info);
       _sharedState?.notify(tier);
+      unawaited(
+        AnalyticsApi.tryCreate()?.trackSubscriptionStarted(tier.name),
+      );
       return Ok(tier);
     } on PlatformException catch (e, s) {
       if (_isUserCancellation(e)) {

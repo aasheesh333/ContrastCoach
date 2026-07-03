@@ -220,10 +220,10 @@ class _StepPrivacy extends StatelessWidget {
           width: 80,
           height: 80,
           decoration: BoxDecoration(
-            color: AppColors.brandWarm.withOpacity(0.10),
+            color: AppColors.heat.withOpacity(0.10),
             borderRadius: BorderRadius.circular(24),
           ),
-          child: const Icon(LucideIcons.shieldCheck, color: AppColors.brandWarm, size: 36),
+          child: const Icon(LucideIcons.shieldCheck, color: AppColors.heat, size: 36),
         ),
         const SizedBox(height: AppSpacing.xxl),
         Text(
@@ -241,21 +241,21 @@ class _StepPrivacy extends StatelessWidget {
         const SizedBox(height: AppSpacing.lg),
         const _PrivacyRow(
           icon: LucideIcons.smartphone,
-          color: AppColors.brandWarm,
+          color: AppColors.heat,
           title: 'Stays on device',
           subtitle: 'Nothing leaves your phone without permission',
         ),
         const SizedBox(height: AppSpacing.md),
         const _PrivacyRow(
           icon: LucideIcons.heartPulse,
-          color: AppColors.brandCool,
+          color: AppColors.cold,
           title: 'Health data local',
           subtitle: 'Heart rate and HRV never reach our servers',
         ),
         const SizedBox(height: AppSpacing.md),
         const _PrivacyRow(
           icon: LucideIcons.trash2,
-          color: AppColors.brandCoral,
+          color: AppColors.coral,
           title: 'Delete anytime',
           subtitle: 'One tap and everything is gone',
         ),
@@ -386,12 +386,12 @@ class _ThermalIllustration extends StatelessWidget {
           Positioned(
             top: 16,
             right: 24,
-            child: _Pill(label: '80°C', color: AppColors.brandWarm),
+            child: _Pill(label: '80°C', color: AppColors.heat),
           ),
           Positioned(
             bottom: 16,
             left: 24,
-            child: _Pill(label: '10°C', color: AppColors.brandCool),
+            child: _Pill(label: '10°C', color: AppColors.cold),
           ),
         ],
       ),
@@ -508,13 +508,13 @@ class _SessionReadyIllustration extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
               decoration: BoxDecoration(
-                color: AppColors.brandWarm.withOpacity(0.10),
+                color: AppColors.heat.withOpacity(0.10),
                 borderRadius: BorderRadius.circular(999),
               ),
               child: const Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(LucideIcons.mic, color: AppColors.brandWarm, size: 14),
+                  Icon(LucideIcons.mic, color: AppColors.heat, size: 14),
                   SizedBox(width: 6),
                   Text(
                     'Voice control',
@@ -522,7 +522,7 @@ class _SessionReadyIllustration extends StatelessWidget {
                       fontFamily: 'PlusJakartaSans',
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.brandWarm,
+                      color: AppColors.heat,
                     ),
                   ),
                 ],
@@ -532,13 +532,13 @@ class _SessionReadyIllustration extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
               decoration: BoxDecoration(
-                color: AppColors.brandCool.withOpacity(0.10),
+                color: AppColors.cold.withOpacity(0.10),
                 borderRadius: BorderRadius.circular(999),
               ),
               child: const Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(LucideIcons.heartPulse, color: AppColors.brandCool, size: 14),
+                  Icon(LucideIcons.heartPulse, color: AppColors.cold, size: 14),
                   SizedBox(width: 6),
                   Text(
                     'Health sync',
@@ -546,7 +546,7 @@ class _SessionReadyIllustration extends StatelessWidget {
                       fontFamily: 'PlusJakartaSans',
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.brandCool,
+                      color: AppColors.cold,
                     ),
                   ),
                 ],
