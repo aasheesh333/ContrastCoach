@@ -97,10 +97,17 @@ void main() {
         home: const ExploreScreen(),
       ),
     );
-    // Resolve async asset load with explicit pumps (no pumpAndSettle which
-    // times out on the FutureBuilder rebuild loop).
-    for (int i = 0; i < 6; i++) {
-      await tester.pump(const Duration(milliseconds: 100));
+    // Widget-test fake clock requires `runAsync` so platform messages (the
+    // `flutter/assets` channel handler) can resolve the await on
+    // `rootBundle.loadString`. Without it, FutureBuilder sits on `none`-
+    // `waiting` and never goes to `done`.
+    await tester.runAsync(() async {
+      // Give the asset bundle future time to resolve.
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+    });
+    // Pump a few frames to let setState consume the resolved Future.
+    for (int i = 0; i < 4; i++) {
+      await tester.pump(const Duration(milliseconds: 50));
     }
   }
 
