@@ -1,3 +1,4 @@
+import 'dart:math' show pi;
 import 'package:contrast_coach/core/animations/animation_utils.dart';
 import 'package:contrast_coach/core/constants/app_colors.dart';
 import 'package:contrast_coach/core/constants/app_spacing.dart';

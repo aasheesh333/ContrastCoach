@@ -453,7 +453,6 @@ class _HeatGrid extends StatelessWidget {
           decoration: BoxDecoration(
             color: cells[i],
             borderRadius: BorderRadius.circular(3),
-            shape: cells[i] == ext.lineColor ? BoxShape.rectangle : BoxShape.rectangle,
           ),
         );
       },
