@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:contrast_coach/data/local/database/tables/custom_protocols_table.dart';
 import 'package:contrast_coach/data/local/database/tables/health_snapshots_table.dart';
+import 'package:contrast_coach/data/local/database/tables/journal_entries_table.dart';
 import 'package:contrast_coach/data/local/database/tables/phases_table.dart';
 import 'package:contrast_coach/data/local/database/tables/sessions_table.dart';
 import 'package:contrast_coach/data/local/database/tables/settings_table.dart';
@@ -13,14 +14,14 @@ import 'package:path_provider/path_provider.dart';
 
 part 'app_database.g.dart';
 
-@DriftDatabase(tables: [Sessions, Phases, Streaks, Settings, HealthSnapshots, CustomProtocols])
+@DriftDatabase(tables: [Sessions, Phases, Streaks, Settings, HealthSnapshots, CustomProtocols, JournalEntries])
 class AppDatabase extends _$AppDatabase {
   AppDatabase(String encryptionKey) : super(_openConnection(encryptionKey));
 
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -28,6 +29,9 @@ class AppDatabase extends _$AppDatabase {
         onUpgrade: (m, from, to) async {
           if (from < 2) {
             await m.addColumn(sessions, sessions.healthDataSnapshot);
+          }
+          if (from < 3) {
+            await m.createTable(journalEntries);
           }
         },
         beforeOpen: (details) async {
