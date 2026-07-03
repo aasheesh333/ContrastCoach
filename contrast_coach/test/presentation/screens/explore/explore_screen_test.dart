@@ -138,6 +138,13 @@ void main() {
   testWidgets('renders the Custom tile since no custom protocol in assets',
       (tester) async {
     await buildExplore(tester);
+    // First verify the grid rendered by sampling known protocol tile.
+    expect(
+      find.text('Standard Recovery'),
+      findsWidgets,
+      reason: 'FutureBuilder should resolve and render protocol tiles; '
+          'if missing, async asset mock or filter is broken.',
+    );
     // GridView is lazy — scroll to bottom to materialize off-screen Custom tile.
     await tester.dragUntilVisible(
       find.text('Custom'),
