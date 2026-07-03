@@ -17,6 +17,7 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:contrast_coach/data/notifications/notification_service.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 const _initTimeout = Duration(seconds: 8);
 
@@ -37,7 +38,7 @@ Future<void> main() async {
   await _initRevenueCatSafely();
 
   await _restoreOnLaunch().timeout(_initTimeout, onTimeout: () {});
-  runApp(const ContrastCoachApp());
+  runApp(const ProviderScope(child: ContrastCoachApp()));
 }
 
 Future<void> _safeTimeout(Future<void> future) {

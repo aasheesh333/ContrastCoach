@@ -4,17 +4,19 @@ import 'package:contrast_coach/core/preferences/app_preferences.dart';
 import 'package:contrast_coach/core/theme/app_theme.dart';
 import 'package:contrast_coach/presentation/routing/app_router.dart';
 import 'package:contrast_coach/presentation/screens/home/firebase_auth_proxy.dart';
+import 'package:contrast_coach/presentation/state/theme_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class ContrastCoachApp extends StatefulWidget {
+class ContrastCoachApp extends ConsumerStatefulWidget {
   const ContrastCoachApp({super.key});
 
   @override
-  State<ContrastCoachApp> createState() => _ContrastCoachAppState();
+  ConsumerState<ContrastCoachApp> createState() => _ContrastCoachAppState();
 }
 
-class _ContrastCoachAppState extends State<ContrastCoachApp> {
+class _ContrastCoachAppState extends ConsumerState<ContrastCoachApp> {
   StreamSubscription<dynamic>? _authSubscription;
   late bool _isOnboarded;
   late bool _isAuthed;
@@ -87,12 +89,13 @@ class _ContrastCoachAppState extends State<ContrastCoachApp> {
 
   @override
   Widget build(BuildContext context) {
+    final themeState = ref.watch(themeControllerProvider);
     return MaterialApp.router(
       title: 'ContrastCoach',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
-      themeMode: AppPreferences.themeModeValue,
+      themeMode: themeState.themeMode,
       routerConfig: _router,
     );
   }
