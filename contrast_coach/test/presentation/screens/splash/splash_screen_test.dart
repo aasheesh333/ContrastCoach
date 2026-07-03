@@ -18,7 +18,7 @@ void main() {
     await tester.pumpWidget(MaterialApp.router(routerConfig: router));
     await tester.pump(const Duration(milliseconds: 50));
     expect(find.text('ContrastCoach'), findsOneWidget);
-    expect(find.text('HEAT. COLD. REPEAT.'), findsOneWidget);
+    expect(find.text('Heat · Cold · Recover'), findsOneWidget);
     await tester.pumpAndSettle(const Duration(milliseconds: 2000));
   });
 }

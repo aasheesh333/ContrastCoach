@@ -1,0 +1,104 @@
+import 'package:contrast_coach/presentation/screens/onboarding/onboarding_screen.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
+
+void main() {
+  late GoRouter router;
+
+  setUp(() {
+    router = GoRouter(
+      initialLocation: '/onboarding',
+      routes: [
+        GoRoute(
+          path: '/onboarding',
+          builder: (_, __) => const OnboardingScreen(),
+        ),
+        GoRoute(
+          path: '/sign-in',
+          builder: (_, __) => const Scaffold(body: Text('sign-in')),
+        ),
+      ],
+    );
+  });
+
+  Widget buildHarness() => MaterialApp.router(routerConfig: router);
+
+  testWidgets('renders the v4 headline "Heat. / Cold. / Recover smarter."',
+      (tester) async {
+    await tester.pumpWidget(buildHarness());
+    expect(find.text('Heat.\nCold.\nRecover smarter.'), findsOneWidget);
+    final text = tester.widget<Text>(
+      find.text('Heat.\nCold.\nRecover smarter.'),
+    );
+    expect(text.style?.fontSize, 33);
+    expect(text.style?.fontWeight, FontWeight.w800);
+    expect(text.style?.letterSpacing, -1.0);
+  });
+
+  testWidgets('renders the Skip link in the top-right corner',
+      (tester) async {
+    await tester.pumpWidget(buildHarness());
+    final skip = find.text('Skip');
+    expect(skip, findsOneWidget);
+    final skipText = tester.widget<Text>(skip);
+    expect(skipText.style?.fontSize, 13);
+    expect(skipText.style?.fontWeight, FontWeight.w700);
+  });
+
+  testWidgets('renders exactly one CTA labelled "Get started →"',
+      (tester) async {
+    await tester.pumpWidget(buildHarness());
+    final ctaFinder = find.text('Get started →');
+    expect(ctaFinder, findsOneWidget);
+  });
+
+  testWidgets('CTA is white bg with heat-colored text (no gradient)',
+      (tester) async {
+    await tester.pumpWidget(buildHarness());
+
+    final ctaFinder = find.text('Get started →');
+    final materialFinder = find.ancestor(
+      of: ctaFinder,
+      matching: find.byType(Material),
+    );
+    final material = tester.widget<Material>(materialFinder.first);
+    expect(material.color, isNot(equals(Material.defaultColor)));
+    final text = tester.widget<Text>(ctaFinder);
+    expect(text.style?.color, const Color(0xFFFF6B35));
+  });
+
+  testWidgets('renders exactly three pager dots, first active',
+      (tester) async {
+    await tester.pumpWidget(buildHarness());
+    final dotsFinder = find.descendant(
+      of: find.byType(OnboardingScreen),
+      matching: find.byType(AnimatedContainer),
+    );
+    expect(dotsFinder, findsNWidgets(3));
+  });
+
+  testWidgets('headline is bottom-positioned (its top is in the lower half '
+      'of the viewport)', (tester) async {
+    await tester.pumpWidget(buildHarness());
+    final headlineFinder = find.text('Heat.\nCold.\nRecover smarter.');
+    final headlineTop = tester.getTopLeft(headlineFinder).dy;
+    final viewportHeight = tester.view.physicalSize.height /
+        tester.view.devicePixelRatio;
+    expect(headlineTop, greaterThan(viewportHeight / 2));
+  });
+
+  testWidgets('renders exactly one subtitle paragraph preceded by the '
+      'headline', (tester) async {
+    await tester.pumpWidget(buildHarness());
+    expect(
+      find.textContaining('ContrastCoach turns cold plunge'),
+      findsOneWidget,
+    );
+    final headlineFinder = find.text('Heat.\nCold.\nRecover smarter.');
+    final subtitleFinder = find.textContaining('ContrastCoach turns cold plunge');
+    final headlineY = tester.getTopLeft(headlineFinder).dy;
+    final subtitleY = tester.getTopLeft(subtitleFinder).dy;
+    expect(headlineY, lessThan(subtitleY));
+  });
+}
