@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "updatedAt": "2026-07-03",
+  "challenges": [
+    {
+      "id": "weekly_streak",
+      "title": "7-Day Streak",
+      "emoji": "🔥",
+      "description": "Complete a session every day for 7 days.",
+      "goal": 7,
+      "metric": "streak_days",
+      "participants": 1342
+    },
+    {
+      "id": "cold_warrior",
+      "title": "Cold Warrior",
+      "emoji": "❄️",
+      "description": "Log 10 cold-only sessions.",
+      "goal": 10,
+      "metric": "cold_sessions",
+      "participants": 880
+    },
+    {
+      "id": "early_bird",
+      "title": "Early Bird",
+      "emoji": "🌅",
+      "description": "Complete 5 sessions before 8 AM.",
+      "goal": 5,
+      "metric": "morning_sessions",
+      "participants": 612
+    },
+    {
+      "id": "centurion",
+      "title": "Centurion",
+      "emoji": "💯",
+      "description": "Finish 100 sessions lifetime.",
+      "goal": 100,
+      "metric": "total_sessions",
+      "participants": 244
+    }
+  ],
+  "leaderboard": [
+    { "rank": 1, "displayName": "FrostKing", "points": 1840, "isYou": false },
+    { "rank": 2, "displayName": "HeatSeeker", "points": 1620, "isYou": false },
+    { "rank": 3, "displayName": "CryoChris", "points": 1480, "isYou": false },
+    { "rank": 4, "displayName": "You", "points": 760, "isYou": true },
+    { "rank": 5, "displayName": "PolarPat", "points": 720, "isYou": false }
+  ]
+}

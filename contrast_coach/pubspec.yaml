@@ -63,6 +63,7 @@ flutter:
   assets:
     - assets/protocols.json
     - assets/changelog.json
+    - assets/challenges.json
     - assets/audio/session_start.wav
     - assets/audio/phase_transition.wav
     - assets/audio/session_complete.wav
