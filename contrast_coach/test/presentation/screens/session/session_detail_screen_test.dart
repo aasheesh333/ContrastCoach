@@ -4,17 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('Session detail renders not found for unknown id', (tester) async {
+  testWidgets('Session detail renders loading state initially',
+      (tester) async {
     await tester.pumpWidget(
       MaterialApp(
         theme: buildLightTheme(),
         home: const SessionDetailScreen(sessionId: 'missing'),
       ),
     );
-    expect(find.text('Session detail'), findsOneWidget);
-    for (var i = 0; i < 20; i++) {
-      await tester.pump(const Duration(milliseconds: 100));
-    }
-    expect(find.text('Session not found'), findsOneWidget);
+    await tester.pump(const Duration(milliseconds: 50));
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
   });
 }

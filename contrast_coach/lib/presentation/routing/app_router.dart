@@ -21,6 +21,17 @@ import 'package:contrast_coach/presentation/screens/auth/sign_in_screen.dart';
 import 'package:contrast_coach/presentation/screens/auth/sign_up_screen.dart';
 import 'package:contrast_coach/presentation/screens/shell/home_shell.dart';
 import 'package:contrast_coach/presentation/screens/custom_protocol/custom_protocol_builder_screen.dart';
+import 'package:contrast_coach/presentation/screens/splash/splash_screen.dart';
+import 'package:contrast_coach/presentation/screens/explore/explore_screen.dart';
+import 'package:contrast_coach/presentation/screens/achievements/achievements_screen.dart';
+import 'package:contrast_coach/presentation/screens/challenges/challenges_screen.dart';
+import 'package:contrast_coach/presentation/screens/journal/journal_screen.dart';
+import 'package:contrast_coach/presentation/screens/referral/referral_screen.dart';
+import 'package:contrast_coach/presentation/screens/share/share_card_screen.dart';
+import 'package:contrast_coach/presentation/screens/settings/appearance_screen.dart';
+import 'package:contrast_coach/presentation/screens/profile/edit_profile_screen.dart';
+import 'package:contrast_coach/presentation/screens/coach/coach_screen.dart';
+import 'package:contrast_coach/presentation/screens/session/session_detail_screen.dart';
 
 class AppRouter {
   const AppRouter._();
@@ -108,42 +119,42 @@ class AppRouter {
         GoRoute(
           path: '/splash',
           name: RouteNames.splash,
-          builder: (_, __) => const _PlaceholderScreen(title: 'Splash'),
+          builder: (_, __) => const SplashScreen(),
         ),
         GoRoute(
           path: '/achievements',
           name: RouteNames.achievements,
-          builder: (_, __) => const _PlaceholderScreen(title: 'Achievements'),
+          builder: (_, __) => const AchievementsScreen(),
         ),
         GoRoute(
           path: '/challenges',
           name: RouteNames.challenges,
-          builder: (_, __) => const _PlaceholderScreen(title: 'Challenges'),
+          builder: (_, __) => const ChallengesScreen(),
         ),
         GoRoute(
           path: '/journal',
           name: RouteNames.journal,
-          builder: (_, __) => const _PlaceholderScreen(title: 'Journal'),
+          builder: (_, __) => const JournalScreen(),
         ),
         GoRoute(
           path: '/referral',
           name: RouteNames.referral,
-          builder: (_, __) => const _PlaceholderScreen(title: 'Referral'),
+          builder: (_, __) => const ReferralScreen(),
         ),
         GoRoute(
           path: '/share',
           name: RouteNames.share,
-          builder: (_, __) => const _PlaceholderScreen(title: 'Share'),
+          builder: (_, __) => const ShareCardScreen(),
         ),
         GoRoute(
           path: '/appearance',
           name: RouteNames.appearance,
-          builder: (_, __) => const _PlaceholderScreen(title: 'Appearance'),
+          builder: (_, __) => const AppearanceScreen(),
         ),
         GoRoute(
           path: '/profile/edit',
           name: RouteNames.editProfile,
-          builder: (_, __) => const _PlaceholderScreen(title: 'Edit profile'),
+          builder: (_, __) => const EditProfileScreen(),
         ),
         ShellRoute(
           builder: (_, __, child) => HomeShell(child: child),
@@ -156,12 +167,12 @@ class AppRouter {
             GoRoute(
               path: '/explore',
               name: RouteNames.explore,
-              builder: (_, __) => const _PlaceholderScreen(title: 'Explore'),
+              builder: (_, __) => const ExploreScreen(),
             ),
             GoRoute(
               path: '/coach',
               name: RouteNames.coach,
-              builder: (_, __) => const _PlaceholderScreen(title: 'Coach'),
+              builder: (_, __) => const CoachScreen(),
             ),
             GoRoute(
               path: '/insights',
@@ -183,7 +194,8 @@ class AppRouter {
         GoRoute(
           path: '/session/:sessionId/detail',
           name: RouteNames.sessionDetail,
-          builder: (_, __) => const _PlaceholderScreen(title: 'Session detail'),
+          builder: (_, s) =>
+              SessionDetailScreen(sessionId: s.pathParameters['sessionId']!),
         ),
         GoRoute(
           path: '/settings',
@@ -252,19 +264,6 @@ class _LegalScreen extends StatelessWidget {
         padding: const EdgeInsets.all(24),
         child: Text(body, style: const TextStyle(fontFamily: 'PlusJakartaSans', fontSize: 14, color: AppColors.darkGray, height: 1.7)),
       ),
-    );
-  }
-}
-
-class _PlaceholderScreen extends StatelessWidget {
-  const _PlaceholderScreen({required this.title});
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(title)),
-      body: Center(child: Text(title, style: Theme.of(context).textTheme.displayMedium)),
     );
   }
 }
