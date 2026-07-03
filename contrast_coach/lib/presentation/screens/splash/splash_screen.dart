@@ -3,7 +3,7 @@ import 'package:contrast_coach/core/preferences/app_preferences.dart';
 import 'package:contrast_coach/core/theme/gradients.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lucide_icons_flutter/lucide_icons_flutter.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
