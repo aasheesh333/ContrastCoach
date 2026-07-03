@@ -39,6 +39,7 @@ class AppPreferences {
     _notifsSubscription = await _getBoolSafe(_notifsSubscriptionKey, true);
     _notifsHealth = await _getBoolSafe(_notifsHealthKey, true);
     _themeMode = await _getStrSafe(_themeModeKey, 'light');
+    _accentColor = await _getStrSafe(_accentColorKey, '#FF6B35');
     _initialized = true;
   }
 
@@ -111,6 +112,8 @@ class AppPreferences {
 
   static const _themeModeKey = 'theme_mode';
   static String _themeMode = 'light';
+  static const _accentColorKey = 'accent_color';
+  static String _accentColor = '#FF6B35';
 
   static String get themeMode => _themeMode;
   static ThemeMode get themeModeValue => switch (_themeMode) {
@@ -119,6 +122,8 @@ class AppPreferences {
         _ => ThemeMode.system,
       };
   static Future<bool> setThemeMode(String v) async => _setStrSafe(_themeModeKey, v);
+  static String get accentColor => _accentColor;
+  static Future<bool> setAccentColor(String v) async => _setStrSafe(_accentColorKey, v);
 
   static Future<bool> _setStrSafe(String key, String v) async {
     try {
@@ -126,7 +131,11 @@ class AppPreferences {
     } catch (_) {
       return false;
     }
-    if (key == _themeModeKey) _themeMode = v;
+    if (key == _themeModeKey) {
+      _themeMode = v;
+    } else if (key == _accentColorKey) {
+      _accentColor = v;
+    }
     changes.value++;
     return true;
   }
@@ -145,6 +154,7 @@ class AppPreferences {
     _notifsSubscription = true;
     _notifsHealth = true;
     _themeMode = 'light';
+    _accentColor = '#FF6B35';
     changes.value++;
   }
 }
