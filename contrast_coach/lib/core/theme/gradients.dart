@@ -27,6 +27,7 @@ class AppGradients {
   );
 
   /// Soft warm beige vertical (home background hint)
+  @Deprecated('Use v4 tokens')
   static const LinearGradient warmBeige = LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
@@ -34,10 +35,80 @@ class AppGradients {
   );
 
   /// Coral pop (premium badges)
+  @Deprecated('Use v4 tokens')
   static const LinearGradient coralPop = LinearGradient(
     begin: Alignment.centerLeft,
     end: Alignment.centerRight,
     colors: [AppColors.brandCoral, AppColors.brandCoralPop],
+  );
+
+  /// Splash background: heat → purple → cold (~160deg).
+  static const LinearGradient splashBg = LinearGradient(
+    begin: Alignment(-0.4, -1),
+    end: Alignment(0.4, 1),
+    colors: [AppColors.heat, Color(0xFF7A2AA8), AppColors.cold],
+    stops: [0.0, 0.58, 1.0],
+  );
+
+  /// Dark hero: near-black vertical.
+  static const LinearGradient heroDark = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [Color(0xFF12121A), Color(0xFF25252F)],
+  );
+
+  /// Primary CTA button: heat → coral (~120deg).
+  static const LinearGradient btnPrimary = LinearGradient(
+    begin: Alignment(-0.5, -1),
+    end: Alignment(0.5, 1),
+    colors: [AppColors.heat, AppColors.coral],
+  );
+
+  /// Cold CTA button: cold → cold2 (~120deg).
+  static const LinearGradient btnCold = LinearGradient(
+    begin: Alignment(-0.5, -1),
+    end: Alignment(0.5, 1),
+    colors: [AppColors.cold, AppColors.cold2],
+  );
+
+  /// Delete button: error → warm red (~120deg).
+  static const LinearGradient btnDelete = LinearGradient(
+    begin: Alignment(-0.5, -1),
+    end: Alignment(0.5, 1),
+    colors: [AppColors.error, Color(0xFFFF6B68)],
+  );
+
+  /// Warm session radial: warm ember top-center → near-black base.
+  static const RadialGradient sessionWarm = RadialGradient(
+    center: Alignment(0.5, 0.0),
+    focal: Alignment(0.5, 0.0),
+    focalRadius: 0.8,
+    radius: 1.2,
+    colors: [Color(0xFF7A2A0E), AppColors.lightInk],
+  );
+
+  /// Cold session radial: cold ember top-center → near-black base.
+  static const RadialGradient sessionCold = RadialGradient(
+    center: Alignment(0.5, 0.0),
+    focal: Alignment(0.5, 0.0),
+    focalRadius: 0.8,
+    radius: 1.2,
+    colors: [Color(0xFF0D3A7A), AppColors.lightInk],
+  );
+
+  /// Score text gradient for ShaderMask: heat → cold horizontal.
+  static const LinearGradient scoreText = LinearGradient(
+    begin: Alignment.centerLeft,
+    end: Alignment.centerRight,
+    colors: [AppColors.heat, AppColors.cold],
+  );
+
+  /// Body glow approximation: warm tint → base → cool tint across the top.
+  static const LinearGradient bodyGlow = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.topRight,
+    colors: [Color(0x80FFE1D0), Color(0xFFECEEF3), Color(0x80D4E4FF)],
+    stops: [0.0, 0.5, 1.0],
   );
 }
 

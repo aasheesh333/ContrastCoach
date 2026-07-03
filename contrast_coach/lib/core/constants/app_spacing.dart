@@ -37,9 +37,10 @@ class AppShadows {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return [
       BoxShadow(
-        color: isDark ? Colors.black.withOpacity(0.25) : const Color(0x0A000000),
-        blurRadius: 16,
-        offset: const Offset(0, 2),
+        color: isDark ? const Color(0x66000000) : const Color(0x2814142D),
+        blurRadius: 24,
+        offset: const Offset(0, 8),
+        spreadRadius: -16,
       ),
     ];
   }
@@ -48,9 +49,10 @@ class AppShadows {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return [
       BoxShadow(
-        color: isDark ? Colors.black.withOpacity(0.30) : const Color(0x0F000000),
-        blurRadius: 24,
-        offset: const Offset(0, 6),
+        color: isDark ? const Color(0x80000000) : const Color(0x3314142D),
+        blurRadius: 32,
+        offset: const Offset(0, 12),
+        spreadRadius: -16,
       ),
     ];
   }
@@ -59,24 +61,40 @@ class AppShadows {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return [
       BoxShadow(
-        color: isDark ? Colors.black.withOpacity(0.35) : const Color(0x14000000),
-        blurRadius: 32,
-        offset: const Offset(0, 12),
+        color: isDark ? const Color(0x99000000) : const Color(0x6614142D),
+        blurRadius: 44,
+        offset: const Offset(0, 20),
+        spreadRadius: -22,
       ),
     ];
   }
 
   /// Light-only defaults. Prefer [cardSoftFor] inside widget trees.
   static List<BoxShadow> get cardSoft => const [
-        BoxShadow(color: Color(0x0A000000), blurRadius: 16, offset: Offset(0, 2)),
+        BoxShadow(
+          color: Color(0x2814142D),
+          blurRadius: 24,
+          offset: Offset(0, 8),
+          spreadRadius: -16,
+        ),
       ];
 
   static List<BoxShadow> get cardMedium => const [
-        BoxShadow(color: Color(0x0F000000), blurRadius: 24, offset: Offset(0, 6)),
+        BoxShadow(
+          color: Color(0x3314142D),
+          blurRadius: 32,
+          offset: Offset(0, 12),
+          spreadRadius: -16,
+        ),
       ];
 
   static List<BoxShadow> get cardStrong => const [
-        BoxShadow(color: Color(0x14000000), blurRadius: 32, offset: Offset(0, 12)),
+        BoxShadow(
+          color: Color(0x6614142D),
+          blurRadius: 44,
+          offset: Offset(0, 20),
+          spreadRadius: -22,
+        ),
       ];
 
   static List<BoxShadow> get pill => [
