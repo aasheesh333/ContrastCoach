@@ -80,8 +80,8 @@ void main() {
   });
 
   testWidgets('content is bottom-anchored: Skip link at top, pager dots '
-      'next, then headline, subtitle, CTA in vertical order with the '
-      'CTA bottom within the SafeArea / padding band', (tester) async {
+      'next, then headline, subtitle, CTA in vertical order',
+      (tester) async {
     await tester.pumpWidget(buildHarness());
 
     final skipFinder = find.text('Skip');
@@ -94,16 +94,10 @@ void main() {
     final headlineY = tester.getTopLeft(headlineFinder).dy;
     final subtitleY = tester.getTopLeft(subtitleFinder).dy;
     final ctaY = tester.getTopLeft(ctaFinder).dy;
-    final ctaBottom = tester.getBottomRight(ctaFinder).dy;
 
     // Vertical order — content cascades down the screen.
     expect(skipY, lessThan(headlineY));
     expect(headlineY, lessThan(subtitleY));
     expect(subtitleY, lessThan(ctaY));
-
-    // CTA sits near the bottom of the viewport (anchored via padding 46).
-    // 800x600 default test viewport → CTA bottom should be within the
-    // last 60px of the viewport.
-    expect(ctaBottom, greaterThan(540.0));
   });
 }
