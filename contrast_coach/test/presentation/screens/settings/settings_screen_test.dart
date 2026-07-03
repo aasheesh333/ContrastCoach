@@ -45,7 +45,12 @@ void main() {
     // Subscription subtext "Free plan"
     expect(find.text('Free plan'), findsOneWidget);
 
-    // Go Pro CTA
+    // Scroll down to reveal the Go Pro CTA (below the fold in 800x600 viewport)
+    await tester.scrollUntilVisible(
+      find.textContaining('Go Pro'),
+      200,
+    );
+    await tester.pumpAndSettle();
     expect(find.textContaining('Go Pro'), findsOneWidget);
   });
 }

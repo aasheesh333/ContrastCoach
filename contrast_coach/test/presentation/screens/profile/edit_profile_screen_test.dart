@@ -44,6 +44,11 @@ void main() {
     expect(find.text('°F'), findsOneWidget);
 
     // Weekly session goal default caption
+    await tester.scrollUntilVisible(
+      find.textContaining('sessions'),
+      200,
+    );
+    await tester.pumpAndSettle();
     expect(find.textContaining('sessions'), findsOneWidget);
 
     // Save changes button
