@@ -138,6 +138,12 @@ void main() {
   testWidgets('renders the Custom tile since no custom protocol in assets',
       (tester) async {
     await buildExplore(tester);
+    // GridView is lazy — scroll to bottom to materialize off-screen Custom tile.
+    await tester.dragUntilVisible(
+      find.text('Custom'),
+      find.byType(GridView),
+      const Offset(0, -200),
+    );
     expect(find.text('Custom'), findsOneWidget);
     expect(find.text('Build your own'), findsOneWidget);
   });
