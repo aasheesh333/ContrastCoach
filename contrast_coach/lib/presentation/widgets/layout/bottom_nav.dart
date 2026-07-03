@@ -1,4 +1,5 @@
 import 'package:contrast_coach/core/constants/app_colors.dart';
+import 'package:contrast_coach/core/constants/app_motion.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -17,9 +18,10 @@ class ContrastBottomNav extends StatelessWidget {
 
   static const List<BottomNavItem> items = [
     BottomNavItem(label: 'Home', icon: LucideIcons.house, location: '/home'),
-    BottomNavItem(label: 'Streak', icon: LucideIcons.flame, location: '/streak'),
+    BottomNavItem(label: 'Explore', icon: LucideIcons.search, location: '/explore'),
     BottomNavItem(label: 'Insights', icon: LucideIcons.barChart3, location: '/insights'),
-    BottomNavItem(label: 'Profile', icon: LucideIcons.user, location: '/settings'),
+    BottomNavItem(label: 'Coach', icon: LucideIcons.messageCircle, location: '/coach'),
+    BottomNavItem(label: 'You', icon: LucideIcons.user, location: '/settings'),
   ];
 
   int get _currentIndex {
@@ -36,7 +38,7 @@ class ContrastBottomNav extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             color: Theme.of(context).brightness == Brightness.dark
-                ? Colors.black.withOpacity(0.25)
+                ? AppColors.darkInk.withOpacity(0.25)
                 : Colors.black.withOpacity(0.04),
             blurRadius: 20,
             offset: const Offset(0, -2),
@@ -62,25 +64,25 @@ class ContrastBottomNav extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          curve: Curves.easeOutCubic,
+                          duration: AppMotion.defaultDuration,
+                          curve: AppCurves.spring,
                           child: Icon(
                             items[i].icon,
                             size: i == _currentIndex ? 26 : 24,
                             color: i == _currentIndex
-                                ? AppColors.brandWarm
+                                ? AppColors.heat
                                 : cs.onSurfaceVariant,
                           ),
                         ),
                         const SizedBox(height: 4),
                         AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          curve: Curves.easeOutCubic,
+                          duration: AppMotion.defaultDuration,
+                          curve: AppCurves.spring,
                           width: i == _currentIndex ? 20 : 0,
                           height: 3,
                           decoration: BoxDecoration(
                             color: i == _currentIndex
-                                ? AppColors.brandWarm
+                                ? AppColors.heat
                                 : Colors.transparent,
                             borderRadius: BorderRadius.circular(2),
                           ),
@@ -91,7 +93,7 @@ class ContrastBottomNav extends StatelessWidget {
                           style: Theme.of(context).textTheme.labelSmall?.copyWith(
                                 fontSize: 11,
                                 color: i == _currentIndex
-                                    ? AppColors.brandWarm
+                                    ? AppColors.heat
                                     : cs.onSurfaceVariant,
                                 fontWeight: i == _currentIndex
                                     ? FontWeight.w700
