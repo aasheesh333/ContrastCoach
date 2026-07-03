@@ -97,8 +97,10 @@ void main() {
         home: const ExploreScreen(),
       ),
     );
-    // Resolve async asset load.
-    await tester.pumpAndSettle();
+    // Resolve async asset load with explicit pumps (no pumpAndSettle).
+    await tester.pump(const Duration(milliseconds: 50));
+    await tester.pump(const Duration(milliseconds: 50));
+    await tester.pump(const Duration(milliseconds: 50));
   }
 
   testWidgets('renders the v4 .name "Explore" 28/w800/ls-.7', (tester) async {

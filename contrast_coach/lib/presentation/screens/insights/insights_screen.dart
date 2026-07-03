@@ -5,6 +5,7 @@ import 'package:contrast_coach/core/constants/app_typography.dart';
 import 'package:contrast_coach/core/errors/app_exception.dart';
 import 'package:contrast_coach/core/errors/result.dart';
 import 'package:contrast_coach/core/feature_gating.dart';
+import 'package:contrast_coach/core/theme/app_colors_extension.dart';
 import 'package:contrast_coach/data/local/database/database_provider.dart';
 import 'package:contrast_coach/data/repositories/protocol_repository.dart';
 import 'package:contrast_coach/data/repositories/session_repository.dart';
