@@ -75,8 +75,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    final BuildContext context = tester.element(find.byType(Navigator));
-    GoRouter.of(context).go('/explore');
+    router.go('/explore');
     await tester.pumpAndSettle();
     expect(router.routerDelegate.currentConfiguration.uri.path, '/explore');
     expect(find.text('Explore'), findsWidgets);
@@ -91,8 +90,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    final BuildContext context = tester.element(find.byType(Navigator));
-    GoRouter.of(context).go('/coach');
+    router.go('/coach');
     await tester.pumpAndSettle();
     expect(router.routerDelegate.currentConfiguration.uri.path, '/coach');
     expect(find.text('Coach'), findsWidgets);
@@ -107,8 +105,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    final BuildContext context = tester.element(find.byType(Navigator));
-    GoRouter.of(context).go('/settings/streak');
+    router.go('/settings/streak');
     await tester.pumpAndSettle();
     expect(router.routerDelegate.currentConfiguration.uri.path, '/settings/streak');
   });
