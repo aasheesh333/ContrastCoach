@@ -26,10 +26,10 @@ class VoicePermissionRationaleScreen extends StatelessWidget {
                       width: 80,
                       height: 80,
                       decoration: BoxDecoration(
-                        color: AppColors.brandCool.withOpacity(0.12),
+                        color: AppColors.cold.withOpacity(0.12),
                         borderRadius: BorderRadius.circular(24),
                       ),
-                      child: const Icon(LucideIcons.mic, color: AppColors.brandCool, size: 40),
+                      child: const Icon(LucideIcons.mic, color: AppColors.cold, size: 40),
                     ),
                     const SizedBox(height: 24),
                     Text(
@@ -66,10 +66,10 @@ class VoicePermissionRationaleScreen extends StatelessWidget {
                       width: 44,
                       height: 44,
                       decoration: BoxDecoration(
-                        color: AppColors.brandCool.withOpacity(0.12),
+                        color: AppColors.cold.withOpacity(0.12),
                         borderRadius: BorderRadius.circular(14),
                       ),
-                      child: const Icon(LucideIcons.shield, color: AppColors.brandCool, size: 20),
+                      child: const Icon(LucideIcons.shield, color: AppColors.cold, size: 20),
                     ),
                     const SizedBox(width: 14),
                     Expanded(

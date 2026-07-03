@@ -157,7 +157,7 @@ class _CustomProtocolBuilderScreenState extends State<CustomProtocolBuilderScree
       return Scaffold(
         backgroundColor: Theme.of(context).colorScheme.surface,
         body: Center(
-          child: CircularProgressIndicator(color: AppColors.brandWarm),
+          child: CircularProgressIndicator(color: AppColors.heat),
         ),
       );
     }
@@ -174,7 +174,7 @@ class _CustomProtocolBuilderScreenState extends State<CustomProtocolBuilderScree
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(LucideIcons.lock, color: AppColors.brandWarm, size: 32),
+                    const Icon(LucideIcons.lock, color: AppColors.heat, size: 32),
                     const SizedBox(height: 16),
                     Text(
                       'Custom protocols are part of Pro.',
@@ -267,7 +267,7 @@ class _CustomProtocolBuilderScreenState extends State<CustomProtocolBuilderScree
                 children: [
                   _sectionTitle('PHASES (${_phases.length})'),
                   Material(
-                    color: AppColors.brandWarm,
+                    color: AppColors.heat,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
                     child: InkWell(
                       onTap: _addPhase,
@@ -448,9 +448,9 @@ class _PhaseEditor extends StatelessWidget {
                     selected: phase.type == t,
                     onSelected: () => onChanged(phase.copyWith(type: t)),
                     accent: t == PhaseType.sauna
-                        ? AppColors.brandWarm
+                        ? AppColors.heat
                         : t == PhaseType.cold
-                            ? AppColors.brandCool
+                            ? AppColors.cold
                             : AppColors.midGray,
                   ),
                 )
@@ -516,7 +516,7 @@ class _PhaseEditor extends StatelessWidget {
               min: 0,
               max: 90,
               divisions: 90,
-              activeColor: phase.type == PhaseType.sauna ? AppColors.brandWarm : AppColors.brandCool,
+              activeColor: phase.type == PhaseType.sauna ? AppColors.heat : AppColors.cold,
               onChanged: (v) => onChanged(phase.copyWith(tempC: v)),
             ),
           ],

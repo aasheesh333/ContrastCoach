@@ -27,10 +27,10 @@ class HealthPermissionRationaleScreen extends StatelessWidget {
                       width: 80,
                       height: 80,
                       decoration: BoxDecoration(
-                        color: AppColors.brandWarm.withOpacity(0.12),
+                        color: AppColors.heat.withOpacity(0.12),
                         borderRadius: BorderRadius.circular(24),
                       ),
-                      child: const Icon(LucideIcons.heart, color: AppColors.brandWarm, size: 40),
+                      child: const Icon(LucideIcons.heart, color: AppColors.heat, size: 40),
                     ),
                     const SizedBox(height: 24),
                     Text(
@@ -58,14 +58,14 @@ class HealthPermissionRationaleScreen extends StatelessWidget {
                 icon: LucideIcons.heartPulse,
                 title: 'Read',
                 detail: 'Heart rate, HRV, sleep, steps, workouts',
-                color: AppColors.brandWarm,
+                color: AppColors.heat,
               ),
               const SizedBox(height: 12),
               _PermissionRow(
                 icon: LucideIcons.pencil,
                 title: 'Write',
                 detail: 'Log session as a MindfulSession',
-                color: AppColors.brandCool,
+                color: AppColors.cold,
               ),
               const Spacer(),
               AppButton(
