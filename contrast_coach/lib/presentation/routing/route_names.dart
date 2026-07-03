@@ -21,4 +21,15 @@ class RouteNames {
   static const String customProtocol = 'customProtocol';
   static const String terms = 'terms';
   static const String privacyPolicy = 'privacyPolicy';
+  static const String splash = 'splash';
+  static const String explore = 'explore';
+  static const String coach = 'coach';
+  static const String achievements = 'achievements';
+  static const String challenges = 'challenges';
+  static const String journal = 'journal';
+  static const String referral = 'referral';
+  static const String share = 'share';
+  static const String appearance = 'appearance';
+  static const String editProfile = 'editProfile';
+  static const String sessionDetail = 'sessionDetail';
 }

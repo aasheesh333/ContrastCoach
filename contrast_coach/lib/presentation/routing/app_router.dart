@@ -105,6 +105,46 @@ class AppRouter {
           name: RouteNames.voiceRationale,
           builder: (_, __) => const VoicePermissionRationaleScreen(),
         ),
+        GoRoute(
+          path: '/splash',
+          name: RouteNames.splash,
+          builder: (_, __) => const _PlaceholderScreen(title: 'Splash'),
+        ),
+        GoRoute(
+          path: '/achievements',
+          name: RouteNames.achievements,
+          builder: (_, __) => const _PlaceholderScreen(title: 'Achievements'),
+        ),
+        GoRoute(
+          path: '/challenges',
+          name: RouteNames.challenges,
+          builder: (_, __) => const _PlaceholderScreen(title: 'Challenges'),
+        ),
+        GoRoute(
+          path: '/journal',
+          name: RouteNames.journal,
+          builder: (_, __) => const _PlaceholderScreen(title: 'Journal'),
+        ),
+        GoRoute(
+          path: '/referral',
+          name: RouteNames.referral,
+          builder: (_, __) => const _PlaceholderScreen(title: 'Referral'),
+        ),
+        GoRoute(
+          path: '/share',
+          name: RouteNames.share,
+          builder: (_, __) => const _PlaceholderScreen(title: 'Share'),
+        ),
+        GoRoute(
+          path: '/appearance',
+          name: RouteNames.appearance,
+          builder: (_, __) => const _PlaceholderScreen(title: 'Appearance'),
+        ),
+        GoRoute(
+          path: '/profile/edit',
+          name: RouteNames.editProfile,
+          builder: (_, __) => const _PlaceholderScreen(title: 'Edit profile'),
+        ),
         ShellRoute(
           builder: (_, __, child) => HomeShell(child: child),
           routes: [
@@ -114,9 +154,14 @@ class AppRouter {
               builder: (_, __) => const HomeScreen(),
             ),
             GoRoute(
-              path: '/streak',
-              name: RouteNames.streak,
-              builder: (_, __) => const StreakCalendarScreen(),
+              path: '/explore',
+              name: RouteNames.explore,
+              builder: (_, __) => const _PlaceholderScreen(title: 'Explore'),
+            ),
+            GoRoute(
+              path: '/coach',
+              name: RouteNames.coach,
+              builder: (_, __) => const _PlaceholderScreen(title: 'Coach'),
             ),
             GoRoute(
               path: '/insights',
@@ -136,10 +181,20 @@ class AppRouter {
           builder: (_, s) => SessionSummaryScreen(sessionId: s.pathParameters['sessionId']!),
         ),
         GoRoute(
+          path: '/session/:sessionId/detail',
+          name: RouteNames.sessionDetail,
+          builder: (_, __) => const _PlaceholderScreen(title: 'Session detail'),
+        ),
+        GoRoute(
           path: '/settings',
           name: RouteNames.settings,
           builder: (_, __) => const SettingsScreen(),
           routes: [
+            GoRoute(
+              path: 'streak',
+              name: RouteNames.streak,
+              builder: (_, __) => const StreakCalendarScreen(),
+            ),
             GoRoute(
               path: 'health',
               name: RouteNames.settingsHealth,
@@ -197,6 +252,19 @@ class _LegalScreen extends StatelessWidget {
         padding: const EdgeInsets.all(24),
         child: Text(body, style: const TextStyle(fontFamily: 'PlusJakartaSans', fontSize: 14, color: AppColors.darkGray, height: 1.7)),
       ),
+    );
+  }
+}
+
+class _PlaceholderScreen extends StatelessWidget {
+  const _PlaceholderScreen({required this.title});
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(title)),
+      body: Center(child: Text(title, style: Theme.of(context).textTheme.displayMedium)),
     );
   }
 }
