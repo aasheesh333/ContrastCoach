@@ -103,6 +103,7 @@ jobs:
             --dart-define=FIREBASE_STORAGE_BUCKET=${{ secrets.FIREBASE_STORAGE_BUCKET }} \
             --dart-define=REVENUECAT_API_KEY=${{ secrets.REVENUECAT_API_KEY }} \
             --dart-define=GOOGLE_WEB_CLIENT_ID=${{ steps.google-client-id.outputs.id }} \
+            --dart-define=GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }} \
             --dart-define=ENV=prod
 
       - name: Build universal APK
@@ -115,6 +116,7 @@ jobs:
             --dart-define=FIREBASE_STORAGE_BUCKET=${{ secrets.FIREBASE_STORAGE_BUCKET }} \
             --dart-define=REVENUECAT_API_KEY=${{ secrets.REVENUECAT_API_KEY }} \
             --dart-define=GOOGLE_WEB_CLIENT_ID=${{ steps.google-client-id.outputs.id }} \
+            --dart-define=GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }} \
             --dart-define=ENV=prod
 
       - name: List build outputs
