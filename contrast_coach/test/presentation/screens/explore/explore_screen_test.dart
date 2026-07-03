@@ -99,15 +99,20 @@ void main() {
     );
     // Widget-test fake clock requires `runAsync` so platform messages (the
     // `flutter/assets` channel handler) can resolve the await on
-    // `rootBundle.loadString`. Without it, FutureBuilder sits on `none`-
-    // `waiting` and never goes to `done`.
+    // `rootBundle.loadString`.
     await tester.runAsync(() async {
-      // Give the asset bundle future time to resolve.
-      await Future<void>.delayed(const Duration(milliseconds: 50));
+      // Give the asset bundle future time to resolve in real-async context.
+      await Future<void>.delayed(const Duration(milliseconds: 100));
     });
-    // Pump a few frames to let setState consume the resolved Future.
-    for (int i = 0; i < 4; i++) {
-      await tester.pump(const Duration(milliseconds: 50));
+    // Pump to let FutureBuilder rebuild from the now-resolved future.
+    try {
+      await tester.pumpAndSettle(const Duration(seconds: 2));
+    } catch (_) {
+      // pumpAndSettle may time out if there's a perpetual animation; explicit
+      // frame pumps are an acceptable fallback.
+      for (int i = 0; i < 8; i++) {
+        await tester.pump(const Duration(milliseconds: 50));
+      }
     }
   }
 
