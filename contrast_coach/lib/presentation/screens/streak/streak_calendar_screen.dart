@@ -121,12 +121,12 @@ class _StreakCalendarScreenState extends State<StreakCalendarScreen> {
                     width: 44,
                     height: 44,
                     decoration: BoxDecoration(
-                      color: AppColors.brandWarm.withOpacity(0.12),
+                      color: AppColors.heat.withOpacity(0.12),
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: const Icon(
                       LucideIcons.flame,
-                      color: AppColors.brandWarm,
+                      color: AppColors.heat,
                       size: 22,
                     ),
                   ),
@@ -222,7 +222,7 @@ class _StartSessionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: AppColors.brandWarm,
+      color: AppColors.heat,
       borderRadius: BorderRadius.circular(999),
       child: InkWell(
         onTap: onPressed,
@@ -274,7 +274,7 @@ class _StreakHeader extends StatelessWidget {
                 fontFamily: 'PlusJakartaSans',
                 fontSize: 48,
                 fontWeight: FontWeight.w800,
-                color: AppColors.brandWarm,
+                color: AppColors.heat,
                 height: 1.0,
                 letterSpacing: -1.5,
               ),
@@ -307,7 +307,7 @@ class _StreakHeader extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
-            color: AppColors.brandWarm.withOpacity(0.12),
+            color: AppColors.heat.withOpacity(0.12),
             borderRadius: BorderRadius.circular(999),
           ),
           child: Text(
@@ -315,7 +315,7 @@ class _StreakHeader extends StatelessWidget {
             style: TextStyle(
               fontFamily: Theme.of(context).textTheme.labelMedium?.fontFamily,
               fontSize: 11,
-              color: AppColors.brandWarm,
+              color: AppColors.heat,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.6,
             ),
@@ -424,11 +424,11 @@ class _BestScoreCard extends StatelessWidget {
             width: 56,
             height: 56,
             decoration: BoxDecoration(
-              color: AppColors.brandWarm.withOpacity(0.12),
+              color: AppColors.heat.withOpacity(0.12),
               borderRadius: BorderRadius.circular(16),
             ),
             child: const Center(
-              child: Icon(LucideIcons.trophy, color: AppColors.brandWarm, size: 26),
+              child: Icon(LucideIcons.trophy, color: AppColors.heat, size: 26),
             ),
           ),
           const SizedBox(width: 16),
@@ -576,10 +576,10 @@ class _ProStreakUpsell extends StatelessWidget {
                 width: 32,
                 height: 32,
                 decoration: BoxDecoration(
-                  color: AppColors.brandWarm.withOpacity(0.12),
+                  color: AppColors.heat.withOpacity(0.12),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(LucideIcons.lock, color: AppColors.brandWarm, size: 16),
+                child: const Icon(LucideIcons.lock, color: AppColors.heat, size: 16),
               ),
               const SizedBox(width: 12),
               Expanded(

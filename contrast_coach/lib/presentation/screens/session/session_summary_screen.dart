@@ -1,5 +1,6 @@
 import 'package:contrast_coach/core/animations/animation_utils.dart';
 import 'package:contrast_coach/core/constants/app_colors.dart';
+import 'package:contrast_coach/core/constants/app_motion.dart';
 import 'package:contrast_coach/core/constants/app_spacing.dart';
 import 'package:contrast_coach/core/errors/app_exception.dart';
 import 'package:contrast_coach/core/errors/result.dart';
@@ -107,11 +108,11 @@ class _SessionSummaryScreenState extends State<SessionSummaryScreen> {
       backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
       body: SafeArea(
         child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 300),
+          duration: AppMotion.defaultDuration,
           child: _loading
               ? const Center(
                   key: ValueKey('loading'),
-                  child: CircularProgressIndicator(color: AppColors.brandWarm),
+                  child: CircularProgressIndicator(color: AppColors.heat),
                 )
               : _session == null
                   ? const Center(
@@ -195,14 +196,14 @@ class _SummaryBodyState extends State<_SummaryBody> {
             const SizedBox(height: AppSpacing.huge),
             _InsightRow(
               icon: LucideIcons.check,
-              color: AppColors.brandWarm,
+              color: AppColors.heat,
               title: 'Plan adherence',
               subtitle: _adherenceLine(widget.session),
             ),
             const SizedBox(height: AppSpacing.md),
             _InsightRow(
               icon: LucideIcons.flame,
-              color: AppColors.brandCoral,
+              color: AppColors.coral,
               title: _formatStreakBanner(widget.stats.streakDays),
               subtitle: widget.stats.streakDays > 0
                   ? 'You are ${widget.stats.streakDays} day${widget.stats.streakDays == 1 ? '' : 's'} into a new streak.'
@@ -211,7 +212,7 @@ class _SummaryBodyState extends State<_SummaryBody> {
             const SizedBox(height: AppSpacing.md),
             _InsightRow(
               icon: LucideIcons.timer,
-              color: AppColors.brandCool,
+              color: AppColors.cold,
               title: 'Total time tracked',
               subtitle: '${widget.stats.totalMinutes} minutes across ${widget.stats.totalSessions} sessions',
             ),

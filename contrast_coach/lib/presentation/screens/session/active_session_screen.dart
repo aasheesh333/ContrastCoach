@@ -523,7 +523,7 @@ class _ActiveSessionScreenState extends State<ActiveSessionScreen>
               Center(
                 child: BreathingCircle(
                   isActive: !_paused && !_sessionComplete && _protocol != null,
-                  color: phaseType == PhaseType.cold ? AppColors.brandCool : AppColors.brandWarm,
+                  color: phaseType == PhaseType.cold ? AppColors.cold : AppColors.heat,
                   size: 240,
                   child: SessionTimer(
                     phaseType: phaseType,
