@@ -1,4 +1,5 @@
 import 'package:contrast_coach/core/constants/app_typography.dart';
+import 'package:contrast_coach/core/theme/app_colors_extension.dart';
 import 'package:contrast_coach/presentation/widgets/atomic/app_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -21,6 +22,8 @@ class ContrastAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final lineColor =
+        Theme.of(context).extension<AppColorsExtension>()!.lineColor;
     return AppBar(
       title: Text(
         title,
@@ -38,9 +41,19 @@ class ContrastAppBar extends StatelessWidget implements PreferredSizeWidget {
           ? Semantics(
               label: 'Back',
               button: true,
-              child: IconButton(
-                icon: const AppIcon(LucideIcons.chevronLeft, size: 24),
-                onPressed: onBack ?? () => Navigator.of(context).maybePop(),
+              child: Material(
+                color: Colors.transparent,
+                shape: CircleBorder(side: BorderSide(color: lineColor, width: 1)),
+                clipBehavior: Clip.antiAlias,
+                child: InkWell(
+                  customBorder: const CircleBorder(),
+                  onTap: onBack ?? () => Navigator.of(context).maybePop(),
+                  child: const SizedBox(
+                    width: 36,
+                    height: 36,
+                    child: Center(child: AppIcon(LucideIcons.chevronLeft, size: 20)),
+                  ),
+                ),
               ),
             )
           : null,
