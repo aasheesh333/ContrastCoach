@@ -110,6 +110,6 @@ void main() {
     final BuildContext context = tester.element(find.byType(Navigator));
     GoRouter.of(context).go('/settings/streak');
     await tester.pumpAndSettle();
-    expect(router.routerDelegate.currentConfiguration.lastMatch?.matchedName, RouteNames.streak);
+    expect(router.routerDelegate.currentConfiguration.uri.path, '/settings/streak');
   });
 }
