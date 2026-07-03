@@ -193,6 +193,73 @@ class AppTypography {
     fontWeight: FontWeight.w500,
   );
 
+  // ===== v4 mockup-specific tokens =========================================
+
+  /// `.score .n` — 70px w800, line-height 1, no letter spacing.
+  /// Used with ShaderMask to clip heat→cold gradient through the digits.
+  static const TextStyle scoreHero = TextStyle(
+    fontFamily: displayFont,
+    fontSize: 70,
+    height: 1.0,
+    fontWeight: FontWeight.w800,
+    letterSpacing: 0,
+  );
+
+  /// `.score.n` on the share card — 60px w800 to fit smaller PNG frame.
+  static const TextStyle scoreShare = TextStyle(
+    fontFamily: displayFont,
+    fontSize: 60,
+    height: 1.0,
+    fontWeight: FontWeight.w800,
+    letterSpacing: 0,
+  );
+
+  /// `.phLabel` (SAUNA / COLD PLUNGE) — 20px w800 ls 5px, white.
+  static const TextStyle phaseLabel = TextStyle(
+    fontFamily: bodyFont,
+    fontSize: 20,
+    height: 1.1,
+    fontWeight: FontWeight.w800,
+    letterSpacing: 5,
+  );
+
+  /// Session timer digit stack — 56px w200 ls -2px, white, mono figs.
+  static const TextStyle timerNumber = TextStyle(
+    fontFamily: monoFont,
+    fontSize: 56,
+    height: 1.0,
+    fontWeight: FontWeight.w200,
+    letterSpacing: -2,
+    fontFeatures: [FontFeature.tabularFigures()],
+  );
+
+  /// `.onboarding` headline — 33px w800 ls -1px.
+  static const TextStyle onboardingHero = TextStyle(
+    fontFamily: displayFont,
+    fontSize: 33,
+    height: 1.1,
+    fontWeight: FontWeight.w800,
+    letterSpacing: -1,
+  );
+
+  /// Splash title brandmark — 26px w800 ls -0.5 (warm cream on gradient).
+  static const TextStyle splashTitle = TextStyle(
+    fontFamily: displayFont,
+    fontSize: 26,
+    height: 1.1,
+    fontWeight: FontWeight.w800,
+    letterSpacing: -0.5,
+  );
+
+  /// `.appbar` h2 — 19px w800 ls -0.4 (see ContrastAppBar).
+  static const TextStyle headingAppbar = TextStyle(
+    fontFamily: displayFont,
+    fontSize: 19,
+    height: 1.2,
+    fontWeight: FontWeight.w800,
+    letterSpacing: -0.4,
+  );
+
   // TextTheme
   static const TextTheme textTheme = TextTheme(
     displayLarge: displayLarge,

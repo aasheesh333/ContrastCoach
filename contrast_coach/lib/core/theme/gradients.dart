@@ -5,11 +5,12 @@ import 'package:flutter/material.dart';
 class AppGradients {
   const AppGradients._();
 
-  /// Orange → coral (paywall, paywall background)
+  /// Heat gradient (heat → coral) at 120deg. Matches mockup `.btn` for any
+  /// element that needs a generic heat fill (e.g. score hero on dark surface).
   static const LinearGradient heat = LinearGradient(
-    begin: Alignment.topCenter,
-    end: Alignment.bottomCenter,
-    colors: [AppColors.brandWarm, AppColors.brandCoral],
+    begin: Alignment(-0.5, -1),
+    end: Alignment(0.5, 1),
+    colors: [AppColors.heat, AppColors.coral],
   );
 
   /// Orange → blue (active session, hero progress, insight hero)
@@ -50,10 +51,10 @@ class AppGradients {
     stops: [0.0, 0.58, 1.0],
   );
 
-  /// Dark hero: near-black vertical.
+  /// Dark hero: near-black diagonal 140deg — `linear-gradient(140deg,#12121a,#25252f)`.
   static const LinearGradient heroDark = LinearGradient(
-    begin: Alignment.topCenter,
-    end: Alignment.bottomCenter,
+    begin: Alignment(-0.27, -1),
+    end: Alignment(0.27, 1),
     colors: [Color(0xFF12121A), Color(0xFF25252F)],
   );
 
@@ -101,6 +102,30 @@ class AppGradients {
     begin: Alignment.centerLeft,
     end: Alignment.centerRight,
     colors: [AppColors.heat, AppColors.cold],
+  );
+
+  /// Score text on share card — heat → cold2 (matches the mockup
+  /// `linear-gradient(120deg,var(--heat),var(--cold2))` used on share PNG).
+  static const LinearGradient scoreTextShare = LinearGradient(
+    begin: Alignment(-0.5, -1),
+    end: Alignment(0.5, 1),
+    colors: [AppColors.heat, AppColors.cold2],
+  );
+
+  /// Share card background — near-black with warm ember bottom:
+  /// mockup `linear-gradient(160deg,#12121a,#3a1e12)`.
+  static const LinearGradient shareCard = LinearGradient(
+    begin: Alignment(-0.4, -1),
+    end: Alignment(0.4, 1),
+    colors: [Color(0xFF12121A), Color(0xFF3A1E12)],
+  );
+
+  /// Breathwork view background — deep night-blue to near-black:
+  /// mockup `linear-gradient(160deg,#0a2a5c,#0c0c0e)`.
+  static const LinearGradient breathwork = LinearGradient(
+    begin: Alignment(-0.4, -1),
+    end: Alignment(0.4, 1),
+    colors: [Color(0xFF0A2A5C), Color(0xFF0C0C0E)],
   );
 
   /// Body glow approximation: warm tint → base → cool tint across the top.

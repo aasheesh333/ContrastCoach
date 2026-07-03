@@ -3,7 +3,11 @@ import 'package:flutter/material.dart';
 class AppCurves {
   const AppCurves._();
 
+  /// Spring curve matching CSS `cubic-bezier(.22,1,.36,1)`.
   static const Cubic spring = Cubic(0.22, 1, 0.36, 1);
+
+  /// Switch-thumb overshoot curve matching CSS `cubic-bezier(.3,1.4,.5,1)`.
+  static const Cubic switchThumb = Cubic(0.3, 1.4, 0.5, 1);
 }
 
 class AppMotion {

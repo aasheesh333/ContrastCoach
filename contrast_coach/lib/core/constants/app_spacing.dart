@@ -104,4 +104,54 @@ class AppShadows {
           offset: const Offset(0, 8),
         ),
       ];
+
+  /// `.btn` shadow — `0 14px 26px -12px var(--heat)`.
+  static const List<BoxShadow> buttonHeat = [
+    BoxShadow(
+      color: Color(0x78FF6B35),
+      blurRadius: 26,
+      offset: Offset(0, 14),
+      spreadRadius: -12,
+    ),
+  ];
+
+  /// `.btn.cold` shadow — `0 14px 26px -12px var(--cold)`.
+  static const List<BoxShadow> buttonCold = [
+    BoxShadow(
+      color: Color(0x782D7CF1),
+      blurRadius: 26,
+      offset: Offset(0, 14),
+      spreadRadius: -12,
+    ),
+  ];
+
+  /// `.hero` heat-tinted shadow — `0 22px 42px -20px rgba(255,107,53,.55)`.
+  static const List<BoxShadow> heroHeat = [
+    BoxShadow(
+      color: Color(0x8CFF6B35),
+      blurRadius: 42,
+      offset: Offset(0, 22),
+      spreadRadius: -20,
+    ),
+  ];
+
+  /// `.hero` cold-tinted shadow — `0 20px 40px -18px rgba(45,124,241,.5)`.
+  static const List<BoxShadow> heroCold = [
+    BoxShadow(
+      color: Color(0x802D7CF1),
+      blurRadius: 40,
+      offset: Offset(0, 20),
+      spreadRadius: -18,
+    ),
+  ];
+
+  /// `.breath` orb glow — `0 0 60px rgba(45,124,241,.6)`.
+  static const List<BoxShadow> breathGlow = [
+    BoxShadow(
+      color: Color(0x992D7CF1),
+      blurRadius: 60,
+      offset: Offset(0, 0),
+      spreadRadius: 0,
+    ),
+  ];
 }
