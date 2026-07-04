@@ -144,23 +144,30 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 for (final emoji in _avatarEmojis) ...[
                   GestureDetector(
                     onTap: () => setState(() => _avatarEmoji = emoji),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 6,
-                        vertical: 4,
-                      ),
-                      decoration: _avatarEmoji == emoji
-                          ? BoxDecoration(
-                              border: Border.all(
-                                color: AppColors.heat,
-                                width: 2,
-                              ),
-                              borderRadius: BorderRadius.circular(12),
-                            )
-                          : null,
-                      child: Text(
-                        emoji,
-                        style: const TextStyle(fontSize: 22, height: 1.2),
+                    behavior: HitTestBehavior.opaque,
+                    child: SizedBox(
+                      width: 44,
+                      height: 44,
+                      child: Center(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 4,
+                          ),
+                          decoration: _avatarEmoji == emoji
+                              ? BoxDecoration(
+                                  border: Border.all(
+                                    color: AppColors.heat,
+                                    width: 2,
+                                  ),
+                                  borderRadius: BorderRadius.circular(12),
+                                )
+                              : null,
+                          child: Text(
+                            emoji,
+                            style: const TextStyle(fontSize: 22, height: 1.2),
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -196,6 +203,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 for (final goal in _goals)
                   GestureDetector(
                     onTap: () => setState(() => _primaryGoal = goal),
+                    behavior: HitTestBehavior.opaque,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 13,

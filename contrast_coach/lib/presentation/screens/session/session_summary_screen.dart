@@ -246,13 +246,12 @@ class _SummaryBodyState extends State<_SummaryBody> {
     );
   }
 
-  /// Compute a simple 7-day HRV delta in percent (mockup reads "+12%").
-  /// Falls back to a flat "+N%" only when we have a meaningful trend.
+  /// HRV trend display. The prior implementation fabricated a "+N%" from
+  /// average duration (not real HRV data) — misleading for users making
+  /// recovery decisions. Now returns "—" until a real HRV trend is
+  /// available from health-data snapshots.
   String _hrvTrendValue(SessionStats s) {
-    if (s.totalSessions < 2) return '+0%';
-    final delta = (s.avgDurationMin - 20).clamp(-30, 60);
-    final sign = delta >= 0 ? '+' : '';
-    return '$sign$delta%';
+    return '—';
   }
 
   /// Best time-of-day heuristic from `timeOfDayFractions`.

@@ -684,7 +684,7 @@ class _SessionsBarsSection extends StatelessWidget {
       }
     }
     final max = counts.reduce((a, b) => a > b ? a : b);
-    if (max == 0) return [0.35, 0.6, 0.8, 0.45, 0.95];
+    if (max == 0) return List.filled(5, 0.0);
     return counts.map((c) => c / max).toList();
   }
 }

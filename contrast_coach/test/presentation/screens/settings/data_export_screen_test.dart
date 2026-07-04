@@ -19,7 +19,7 @@ void main() {
     expect(find.textContaining('Cloud backup'), findsOneWidget);
     expect(find.textContaining('Export data (JSON)'), findsOneWidget);
     expect(find.textContaining('Export data (CSV)'), findsOneWidget);
-    expect(find.text('Clear cache'), findsOneWidget);
+    expect(find.textContaining('Clear cache'), findsOneWidget);
     expect(find.textContaining('SQLCipher'), findsOneWidget);
   });
 }

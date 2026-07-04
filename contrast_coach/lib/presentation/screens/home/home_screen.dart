@@ -323,7 +323,7 @@ class _HomeHeroCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final score = (stats.lastScore ?? 82).round();
     final streakDays = stats.streakDays;
-    final avgMin = stats.avgDurationMin == 0 ? 24 : stats.avgDurationMin;
+    final avgMinLabel = stats.avgDurationMin == 0 ? '—' : '${stats.avgDurationMin.round()}m';
     final readinessLabel = _readinessLabel(score);
 
     return Container(
@@ -404,7 +404,7 @@ class _HomeHeroCard extends StatelessWidget {
                         runSpacing: 6,
                         children: [
                           AppPill(label: '🔥 $streakDays-day streak'),
-                          AppPill(label: '⏱ ${avgMin}m avg'),
+                          AppPill(label: '⏱ $avgMinLabel avg'),
                         ],
                       ),
                     ],

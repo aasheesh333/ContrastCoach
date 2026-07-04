@@ -30,8 +30,8 @@ class _AccountScreenState extends State<AccountScreen> {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final ext = Theme.of(context).extension<AppColorsExtension>()!;
-    final email = FirebaseAuthNullableProxy.tryGet()?.currentUser?.email ??
-        'you@example.com';
+    final email = FirebaseAuthNullableProxy.tryGet()?.currentUser?.email;
+    final emailValue = email ?? 'Not signed in';
     return Scaffold(
       backgroundColor: cs.surface,
       appBar: const ContrastAppBar(
@@ -64,11 +64,12 @@ class _AccountScreenState extends State<AccountScreen> {
                   border: Border.all(color: ext.lineColor, width: 1),
                 ),
                 child: Text(
-                  email,
-                  style: const TextStyle(
+                  emailValue,
+                  style: TextStyle(
                     fontFamily: 'PlusJakartaSans',
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
+                    color: email == null ? cs.onSurfaceVariant : cs.onSurface,
                   ),
                 ),
               ),

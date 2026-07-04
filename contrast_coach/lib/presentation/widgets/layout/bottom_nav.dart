@@ -134,9 +134,8 @@ class _TabState extends State<_Tab> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(LucideIcons.house == widget.item.icon
-                      ? widget.item.icon
-                      : widget.item.icon,
+                  Icon(
+                    widget.item.icon,
                     size: 23,
                     color: color,
                   ),
