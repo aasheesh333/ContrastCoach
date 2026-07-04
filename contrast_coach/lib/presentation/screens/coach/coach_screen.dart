@@ -95,7 +95,7 @@ class _CoachScreenState extends State<CoachScreen> {
     final bg = isUser
         ? AppColors.heat
         : Theme.of(context).colorScheme.surfaceContainerHigh;
-    final fg = isUser ? Colors.white : AppColors.lightInk;
+    final fg = isUser ? Colors.white : Theme.of(context).colorScheme.onSurface;
     final radius = isUser
         ? const BorderRadius.only(
             topLeft: Radius.circular(16),

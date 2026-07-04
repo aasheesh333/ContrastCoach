@@ -1,8 +1,9 @@
 import 'package:contrast_coach/core/constants/app_colors.dart';
-import 'package:contrast_coach/core/constants/app_spacing.dart';
+import 'package:contrast_coach/core/constants/app_spacing.dart' show AppShadows;
 import 'package:contrast_coach/core/preferences/app_preferences.dart';
 import 'package:contrast_coach/data/remote/firebase/analytics_api.dart';
 import 'package:contrast_coach/presentation/widgets/atomic/app_switch.dart';
+import 'package:contrast_coach/presentation/widgets/layout/app_bar.dart';
 import 'package:flutter/material.dart';
 
 class PrivacyScreen extends StatefulWidget {
@@ -25,6 +26,7 @@ class _PrivacyScreenState extends State<PrivacyScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
+      appBar: const ContrastAppBar(title: 'Privacy', showBackButton: true),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(24, 8, 24, 32),

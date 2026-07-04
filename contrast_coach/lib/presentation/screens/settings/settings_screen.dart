@@ -244,6 +244,7 @@ class _ProfileHeroCard extends StatelessWidget {
           // Edit profile ghost2 button
           GestureDetector(
             onTap: onEdit,
+            behavior: HitTestBehavior.opaque,
             child: Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 15),
@@ -465,6 +466,7 @@ class _GoProButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => context.push('/paywall'),
+      behavior: HitTestBehavior.opaque,
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 15),

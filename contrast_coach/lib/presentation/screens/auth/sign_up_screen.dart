@@ -212,7 +212,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                     ),
                     TextButton(
-                      onPressed: () => context.pop(),
+                      onPressed: () => context.go('/sign-in'),
                       child: const Text(
                         'Sign in',
                         style: TextStyle(

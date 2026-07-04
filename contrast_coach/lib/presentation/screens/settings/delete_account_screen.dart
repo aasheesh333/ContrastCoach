@@ -9,6 +9,7 @@ import 'package:contrast_coach/data/repositories/subscription_repository.dart';
 import 'package:contrast_coach/domain/usecases/delete_user_data.dart';
 import 'package:contrast_coach/presentation/widgets/atomic/app_button.dart';
 import 'package:contrast_coach/presentation/widgets/atomic/app_switch.dart';
+import 'package:contrast_coach/presentation/widgets/layout/app_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -99,6 +100,7 @@ class DeleteAccountScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
+      appBar: const ContrastAppBar(title: 'Delete account', showBackButton: true),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),

@@ -305,14 +305,17 @@ class _TrendCard extends StatelessWidget {
         ? 0.0
         : recentScores.reduce((a, b) => a + b) / recentScores.length;
 
-    final halfPeriod = periodSessions.length ~/ 2;
+    // Clamp to recentScores length so sublist never RangeErrors.
+    final halfPeriod = recentScores.length ~/ 2;
     final firstHalf = recentScores.sublist(0, halfPeriod);
     final lastHalf = recentScores.sublist(halfPeriod);
     final firstAvg = firstHalf.isEmpty ? 0.0 : firstHalf.reduce((a, b) => a + b) / firstHalf.length;
     final lastAvg = lastHalf.isEmpty ? 0.0 : lastHalf.reduce((a, b) => a + b) / lastHalf.length;
     final delta = (lastAvg - firstAvg).round();
     final sign = delta >= 0 ? '+' : '';
-    final valueLabel = recentScores.isEmpty ? '—' : '$sign$delta%';
+    final valueLabel = recentScores.isEmpty
+        ? '—'
+        : (halfPeriod < 1 ? '—' : '$sign$delta%');
 
     return Container(
       decoration: BoxDecoration(

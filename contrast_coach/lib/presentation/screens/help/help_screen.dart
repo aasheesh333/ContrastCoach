@@ -109,32 +109,38 @@ class _FaqRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () => ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('${faq.title} (coming soon)'))),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        child: Row(
-          children: [
-            Text(faq.emoji, style: const TextStyle(fontSize: 13)),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                faq.title,
-                style: const TextStyle(
-                  fontFamily: 'PlusJakartaSans',
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
+    final cs = Theme.of(context).colorScheme;
+    return Material(
+      type: MaterialType.transparency,
+      child: InkWell(
+        onTap: () => ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('${faq.title} (coming soon)'))),
+        behavior: HitTestBehavior.opaque,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          child: Row(
+            children: [
+              Text(faq.emoji, style: const TextStyle(fontSize: 13)),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  faq.title,
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: cs.onSurface,
+                  ),
                 ),
               ),
-            ),
-            const Text('›',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFFB4B7BE),
-                )),
-          ],
+              Text('›',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: cs.onSurfaceVariant,
+                  )),
+            ],
+          ),
         ),
       ),
     );

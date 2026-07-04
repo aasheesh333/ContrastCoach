@@ -173,45 +173,51 @@ class _Rowlink extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        child: Row(
-          children: [
-            Text(emoji, style: const TextStyle(fontSize: 13)),
-            const SizedBox(width: 10),
-            Text.rich(
-              TextSpan(
-                text: label,
-                children: sublabel == null
-                    ? const []
-                    : [
-                        const TextSpan(text: ' · '),
-                        TextSpan(
-                          text: sublabel!,
-                          style: const TextStyle(
-                            fontFamily: 'PlusJakartaSans',
-                            fontSize: 11,
-                            color: Color(0xFF6B6E76),
-                          ),
-                        )
-                      ],
-              ),
-              style: const TextStyle(
-                fontFamily: 'PlusJakartaSans',
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            const Spacer(),
-            const Text('›',
+    final cs = Theme.of(context).colorScheme;
+    return Material(
+      type: MaterialType.transparency,
+      child: InkWell(
+        onTap: onTap,
+        behavior: HitTestBehavior.opaque,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          child: Row(
+            children: [
+              Text(emoji, style: const TextStyle(fontSize: 13)),
+              const SizedBox(width: 10),
+              Text.rich(
+                TextSpan(
+                  text: label,
+                  children: sublabel == null
+                      ? const []
+                      : [
+                          const TextSpan(text: ' · '),
+                          TextSpan(
+                            text: sublabel!,
+                            style: TextStyle(
+                              fontFamily: 'PlusJakartaSans',
+                              fontSize: 11,
+                              color: cs.onSurfaceVariant,
+                            ),
+                          )
+                        ],
+                ),
                 style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFFB4B7BE),
-                )),
-          ],
+                  fontFamily: 'PlusJakartaSans',
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: cs.onSurface,
+                ),
+              ),
+              const Spacer(),
+              Text('›',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: cs.onSurfaceVariant,
+                  )),
+            ],
+          ),
         ),
       ),
     );

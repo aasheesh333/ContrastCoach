@@ -357,11 +357,11 @@ class _ProtocolGrid extends StatelessWidget {
     if (!hasCustom) tiles.add(const _CustomTileProtocol());
 
     return GridView.builder(
-      padding: const EdgeInsets.fromLTRB(
+      padding: EdgeInsets.fromLTRB(
         AppSpacing.pageHorizontal,
         AppSpacing.sm,
         AppSpacing.pageHorizontal,
-        AppSpacing.xxl + AppSpacing.xxl,
+        MediaQuery.paddingOf(context).bottom + 82 + 16,
       ),
       physics: const BouncingScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(

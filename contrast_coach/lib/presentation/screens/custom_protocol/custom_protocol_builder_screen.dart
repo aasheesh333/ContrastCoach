@@ -21,6 +21,7 @@ import 'package:contrast_coach/presentation/widgets/atomic/app_chip.dart';
 import 'package:contrast_coach/presentation/widgets/atomic/app_icon.dart';
 import 'package:contrast_coach/presentation/widgets/atomic/app_slider.dart';
 import 'package:contrast_coach/presentation/widgets/atomic/app_text_field.dart';
+import 'package:contrast_coach/presentation/widgets/layout/app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -215,6 +216,7 @@ class _CustomProtocolBuilderScreenState extends State<CustomProtocolBuilderScree
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
+      appBar: const ContrastAppBar(title: 'Build protocol', showBackButton: true),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
