@@ -115,7 +115,6 @@ class _FaqRow extends StatelessWidget {
       child: InkWell(
         onTap: () => ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text('${faq.title} (coming soon)'))),
-        behavior: HitTestBehavior.opaque,
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 12),
           child: Row(

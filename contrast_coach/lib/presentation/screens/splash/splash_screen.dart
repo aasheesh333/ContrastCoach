@@ -46,18 +46,9 @@ class _SplashScreenState extends State<SplashScreen>
     super.dispose();
   }
 
-  Future<void> _routeNext() async {
-    if (!mounted) return;
-    // Only init from storage if the onboarding flag hasn't been set in-memory
-    // already (e.g. by sign-up, splash test fixtures, or earlier setters).
-    // This keeps the synchronous value from setOnboardingComplete intact
-    // while still recovering from a cold launch where prefs aren't loaded.
-    if (!AppPreferences.isInitialized && !AppPreferences.isOnboardingComplete) {
-      await AppPreferences.init();
-    }
+  void _routeNext() {
     if (!mounted) return;
     final onboarded = AppPreferences.isOnboardingComplete;
-    if (!mounted) return;
     if (!onboarded) {
       context.go('/onboarding');
       return;
