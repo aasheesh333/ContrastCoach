@@ -59,27 +59,22 @@ class DeleteAccountScreen extends StatelessWidget {
       // 1. Cancel Workmanager periodic sync
       await Workmanager().cancelAll();
 
-      // 2. Revoke Health Connect permissions (if connected)
-      await healthClient.requestPermissions(); // This shows the system dialog, user must manually revoke
-
-      // 3. Delete local data + cloud account
+      // 2. Delete local data + cloud account
       final result = await deleteAllUserData(
         sessions: repo,
         deleteCloudAccount: () async => await FirebaseAuth.instance.currentUser?.delete(),
       );
 
-      // 4. Clear SQLCipher key from secure storage
+      // 3. Clear SQLCipher key from secure storage
       await const FlutterSecureStorage().delete(key: 'drift_db_key_v1');
 
-      // 5. Clear all SharedPreferences (onboarding, settings, analytics opt-out, etc.)
+      // 4. Clear all SharedPreferences (onboarding, settings, analytics opt-out, etc.)
       await AppPreferences.clearAll();
 
-      // 6. Dispose the database singleton so next app launch creates a fresh instance
+      // 5. Dispose the database singleton so next app launch creates a fresh instance
       await DatabaseProvider.dispose();
 
-      // 7. Clear user profile data — handled by FirebaseAuth account deletion above
-
-      // 7. Dispose health client
+      // 6. Dispose health client (Health Connect permissions auto-revoke on uninstall)
       healthClient.dispose();
 
       if (result.isOk) {

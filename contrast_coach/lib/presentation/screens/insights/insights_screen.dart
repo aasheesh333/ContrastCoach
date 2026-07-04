@@ -165,7 +165,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
                             stats: _stats,
                             sessions: _sessions,
                             range: _range,
-                            onHistory: () => context.push('/history'),
+                            onHistory: () => context.push('/settings/streak'),
                           ),
                           const SizedBox(height: AppSpacing.xs + 6),
                           const _NotMedicalAdviceFooter(),

@@ -140,7 +140,7 @@ class _CoachScreenState extends State<CoachScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const ContrastAppBar(title: 'Coach', showBackButton: true),
+      appBar: const ContrastAppBar(title: 'Coach'),
       body: Column(
         children: [
           Expanded(

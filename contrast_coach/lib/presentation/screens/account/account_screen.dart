@@ -140,7 +140,7 @@ class _AccountScreenState extends State<AccountScreen> {
                   }
                   if (!mounted) return;
                   _toast(context, 'Signed out');
-                  context.go('/home');
+                  context.go('/sign-in');
                 },
               ),
               const SizedBox(height: 10),

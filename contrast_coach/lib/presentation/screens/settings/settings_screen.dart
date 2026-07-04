@@ -330,7 +330,7 @@ class _RowlinkCard extends StatelessWidget {
 
   static const _entries = <_Rowlink>[
     _Rowlink(emoji: '🏅', label: 'Achievements', subtext: 'Level 4 · 720 XP', location: '/achievements'),
-    _Rowlink(emoji: '🗓️', label: 'History & calendar', subtext: '', location: '/history'),
+    _Rowlink(emoji: '🗓️', label: 'History & calendar', subtext: '', location: '/settings/streak'),
     _Rowlink(emoji: '📝', label: 'Journal', subtext: '', location: '/journal'),
     _Rowlink(emoji: '🏆', label: 'Challenges', subtext: '', location: '/challenges'),
     _Rowlink(emoji: '🔐', label: 'Account & security', subtext: '', location: '/account'),

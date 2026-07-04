@@ -1,5 +1,4 @@
 import 'package:contrast_coach/core/constants/app_colors.dart';
-import 'package:contrast_coach/core/constants/app_colors.dart';
 import 'package:contrast_coach/core/errors/app_exception.dart';
 import 'package:contrast_coach/core/errors/result.dart';
 import 'package:contrast_coach/core/feature_gating.dart';
@@ -94,20 +93,22 @@ class _ActiveSessionScreenState extends State<ActiveSessionScreen>
     final tier = sharedState.tier.value;
     if (!mounted) return;
     if (!FeatureGating.canAccessProtocol(widget.protocolId, tier)) {
-      context.go('/paywall');
+      context.push('/paywall');
       return;
     }
     _tier = tier;
-    await _initSession();
+    final loaded = await _initSession();
+    if (!loaded || !mounted) return;
     await _initVoice();
     _audio.playSessionStart();
     _analytics?.trackSessionStarted(widget.protocolId);
   }
 
-  Future<void> _initSession() async {
+  Future<bool> _initSession() async {
     final repo = ProtocolRepositoryImpl();
     final result = await repo.getById(widget.protocolId);
-    if (!mounted) return;
+    if (!mounted) return false;
+    bool ok = false;
     result.fold(
       (err) => setState(() {
         _error = err.message;
@@ -131,8 +132,10 @@ class _ActiveSessionScreenState extends State<ActiveSessionScreen>
           _protocol = protocol;
           _loading = false;
         });
+        ok = true;
       },
     );
+    return ok;
   }
 
   Future<void> _initVoice() async {
@@ -261,7 +264,7 @@ class _ActiveSessionScreenState extends State<ActiveSessionScreen>
     if (session.recoveryScore != null) {
       _analytics?.trackSessionCompleted(widget.protocolId, session.recoveryScore!);
     }
-    if (mounted) context.push('/summary/${session.id}');
+    if (mounted) context.pushReplacement('/summary/${session.id}');
   }
 
   Future<void> _handleEnd() async {
@@ -287,7 +290,7 @@ class _ActiveSessionScreenState extends State<ActiveSessionScreen>
     final healthData = await _tryCaptureHealthSnapshot();
     final session = _buildSession(healthSnapshot: healthData);
     await _saveSession(session);
-    if (mounted) context.push('/summary/${session.id}');
+    if (mounted) context.pushReplacement('/summary/${session.id}');
   }
 
   Future<Map<String, dynamic>?> _tryCaptureHealthSnapshot() async {

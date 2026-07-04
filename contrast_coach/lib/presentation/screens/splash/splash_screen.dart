@@ -46,9 +46,14 @@ class _SplashScreenState extends State<SplashScreen>
     super.dispose();
   }
 
-  void _routeNext() {
+  Future<void> _routeNext() async {
+    if (!mounted) return;
+    if (!AppPreferences.isInitialized) {
+      await AppPreferences.init();
+    }
     if (!mounted) return;
     final onboarded = AppPreferences.isOnboardingComplete;
+    if (!mounted) return;
     if (!onboarded) {
       context.go('/onboarding');
       return;

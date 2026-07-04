@@ -148,9 +148,10 @@ class AppRouter {
           builder: (_, __) => const ReferralScreen(),
         ),
         GoRoute(
-          path: '/share',
+          path: '/share/:sessionId',
           name: RouteNames.share,
-          builder: (_, __) => const ShareCardScreen(),
+          builder: (_, s) =>
+              ShareCardScreen(sessionId: s.pathParameters['sessionId']),
         ),
         GoRoute(
           path: '/breathwork',
@@ -192,11 +193,6 @@ class AppRouter {
           name: RouteNames.help,
           builder: (_, __) => const HelpScreen(),
         ),
-        GoRoute(
-          path: '/history',
-          name: RouteNames.history,
-          builder: (_, __) => const StreakCalendarScreen(),
-        ),
         ShellRoute(
           builder: (_, __, child) => HomeShell(child: child),
           routes: [
@@ -220,6 +216,43 @@ class AppRouter {
               name: RouteNames.insights,
               builder: (_, __) => const InsightsScreen(),
             ),
+            GoRoute(
+              path: '/settings',
+              name: RouteNames.settings,
+              builder: (_, __) => const SettingsScreen(),
+              routes: [
+                GoRoute(
+                  path: 'streak',
+                  name: RouteNames.streak,
+                  builder: (_, __) => const StreakCalendarScreen(),
+                ),
+                GoRoute(
+                  path: 'health',
+                  name: RouteNames.settingsHealth,
+                  builder: (_, __) => const HealthConnectScreen(),
+                ),
+                GoRoute(
+                  path: 'privacy',
+                  name: RouteNames.settingsPrivacy,
+                  builder: (_, __) => const PrivacyScreen(),
+                ),
+                GoRoute(
+                  path: 'export',
+                  name: RouteNames.settingsExport,
+                  builder: (_, __) => const DataExportScreen(),
+                ),
+                GoRoute(
+                  path: 'delete',
+                  name: RouteNames.settingsDelete,
+                  builder: (_, __) => const DeleteAccountScreen(),
+                ),
+                GoRoute(
+                  path: 'about',
+                  name: RouteNames.settingsAbout,
+                  builder: (_, __) => const AboutScreen(),
+                ),
+              ],
+            ),
           ],
         ),
         GoRoute(
@@ -237,43 +270,6 @@ class AppRouter {
           name: RouteNames.sessionDetail,
           builder: (_, s) =>
               SessionDetailScreen(sessionId: s.pathParameters['sessionId']!),
-        ),
-        GoRoute(
-          path: '/settings',
-          name: RouteNames.settings,
-          builder: (_, __) => const SettingsScreen(),
-          routes: [
-            GoRoute(
-              path: 'streak',
-              name: RouteNames.streak,
-              builder: (_, __) => const StreakCalendarScreen(),
-            ),
-            GoRoute(
-              path: 'health',
-              name: RouteNames.settingsHealth,
-              builder: (_, __) => const HealthConnectScreen(),
-            ),
-            GoRoute(
-              path: 'privacy',
-              name: RouteNames.settingsPrivacy,
-              builder: (_, __) => const PrivacyScreen(),
-            ),
-            GoRoute(
-              path: 'export',
-              name: RouteNames.settingsExport,
-              builder: (_, __) => const DataExportScreen(),
-            ),
-            GoRoute(
-              path: 'delete',
-              name: RouteNames.settingsDelete,
-              builder: (_, __) => const DeleteAccountScreen(),
-            ),
-            GoRoute(
-              path: 'about',
-              name: RouteNames.settingsAbout,
-              builder: (_, __) => const AboutScreen(),
-            ),
-          ],
         ),
       ],
       errorBuilder: (_, state) => Scaffold(

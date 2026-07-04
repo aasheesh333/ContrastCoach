@@ -21,6 +21,7 @@ class OnboardingScreen extends StatefulWidget {
 class _OnboardingScreenState extends State<OnboardingScreen> {
   bool _disclaimerAcknowledged = false;
   bool _saving = false;
+  bool _disclaimerOpen = false;
 
   Future<void> _finish({required bool acknowledged}) async {
     if (!acknowledged) {
@@ -41,15 +42,26 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Future<void> _skip() async {
+    if (_saving) return;
     setState(() => _saving = true);
-    await AppPreferences.setOnboardingComplete(true);
+    final ok = await AppPreferences.setOnboardingComplete(true);
     if (!mounted) return;
+    if (!ok) {
+      setState(() => _saving = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to save. Please try again.')),
+      );
+      return;
+    }
     context.go('/sign-in');
   }
 
   void _showDisclaimer() {
+    if (_disclaimerOpen) return;
+    _disclaimerOpen = true;
     showDialog<void>(
       context: context,
+      barrierDismissible: false,
       builder: (_) => MedicalDisclaimerDialog(
         onAcknowledge: () {
           Navigator.of(context).pop();
@@ -57,7 +69,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           _finish(acknowledged: true);
         },
       ),
-    );
+    ).then((_) => _disclaimerOpen = false);
   }
 
   @override
