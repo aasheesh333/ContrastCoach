@@ -323,7 +323,7 @@ class _HomeHeroCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final score = (stats.lastScore ?? 82).round();
     final streakDays = stats.streakDays;
-    final avgMinLabel = stats.avgDurationMin == 0 ? '—' : '${stats.avgDurationMin.round()}m';
+    final avgMinLabel = '${stats.avgDurationMin.round()}m';
     final readinessLabel = _readinessLabel(score);
 
     return Container(
